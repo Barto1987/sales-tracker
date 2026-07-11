@@ -30,3 +30,12 @@ MIGRAZIONE
 
 NOTA
 La sezione Provvigioni è predisposta a livello dati ma non ancora mostrata come dashboard definitiva.
+
+
+FIX 2.0.1
+- Mobile e SIM Dati senza Easy Rent: usa il Totale Netto Complessivo mensile.
+- Non dipende dal nome dello sconto.
+- Se ci sono più SIM, divide il totale netto per la quantità.
+- Easy Rent resta separato.
+- Test: AISI 18,00 €; TECNOCOLORI 2 15,00 €.
+- Link test: https://barto1987.github.io/sales-tracker/?v=201

@@ -34,6 +34,12 @@ function common(text){
 }
 function add(rows,r){rows.push({id:'S-'+Math.random().toString(36).slice(2),qty:1,confidence:'green',category:'',product:r.service,...r})}
 function line(section,re){const m=section.match(new RegExp(re.source+'\\s+(?:(\\d+)\\s*x\\s*)?([+-]?\\d+[,.]\\d{2})\\s*€','i'));return m?{q:Number(m[1]||1),v:num(m[2])}:null}
+function totalNetMonthly(section){
+ const m=section.match(/Totale\s+Netto\s+Complessivo[\s\S]{0,120}?\(Al mese IVA esclusa\)\s*([0-9]+[,.]\d{2})\s*€/i)
+   || section.match(/Totale\s+Netto\s+Complessivo[\s\S]{0,150}?([0-9]+[,.]\d{2})\s*€/i)
+   || section.match(/Totale\s+netto\s+attivazione\s*([0-9]+[,.]\d{2})\s*€/i);
+ return m?num(m[1]):null
+}
 function catalogHints(text,rows){
  const known=new Set(rows.map(r=>norm(r.product)));
  for(const p of catalog){
@@ -59,10 +65,17 @@ export async function parsePDF(file){
   }else if(/Zero:\s*RED Business XS/i.test(b)){
    const x=line(b,/Zero:\s*RED Business XS/i);if(x)add(rows,{service:'SIM Voce',product:'Zero: RED Business XS',category:'Mobile',qty:x.q,inflowUnit:x.v,calc:'Conteggiata come SIM Voce'})
   }else if(/Mobile comfort/i.test(b)){
-   const x=line(b,/Mobile comfort/i),pm=[...b.matchAll(/Promo[^€]{0,100}?\s+(?:(\d+)\s*x\s*)?(-\d+[,.]\d{2})\s*€/gi)][0];
-   if(x)add(rows,{service:'SIM Voce',product:'Mobile Comfort',category:'Mobile',qty:x.q,inflowUnit:x.v+(pm?num(pm[2]):0),calc:'SIM = canone base meno promo'})
+   const x=line(b,/Mobile comfort/i),net=totalNetMonthly(b);
+   if(x){
+    const unit=net!=null?net/Math.max(x.q,1):x.v;
+    add(rows,{service:'SIM Voce',product:'Mobile Comfort',category:'Mobile',qty:x.q,inflowUnit:unit,calc:net!=null?'Inflow dalla voce Totale Netto Complessivo mensile della sezione':'Totale netto non trovato: usato canone base, verificare'})
+   }
   }else if(/Dati comfort/i.test(b)){
-   const x=line(b,/Dati comfort/i),p=line(b,/Promo Dati/i);if(x)add(rows,{service:'SIM Dati',product:'Dati Comfort',category:'Mobile',qty:x.q,inflowUnit:x.v+(p?p.v:0),calc:'SIM Dati = canone base meno promo; device escluso'})
+   const x=line(b,/Dati comfort/i),net=totalNetMonthly(b);
+   if(x){
+    const unit=net!=null?net/Math.max(x.q,1):x.v;
+    add(rows,{service:'SIM Dati',product:'Dati Comfort',category:'Mobile',qty:x.q,inflowUnit:unit,calc:net!=null?'Inflow dalla voce Totale Netto Complessivo mensile della sezione; device esclusi':'Totale netto non trovato: usato canone base, verificare'})
+   }
   }else if(/OFFERTA\s+Fissa Smart/i.test(b)){
    const x=line(b,/Fissa Smart/i),p=line(b,/Promo Rete Fissa[^€]*/i);if(x)add(rows,{service:'ADSL',product:'Fissa Smart',category:'Connettività',qty:1,inflowUnit:x.v+(p?p.v:0),calc:'Canone base meno promo; attivazione esclusa'})
   }else if(/OFFERTA\s+OneNet|OFFERTA\s+One Net/i.test(b)){
