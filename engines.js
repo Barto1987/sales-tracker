@@ -39,18 +39,28 @@ export function agencyStats(store){
 }
 function excellentFlags(r){
   const cat=(r.category||'').toLowerCase(), name=(r.product||r.service||'').toLowerCase();
-  return {
-    mobile:['SIM Voce','SIM Dati'].includes(r.service),
-    er:r.service==='Easy Rent',
-    link:['ADSL','One Net Ufficio','One Net Azienda'].includes(r.service)||/fissa|backup fwa|mini easy deal|onebusiness/.test(name)||/connettività/.test(cat),
-    solution:/digitale|solution|custom|cloud|security|iot|m2m/.test(cat)||/miia|7layers|fast cloud|custom|gdpr|nis2/.test(name)
-  }
+  const easyDeal=r.service==='Easy Deal'||/onenet enterprise fibra p2p|easy deal(?!\s*mini)/.test(name);
+  const m2m=r.service==='SIM M2M'||/\bm2m\b|\biot\b/.test(cat)||/^m2m|^iot/.test(name);
+  const mobile=['SIM Voce','SIM Dati'].includes(r.service);
+  const link=!easyDeal&&(
+    ['ADSL','One Net Ufficio','One Net Azienda'].includes(r.service)||
+    /fissa|backup fwa|mini easy deal|onebusiness/.test(name)||
+    (/connettività/.test(cat)&&!m2m)
+  );
+  const solution=!easyDeal&&!m2m&&(
+    /soluzioni? digitali?|digital solution|cloud|security|cyber|miia|7layers|7 layers|gdpr|nis2/.test(cat+' '+name)
+  );
+  return {mobile,er:r.service==='Easy Rent',link,solution,easyDeal,m2m}
 }
 export function excellentStats(store){
   const {start,end}=store.settings.excellentPeriod, x=flatServices(store,start,end);
   const totalInflow=x.reduce((a,r)=>a+r.totalInflow,0);
   const mobile=x.filter(r=>excellentFlags(r).mobile).reduce((a,r)=>a+Number(r.qty||0),0);
-  const prospectInflow=x.filter(r=>r.contract.prospect && !/easy deal/i.test(r.product||'')).reduce((a,r)=>a+r.totalInflow,0);
+  const prospectInflow=x.filter(r=>{
+    if(!r.contract.prospect)return false;
+    const f=excellentFlags(r);
+    return f.mobile||f.link;
+  }).reduce((a,r)=>a+r.totalInflow,0);
   const linkInflow=x.filter(r=>excellentFlags(r).link).reduce((a,r)=>{
     const n=(r.product||'').toLowerCase();
     if(/sempre serviti/.test(n)) return a;

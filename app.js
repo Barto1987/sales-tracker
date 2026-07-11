@@ -1,7 +1,7 @@
 
-import {loadStore,saveStore,importBackupObject} from './storage.js?v=209';
-import {TARGETS,generalStats,agencyStats,excellentStats,communityStats,inflowOf} from './engines.js?v=209';
-import {initParser,parsePDF} from './parser.js?v=209';
+import {loadStore,saveStore,importBackupObject} from './storage.js?v=210';
+import {TARGETS,generalStats,agencyStats,excellentStats,communityStats,inflowOf} from './engines.js?v=210';
+import {initParser,parsePDF} from './parser.js?v=210';
 
 let store=loadStore(),parsed=null;
 const $=id=>document.getElementById(id),money=v=>new Intl.NumberFormat('it-IT',{style:'currency',currency:'EUR'}).format(v||0);
@@ -52,18 +52,19 @@ function renderArchive(){
 function editAttrs(id){
  const c=store.contracts.find(x=>x.id===id);if(!c)return;
  const prospect=confirm(`Cliente ${c.client}\n\nImpostare Prospect = SÌ?\nOK = Sì, Annulla = No`);
- const mnp=confirm('Il contratto contiene SIM MNP?\nOK = Sì, Annulla = No');
+ const hasMnpEligible=c.services.some(s=>['SIM Voce','SIM Dati'].includes(s.service));
+ const mnp=hasMnpEligible?confirm('Il contratto contiene SIM MNP?\nOK = Sì, Annulla = No'):false;
  c.prospect=prospect;c.mnp=mnp;saveStore(store);renderAll()
 }
 function renderPreview(){
  $('previewBox').classList.remove('hidden');
  const badge=$('confidenceBadge');badge.className='badge '+(parsed.confidence==='green'?'ok':parsed.confidence==='yellow'?'warn':'bad');badge.textContent=parsed.confidence==='green'?'🟢 Alta affidabilità':parsed.confidence==='yellow'?'🟡 Verifica richiesta':'🔴 Manuale';
  $('previewMeta').innerHTML=`<strong>${parsed.meta.client||'Cliente da verificare'}</strong><br>P.IVA ${parsed.meta.vat||'—'} · Offerta ${parsed.meta.offer||'—'}`;
- $('previewRows').innerHTML=parsed.rows.map(r=>`<div class="preview-row"><div class="row"><div><label>Servizio</label><select class="pr-service">${['SIM Voce','SIM Dati','Easy Rent','ADSL','One Net Ufficio','One Net Azienda','Energia','Gas','Altro'].map(x=>`<option ${x===r.service?'selected':''}>${x}</option>`).join('')}</select></div><div><label>Quantità</label><input class="pr-qty" type="number" value="${r.qty}"></div></div><label>Prodotto</label><input class="pr-product" value="${r.product}"><label>Categoria</label><input class="pr-category" value="${r.category||''}"><label>Inflow unitario €</label><input class="pr-inflow" type="number" step="0.01" value="${r.inflowUnit||0}"><div class="calc">${r.calc||''}</div></div>`).join('');
- const hasMobile=parsed.rows.some(r=>['SIM Voce','SIM Dati'].includes(r.service));
+ $('previewRows').innerHTML=parsed.rows.map(r=>`<div class="preview-row"><div class="row"><div><label>Servizio</label><select class="pr-service">${['SIM Voce','SIM Dati','SIM M2M','Easy Rent','Easy Deal','ADSL','One Net Ufficio','One Net Azienda','Energia','Gas','Altro'].map(x=>`<option ${x===r.service?'selected':''}>${x}</option>`).join('')}</select></div><div><label>Quantità</label><input class="pr-qty" type="number" value="${r.qty}"></div></div><label>Prodotto</label><input class="pr-product" value="${r.product}"><label>Categoria</label><input class="pr-category" value="${r.category||''}"><label>Inflow unitario €</label><input class="pr-inflow" type="number" step="0.01" value="${r.inflowUnit||0}"><div class="calc">${r.calc||''}</div></div>`).join('');
+ const hasMnpEligible=parsed.rows.some(r=>['SIM Voce','SIM Dati'].includes(r.service));
  const mnpWrap=$('mnpWrap');
- if(mnpWrap)mnpWrap.classList.toggle('hidden',!hasMobile);
- $('mnp').value='No';
+ if(mnpWrap)mnpWrap.classList.toggle('hidden',!hasMnpEligible);
+ $('mnp').value=hasMnpEligible&&parsed.detectedMnp?'Sì':'No';
 }
 async function handlePDF(file){
  $('pdfLoader').style.display='block';$('pdfStatus').textContent='Analisi in corso…';$('previewBox').classList.add('hidden');
@@ -77,7 +78,7 @@ function saveParsed(){
  const prospect=$('prospect').value==='Sì';
  const hasMobile=rows.some(el=>['SIM Voce','SIM Dati'].includes(el.querySelector('.pr-service').value));
  const mnp=hasMobile && $('mnp').value==='Sì';
- const contract={id:'C-'+Date.now(),date:$('contractDate').value,offer:parsed.meta.offer,client:parsed.meta.client||'Da verificare',vat:parsed.meta.vat,prospect,mnp,status:'Valido',pdfRef:parsed.filename,notes:'Sales Tracker 2.0',services:[]};
+ const contract={id:'C-'+Date.now(),date:$('contractDate').value,offer:parsed.meta.offer,client:parsed.meta.client||'Da verificare',vat:parsed.meta.vat,prospect,mnp,status:'Valido',pdfRef:parsed.filename,notes:'Sales Tracker 2.1.0',services:[]};
  for(const el of rows)contract.services.push({id:'S-'+Math.random().toString(36).slice(2),service:el.querySelector('.pr-service').value,product:el.querySelector('.pr-product').value,category:el.querySelector('.pr-category').value,qty:Number(el.querySelector('.pr-qty').value||1),inflowUnit:Number(el.querySelector('.pr-inflow').value||0),confidence:parsed.confidence,calc:''});
  store.contracts.push(contract);saveStore(store);$('previewBox').classList.add('hidden');$('pdfInput').value='';renderAll();go('home');alert('Contratto salvato')
 }

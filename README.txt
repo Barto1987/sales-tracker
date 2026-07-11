@@ -163,3 +163,41 @@ FIX 2.0.9 — ATTIVAZIONE FISSA
 
 Aprire:
 https://barto1987.github.io/sales-tracker/index.html?v=209
+
+
+SALES TRACKER 2.1.0 — M2M, EASY DEAL E MNP AUTOMATICO
+
+M2M / IoT
+- Riconoscimento automatico dei piani M2M e IoT.
+- Nuovo servizio SIM M2M.
+- L'inflow viene letto dal Totale Netto Complessivo della sezione.
+- Le SIM M2M NON contano nei target SIM Voce o SIM Dati.
+- Le SIM M2M contribuiscono all'inflow complessivo Excellent e alla Community.
+- MNP nascosto/inibito se l'offerta contiene soltanto M2M.
+
+MNP
+- Se nel blocco SIM compare la riga MNP, il campo viene precompilato su Sì.
+- Se non compare, viene precompilato su No.
+- Il campo resta modificabile manualmente.
+- MNP compare solo in presenza di SIM Voce o SIM Dati.
+
+EASY DEAL / ONENET ENTERPRISE FIBRA P2P
+- Riconosce 100MB, 200MB, 500MB, 1GB, 2.5GB e 5GB.
+- Inflow = Totale Netto Complessivo mensile + costo IP una tantum / 36.
+- Il costo di attivazione generale della linea resta escluso.
+- Interni Relax Top, Condizioni Dedicate e Sempre Serviti sono già inclusi nel totale netto.
+- Easy Deal contribuisce all'inflow complessivo Excellent e alla Community.
+- Easy Deal NON contribuisce a:
+  * Prospect Excellent
+  * Link Excellent
+  * Solution Excellent
+  * target SIM
+
+TEST ATTESI
+- TOPPAZZINI: Easy Deal 1.033,33 €.
+- ROEFIX Easy Deal: 1.053,33 €.
+- BORTOLIN: 2 SIM M2M separate dai target SIM; MNP automatico Sì sulle SIM Voce.
+- AISI: MNP automatico Sì; inflow SIM 18,00 €.
+
+Aprire dopo il commit:
+https://barto1987.github.io/sales-tracker/index.html?v=210
