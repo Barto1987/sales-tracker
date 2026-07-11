@@ -15,3 +15,6 @@ NOVITÀ
 
 Carica su GitHub tutti i file estratti, incluso easy-rent-list.json,
 e premi Commit changes.
+
+
+FIX 1.3.1: corretto errore JavaScript che impediva il caricamento di dashboard e funzioni.
