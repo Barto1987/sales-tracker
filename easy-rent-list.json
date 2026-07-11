@@ -1,0 +1,1487 @@
+[
+  {
+    "plan": "iPadPro 2025 13 256GB Kasko Extra 36m V",
+    "tier": "GOLD",
+    "inflow": 61.7
+  },
+  {
+    "plan": "iPadPro 2025 13 256GB Kasko Comfort 36m V",
+    "tier": "SILVER",
+    "inflow": 54.2
+  },
+  {
+    "plan": "iPadPro 2025 13 256GB Kasko Smart 36m V",
+    "tier": "SILVER",
+    "inflow": 49.2
+  },
+  {
+    "plan": "iPadPro 2025 13 256GB Kasko Extra 30m V",
+    "tier": "GOLD",
+    "inflow": 46.08
+  },
+  {
+    "plan": "Galaxy S26 Ultra 256 GB Kasko Extra 36m",
+    "tier": "PLATINUM",
+    "inflow": 43.75
+  },
+  {
+    "plan": "Galaxy S26 256 GB Kasko Extra 36m",
+    "tier": "PLATINUM",
+    "inflow": 40.5
+  },
+  {
+    "plan": "iPadPro 2025 13 256GB Kasko Comfort 30m V",
+    "tier": "SILVER",
+    "inflow": 40.08
+  },
+  {
+    "plan": "Galaxy S26 Ultra 256 GB Kasko Extra 30m",
+    "tier": "PLATINUM",
+    "inflow": 39.2
+  },
+  {
+    "plan": "Galaxy S26 Ultra 256 GB Kasko Comfort 36m",
+    "tier": "PLATINUM",
+    "inflow": 36.25
+  },
+  {
+    "plan": "iPadPro 2025 13 256GB Kasko Smart 30m V",
+    "tier": "SILVER",
+    "inflow": 36.08
+  },
+  {
+    "plan": "iPadPro 2025 13 256GB Kasko Extra 24m V",
+    "tier": "GOLD",
+    "inflow": 35.46
+  },
+  {
+    "plan": "Galaxy S26 256 GB Kasko Extra 30m",
+    "tier": "PLATINUM",
+    "inflow": 34.8
+  },
+  {
+    "plan": "Tab A11 Plus 128GB Kasko Extra 36m V",
+    "tier": "GOLD",
+    "inflow": 34.35
+  },
+  {
+    "plan": "Galaxy S26 Ultra 256 GB Kasko Comfort 30m",
+    "tier": "PLATINUM",
+    "inflow": 33.2
+  },
+  {
+    "plan": "Galaxy S26 256 GB Kasko Comfort 36m",
+    "tier": "GOLD",
+    "inflow": 33.0
+  },
+  {
+    "plan": "Galaxy S26 Ultra 256 GB Kasko Smart 36m",
+    "tier": "GOLD",
+    "inflow": 31.25
+  },
+  {
+    "plan": "iPadPro 2025 13 256GB Kasko Comfort 24m V",
+    "tier": "SILVER",
+    "inflow": 30.96
+  },
+  {
+    "plan": "Galaxy S26 Ultra 256 GB Kasko Smart 30m",
+    "tier": "GOLD",
+    "inflow": 29.2
+  },
+  {
+    "plan": "Galaxy S26 256 GB Kasko Comfort 30m",
+    "tier": "GOLD",
+    "inflow": 28.8
+  },
+  {
+    "plan": "Galaxy S26 Ultra 256 GB Kasko Extra 24m",
+    "tier": "PLATINUM",
+    "inflow": 28.2
+  },
+  {
+    "plan": "Galaxy S26 256 GB Kasko Smart 36m",
+    "tier": "SILVER",
+    "inflow": 28.0
+  },
+  {
+    "plan": "iPadPro 2025 13 256GB Kasko Smart 24m V",
+    "tier": "SILVER",
+    "inflow": 27.96
+  },
+  {
+    "plan": "Tab A11 Plus 128GB Kasko Extra 30m V",
+    "tier": "GOLD",
+    "inflow": 27.74
+  },
+  {
+    "plan": "Tab A11 Plus 128GB Kasko Comfort 36m V",
+    "tier": "SILVER",
+    "inflow": 26.85
+  },
+  {
+    "plan": "Galaxy S26 256 GB Kasko Extra 24m",
+    "tier": "PLATINUM",
+    "inflow": 25.65
+  },
+  {
+    "plan": "Galaxy S26 256 GB Kasko Smart 30m",
+    "tier": "SILVER",
+    "inflow": 24.8
+  },
+  {
+    "plan": "iPadPro 2025 13 256GB Kasko Extra 36m",
+    "tier": "GOLD",
+    "inflow": 24.68
+  },
+  {
+    "plan": "iPhone 17 Pro Max 256GB Kasko Extra 24m",
+    "tier": "PLATINUM",
+    "inflow": 24.17
+  },
+  {
+    "plan": "Galaxy S26 Ultra 256 GB Kasko Comfort 24m",
+    "tier": "PLATINUM",
+    "inflow": 23.7
+  },
+  {
+    "plan": "iPadPro 2025 13 256GB Kasko Extra 24m",
+    "tier": "GOLD",
+    "inflow": 23.64
+  },
+  {
+    "plan": "iPadPro 2025 13 256GB Kasko Extra 30m",
+    "tier": "GOLD",
+    "inflow": 23.04
+  },
+  {
+    "plan": "iPhone 17 Pro 256GB Kasko Extra 24m",
+    "tier": "PLATINUM",
+    "inflow": 22.72
+  },
+  {
+    "plan": "iPhone 17 Pro Max 512GB Kasko Extra 24m",
+    "tier": "PLATINUM",
+    "inflow": 22.699968
+  },
+  {
+    "plan": "iPhone 17 Pro Max 512GB Kasko Extra 36m",
+    "tier": "PLATINUM",
+    "inflow": 22.572716
+  },
+  {
+    "plan": "iPhone 17 Pro Max 256GB Kasko Extra 30m",
+    "tier": "PLATINUM",
+    "inflow": 22.56
+  },
+  {
+    "plan": "iPhone 17 Pro Max 512GB Kasko Extra 30m",
+    "tier": "PLATINUM",
+    "inflow": 22.406021
+  },
+  {
+    "plan": "iPhone Air 256GB Kasko Extra 24m",
+    "tier": "PLATINUM",
+    "inflow": 22.26
+  },
+  {
+    "plan": "iPhone Air 256GB Kasko Extra 30m",
+    "tier": "PLATINUM",
+    "inflow": 21.98
+  },
+  {
+    "plan": "Tab A11 Plus 128GB Kasko Smart 36m V",
+    "tier": "SILVER",
+    "inflow": 21.85
+  },
+  {
+    "plan": "Tab A11 Plus 128GB Kasko Comfort 30m V",
+    "tier": "SILVER",
+    "inflow": 21.74
+  },
+  {
+    "plan": "Tab A11 Plus 128GB Kasko Extra 24m V",
+    "tier": "GOLD",
+    "inflow": 21.705
+  },
+  {
+    "plan": "iPadPro 2025 13 256GB Kasko Comfort 36m",
+    "tier": "SILVER",
+    "inflow": 21.68
+  },
+  {
+    "plan": "iPhone Air 256GB Kasko Extra 36m",
+    "tier": "PLATINUM",
+    "inflow": 21.41
+  },
+  {
+    "plan": "iPhone 17 Pro Max 256GB Kasko Extra 36m",
+    "tier": "PLATINUM",
+    "inflow": 21.31
+  },
+  {
+    "plan": "iPhone 17 Pro Max 256GB Kasko Comfort 24m",
+    "tier": "PLATINUM",
+    "inflow": 21.17
+  },
+  {
+    "plan": "Galaxy S26 256 GB Kasko Comfort 24m",
+    "tier": "GOLD",
+    "inflow": 21.15
+  },
+  {
+    "plan": "Galaxy S26 Ultra 256 GB Kasko Smart 24m",
+    "tier": "GOLD",
+    "inflow": 20.7
+  },
+  {
+    "plan": "iPadPro 2025 13 256GB Kasko Comfort 24m",
+    "tier": "SILVER",
+    "inflow": 20.64
+  },
+  {
+    "plan": "Tab S11 128GB Kasko Extra 36m",
+    "tier": "PLATINUM",
+    "inflow": 20.6164
+  },
+  {
+    "plan": "Tab S11 128GB Kasko Extra 30m",
+    "tier": "PLATINUM",
+    "inflow": 20.23
+  },
+  {
+    "plan": "Galaxy Book5 Edge 5G Kasko Extra 24m",
+    "tier": "GOLD",
+    "inflow": 20.1526
+  },
+  {
+    "plan": "iPhone 17 256GB Kasko Extra 24m",
+    "tier": "PLATINUM",
+    "inflow": 20.05
+  },
+  {
+    "plan": "iPadPro 2025 13 256GB Kasko Comfort 30m",
+    "tier": "SILVER",
+    "inflow": 20.04
+  },
+  {
+    "plan": "iPhone 17 Pro 256GB Kasko Extra 30m",
+    "tier": "PLATINUM",
+    "inflow": 19.93
+  },
+  {
+    "plan": "Tab S11 128GB Kasko Extra 24m",
+    "tier": "PLATINUM",
+    "inflow": 19.8478
+  },
+  {
+    "plan": "iPhone 17 Pro 256GB Kasko Comfort 24m",
+    "tier": "PLATINUM",
+    "inflow": 19.72
+  },
+  {
+    "plan": "iPhone 17 Pro Max 512GB Kasko Comfort 24m",
+    "tier": "PLATINUM",
+    "inflow": 19.699968
+  },
+  {
+    "plan": "iPadPro 2025 13 256GB Kasko Smart 36m",
+    "tier": "SILVER",
+    "inflow": 19.68
+  },
+  {
+    "plan": "Galaxy Book5 Edge 5G Kasko Extra 36m",
+    "tier": "GOLD",
+    "inflow": 19.5988
+  },
+  {
+    "plan": "iPhone 17 Pro Max 512GB Kasko Comfort 36m",
+    "tier": "PLATINUM",
+    "inflow": 19.572716
+  },
+  {
+    "plan": "iPhone 17 Pro Max 256GB Kasko Comfort 30m",
+    "tier": "PLATINUM",
+    "inflow": 19.56
+  },
+  {
+    "plan": "Galaxy Z Fold 7 256GB Kasko Extra 36m",
+    "tier": "PLATINUM",
+    "inflow": 19.409561
+  },
+  {
+    "plan": "iPhone 17 Pro Max 512GB Kasko Comfort 30m",
+    "tier": "PLATINUM",
+    "inflow": 19.406021
+  },
+  {
+    "plan": "iPhone 17 Pro 256GB Kasko Extra 36m",
+    "tier": "PLATINUM",
+    "inflow": 19.36
+  },
+  {
+    "plan": "iPhone 17 256GB Kasko Extra 36m",
+    "tier": "PLATINUM",
+    "inflow": 19.32
+  },
+  {
+    "plan": "iPhone 17 256GB Kasko Extra 30m",
+    "tier": "PLATINUM",
+    "inflow": 19.3
+  },
+  {
+    "plan": "Galaxy Book5 Edge 5G Kasko Extra 30m",
+    "tier": "GOLD",
+    "inflow": 19.29
+  },
+  {
+    "plan": "iPhone Air 256GB Kasko Comfort 24m",
+    "tier": "PLATINUM",
+    "inflow": 19.26
+  },
+  {
+    "plan": "iPhone 17 Pro Max 256GB Kasko Smart 24m",
+    "tier": "GOLD",
+    "inflow": 19.17
+  },
+  {
+    "plan": "Galaxy S25 Ultra EE 256 GB Kasko Extra 30m",
+    "tier": "PLATINUM",
+    "inflow": 19.15
+  },
+  {
+    "plan": "iPhone Air 256GB Kasko Comfort 30m",
+    "tier": "PLATINUM",
+    "inflow": 18.98
+  },
+  {
+    "plan": "iPadAir 2026 11 128GB Kasko Extra 30m",
+    "tier": "GOLD",
+    "inflow": 18.81177
+  },
+  {
+    "plan": "iPadAir 2026 11 128GB Kasko Extra 36m",
+    "tier": "GOLD",
+    "inflow": 18.781311
+  },
+  {
+    "plan": "Galaxy A37 EE 128GB Kasko Smart 24m",
+    "tier": "BRONZE",
+    "inflow": 18.781311
+  },
+  {
+    "plan": "Galaxy A57 EE 128GB Kasko Smart 24m",
+    "tier": "BRONZE",
+    "inflow": 18.781311
+  },
+  {
+    "plan": "Galaxy A37 EE 128GB Kasko Comfort 24m",
+    "tier": "BRONZE",
+    "inflow": 18.781311
+  },
+  {
+    "plan": "Galaxy A57 EE 128GB Kasko Comfort 24m",
+    "tier": "BRONZE",
+    "inflow": 18.781311
+  },
+  {
+    "plan": "Galaxy A37 EE 128GB Kasko Extra 24m",
+    "tier": "SILVER",
+    "inflow": 18.781311
+  },
+  {
+    "plan": "Galaxy A57 EE 128GB Kasko Extra 24m",
+    "tier": "SILVER",
+    "inflow": 18.781311
+  },
+  {
+    "plan": "Galaxy A37 EE 128GB Kasko Smart 30m",
+    "tier": "BRONZE",
+    "inflow": 18.781311
+  },
+  {
+    "plan": "Galaxy A57 EE 128GB Kasko Smart 30m",
+    "tier": "BRONZE",
+    "inflow": 18.781311
+  },
+  {
+    "plan": "Galaxy A37 EE 128GB Kasko Comfort 30m",
+    "tier": "BRONZE",
+    "inflow": 18.781311
+  },
+  {
+    "plan": "Galaxy A57 EE 128GB Kasko Comfort 30m",
+    "tier": "BRONZE",
+    "inflow": 18.781311
+  },
+  {
+    "plan": "Galaxy A37 EE 128GB Kasko Extra 30m",
+    "tier": "SILVER",
+    "inflow": 18.781311
+  },
+  {
+    "plan": "Galaxy A57 EE 128GB Kasko Extra 30m",
+    "tier": "SILVER",
+    "inflow": 18.781311
+  },
+  {
+    "plan": "Galaxy A37 EE 128GB Kasko Smart 36m",
+    "tier": "BRONZE",
+    "inflow": 18.781311
+  },
+  {
+    "plan": "Galaxy A57 EE 128GB Kasko Smart 36m",
+    "tier": "BRONZE",
+    "inflow": 18.781311
+  },
+  {
+    "plan": "Galaxy A37 EE 128GB Kasko Comfort 36m",
+    "tier": "SILVER",
+    "inflow": 18.781311
+  },
+  {
+    "plan": "Galaxy A57 EE 128GB Kasko Comfort 36m",
+    "tier": "SILVER",
+    "inflow": 18.781311
+  },
+  {
+    "plan": "Galaxy A37 EE 128GB Kasko Extra 36m",
+    "tier": "GOLD",
+    "inflow": 18.781311
+  },
+  {
+    "plan": "Galaxy A57 EE 128GB Kasko Extra 36m",
+    "tier": "GOLD",
+    "inflow": 18.781311
+  },
+  {
+    "plan": "iPadAir 2025 11 128GB Kasko Extra 36m",
+    "tier": "GOLD",
+    "inflow": 18.72
+  },
+  {
+    "plan": "Galaxy S25 Ultra EE 256 GB Kasko Extra 24m",
+    "tier": "PLATINUM",
+    "inflow": 18.7
+  },
+  {
+    "plan": "iPadAir 2025 11 128GB Kasko Extra 24m",
+    "tier": "GOLD",
+    "inflow": 18.69
+  },
+  {
+    "plan": "iPadAir 2026 11 128GB Kasko Extra 24m",
+    "tier": "GOLD",
+    "inflow": 18.641908
+  },
+  {
+    "plan": "iPadPro 2025 13 256GB Kasko Smart 24m",
+    "tier": "SILVER",
+    "inflow": 18.64
+  },
+  {
+    "plan": "iPhone Air 256GB Kasko Comfort 36m",
+    "tier": "PLATINUM",
+    "inflow": 18.41
+  },
+  {
+    "plan": "iPhone 17 Pro Max 256GB Kasko Comfort 36m",
+    "tier": "PLATINUM",
+    "inflow": 18.31
+  },
+  {
+    "plan": "Galaxy Z Fold 7 256GB Kasko Extra 30m",
+    "tier": "PLATINUM",
+    "inflow": 18.283964
+  },
+  {
+    "plan": "iPadAir 2025 11 128GB Kasko Extra 30m",
+    "tier": "GOLD",
+    "inflow": 18.25
+  },
+  {
+    "plan": "Galaxy S26 256 GB Kasko Smart 24m",
+    "tier": "SILVER",
+    "inflow": 18.15
+  },
+  {
+    "plan": "Galaxy Z Flip 7 256GB Kasko Extra 24m",
+    "tier": "PLATINUM",
+    "inflow": 18.099319
+  },
+  {
+    "plan": "iPadPro 2025 13 256GB Kasko Smart 30m",
+    "tier": "SILVER",
+    "inflow": 18.04
+  },
+  {
+    "plan": "Tab A11 Plus 128GB Kasko Smart 30m V",
+    "tier": "SILVER",
+    "inflow": 17.74
+  },
+  {
+    "plan": "iPhone 17Pro 256GB Kasko Smart 24m",
+    "tier": "GOLD",
+    "inflow": 17.72
+  },
+  {
+    "plan": "iPhone 17 Pro Max 512GB Kasko Smart 24m",
+    "tier": "GOLD",
+    "inflow": 17.699968
+  },
+  {
+    "plan": "Tab S11 128GB Kasko Comfort 36m",
+    "tier": "GOLD",
+    "inflow": 17.6164
+  },
+  {
+    "plan": "iPad 2025 11 256GB Kasko Extra 24m",
+    "tier": "GOLD",
+    "inflow": 17.61
+  },
+  {
+    "plan": "iPhone 17 Pro Max 512GB Kasko Smart 36m",
+    "tier": "GOLD",
+    "inflow": 17.572716
+  },
+  {
+    "plan": "iPhone 17 Pro Max 256GB Kasko Smart 30m",
+    "tier": "GOLD",
+    "inflow": 17.56
+  },
+  {
+    "plan": "Galaxy Z Flip 7 256GB Kasko Extra 30m",
+    "tier": "PLATINUM",
+    "inflow": 17.507146
+  },
+  {
+    "plan": "iPad 2025 11 256GB Kasko Extra 30m",
+    "tier": "GOLD",
+    "inflow": 17.45
+  },
+  {
+    "plan": "iPhone 17 Pro Max 512GB Kasko Smart 30m",
+    "tier": "GOLD",
+    "inflow": 17.406021
+  },
+  {
+    "plan": "Galaxy Z Flip 7 256GB Kasko Extra 36m",
+    "tier": "PLATINUM",
+    "inflow": 17.28681
+  },
+  {
+    "plan": "iPhone Air 256GB Kasko Smart 24m",
+    "tier": "GOLD",
+    "inflow": 17.26
+  },
+  {
+    "plan": "Tab S11 128GB Kasko Comfort 30m",
+    "tier": "GOLD",
+    "inflow": 17.23
+  },
+  {
+    "plan": "Tab A11 Plus 128GB Kasko Comfort 24m V",
+    "tier": "SILVER",
+    "inflow": 17.205
+  },
+  {
+    "plan": "iPad 2025 11 128GB Kasko Extra 24m",
+    "tier": "GOLD",
+    "inflow": 17.16
+  },
+  {
+    "plan": "Galaxy Book5 Edge 5G Kasko Comfort 24m",
+    "tier": "SILVER",
+    "inflow": 17.1526
+  },
+  {
+    "plan": "iPad 2025 11 128GB Kasko Extra 36m",
+    "tier": "GOLD",
+    "inflow": 17.09
+  },
+  {
+    "plan": "Galaxy Z Fold 7 256GB Kasko Extra 24m",
+    "tier": "PLATINUM",
+    "inflow": 17.08888
+  },
+  {
+    "plan": "iPhone 17 256GB Kasko Comfort 24m",
+    "tier": "GOLD",
+    "inflow": 17.05
+  },
+  {
+    "plan": "iPhone Air 256GB Kasko Smart 30m",
+    "tier": "GOLD",
+    "inflow": 16.98
+  },
+  {
+    "plan": "iPhone 17 Pro 256GB Kasko Comfort 30m",
+    "tier": "PLATINUM",
+    "inflow": 16.93
+  },
+  {
+    "plan": "Tab S11 128GB Kasko Comfort 24m",
+    "tier": "GOLD",
+    "inflow": 16.8478
+  },
+  {
+    "plan": "Galaxy Book5 Edge 5G Kasko Comfort 36m",
+    "tier": "SILVER",
+    "inflow": 16.5988
+  },
+  {
+    "plan": "Galaxy Book4 Kasko Extra 24m",
+    "tier": "GOLD",
+    "inflow": 16.59
+  },
+  {
+    "plan": "iPhone 16E 128GB Kasko Extra 36m",
+    "tier": "PLATINUM",
+    "inflow": 16.57
+  },
+  {
+    "plan": "iPhone 16E 128GB Kasko Extra 24m",
+    "tier": "GOLD",
+    "inflow": 16.56
+  },
+  {
+    "plan": "Galaxy S25 Ultra EE 256 GB Kasko Extra 36m",
+    "tier": "PLATINUM",
+    "inflow": 16.5
+  },
+  {
+    "plan": "iPad 2025 11 128GB Kasko Extra30m",
+    "tier": "GOLD",
+    "inflow": 16.48
+  },
+  {
+    "plan": "Galaxy S25 256 GB Kasko Extra 24m",
+    "tier": "PLATINUM",
+    "inflow": 16.45
+  },
+  {
+    "plan": "iPhone 16E 128GB Kasko Extra 30m",
+    "tier": "GOLD",
+    "inflow": 16.44
+  },
+  {
+    "plan": "iPad 2025 11 256GB Kasko Extra 36m",
+    "tier": "GOLD",
+    "inflow": 16.42
+  },
+  {
+    "plan": "iPhone Air 256GB Kasko Smart 36m",
+    "tier": "GOLD",
+    "inflow": 16.41
+  },
+  {
+    "plan": "Galaxy Z Fold 7 256GB Kasko Comfort 36m",
+    "tier": "PLATINUM",
+    "inflow": 16.409561
+  },
+  {
+    "plan": "Galaxy S25 EE 128GB Kasko Extra 24m",
+    "tier": "GOLD",
+    "inflow": 16.4
+  },
+  {
+    "plan": "Galaxy S25 256 GB Kasko Extra 30m",
+    "tier": "PLATINUM",
+    "inflow": 16.4
+  },
+  {
+    "plan": "iPhone 17 Pro 256GB Kasko Comfort 36m",
+    "tier": "PLATINUM",
+    "inflow": 16.36
+  },
+  {
+    "plan": "iPhone 17 256GB Kasko Comfort 36m",
+    "tier": "GOLD",
+    "inflow": 16.32
+  },
+  {
+    "plan": "iPhone 16E 256GB Kasko Extra 30m",
+    "tier": "PLATINUM",
+    "inflow": 16.32
+  },
+  {
+    "plan": "iPhone 17 Pro Max 256GB Kasko Smart 36m",
+    "tier": "GOLD",
+    "inflow": 16.31
+  },
+  {
+    "plan": "iPhone 17 256GB Kasko Comfort 30m",
+    "tier": "GOLD",
+    "inflow": 16.3
+  },
+  {
+    "plan": "Galaxy Book5 Edge 5G Kasko Comfort 30m",
+    "tier": "SILVER",
+    "inflow": 16.29
+  },
+  {
+    "plan": "Galaxy A56 EE 128GB​ Kasko Extra 24m",
+    "tier": "SILVER",
+    "inflow": 16.2
+  },
+  {
+    "plan": "Galaxy S25 Ultra EE 256GB Kasko Comfort 30m",
+    "tier": "PLATINUM",
+    "inflow": 16.15
+  },
+  {
+    "plan": "Galaxy S25 EE 128GB Kasko Extra 30m",
+    "tier": "PLATINUM",
+    "inflow": 16.1
+  },
+  {
+    "plan": "Galaxy S25 256 GB Kasko Extra 36m",
+    "tier": "PLATINUM",
+    "inflow": 16.1
+  },
+  {
+    "plan": "iPhone 16E 256GB Kasko Extra 24m",
+    "tier": "PLATINUM",
+    "inflow": 16.08
+  },
+  {
+    "plan": "Tab S10 FE 128GB EE Kasko Extra 36m",
+    "tier": "GOLD",
+    "inflow": 15.95
+  },
+  {
+    "plan": "iPadAir 2026 11 128GB Kasko Comfort 30m",
+    "tier": "SILVER",
+    "inflow": 15.81177
+  },
+  {
+    "plan": "Tab S10 FE 128GB EE Kasko Extra 30m",
+    "tier": "GOLD",
+    "inflow": 15.81
+  },
+  {
+    "plan": "Galaxy A56 EE 128GB​ Kasko Extra 30m",
+    "tier": "SILVER",
+    "inflow": 15.8
+  },
+  {
+    "plan": "Galaxy A36 EE 128GB Kasko Extra 30m",
+    "tier": "SILVER",
+    "inflow": 15.8
+  },
+  {
+    "plan": "iPadAir 2026 11 128GB Kasko Comfort 36m",
+    "tier": "SILVER",
+    "inflow": 15.781311
+  },
+  {
+    "plan": "iPadAir 2025 11 128GB Kasko Comfort 36m",
+    "tier": "SILVER",
+    "inflow": 15.72
+  },
+  {
+    "plan": "iPhone 16E 256GB Kasko Extra 36m",
+    "tier": "PLATINUM",
+    "inflow": 15.71
+  },
+  {
+    "plan": "Galaxy S25 Ultra EE 256GB Kasko Comfort 24m",
+    "tier": "PLATINUM",
+    "inflow": 15.7
+  },
+  {
+    "plan": "Galaxy Book4 Kasko Extra 36m",
+    "tier": "GOLD",
+    "inflow": 15.695026
+  },
+  {
+    "plan": "iPadAir 2025 11 128GB Kasko Comfort 24m",
+    "tier": "SILVER",
+    "inflow": 15.69
+  },
+  {
+    "plan": "Tab S10 FE 128GB EE Kasko Extra 24m",
+    "tier": "GOLD",
+    "inflow": 15.65
+  },
+  {
+    "plan": "iPadAir 2026 11 128GB Kasko Comfort 24m",
+    "tier": "SILVER",
+    "inflow": 15.641908
+  },
+  {
+    "plan": "Tab S11 128GB Kasko Smart 36m",
+    "tier": "GOLD",
+    "inflow": 15.6164
+  },
+  {
+    "plan": "Galaxy A36 EE 128GB Kasko Extra 24m",
+    "tier": "SILVER",
+    "inflow": 15.6
+  },
+  {
+    "plan": "Galaxy S25 EE 128GB Kasko Extra 36m",
+    "tier": "PLATINUM",
+    "inflow": 15.55
+  },
+  {
+    "plan": "iPhone 17E 256GB Kasko Extra30m",
+    "tier": "PLATINUM",
+    "inflow": 15.529342
+  },
+  {
+    "plan": "Galaxy Book4 Kasko Extra 30m",
+    "tier": "GOLD",
+    "inflow": 15.429331
+  },
+  {
+    "plan": "iPhone 17E 256GB Kasko Extra36m",
+    "tier": "PLATINUM",
+    "inflow": 15.322586
+  },
+  {
+    "plan": "Galaxy Z Fold 7 256GB Kasko Comfort 30m",
+    "tier": "PLATINUM",
+    "inflow": 15.283964
+  },
+  {
+    "plan": "iPadAir 2025 11 128GB Kasko Comfort 30m",
+    "tier": "SILVER",
+    "inflow": 15.25
+  },
+  {
+    "plan": "Tab S11 128GB Kasko Smart 30m",
+    "tier": "GOLD",
+    "inflow": 15.23
+  },
+  {
+    "plan": "Galaxy Book5 Edge 5G Kasko Smart 24m",
+    "tier": "SILVER",
+    "inflow": 15.1526
+  },
+  {
+    "plan": "Galaxy Z Flip 7 256GB Kasko Comfort 24m",
+    "tier": "GOLD",
+    "inflow": 15.099319
+  },
+  {
+    "plan": "iPhone 17 256GB Kasko Smart 24m",
+    "tier": "SILVER",
+    "inflow": 15.05
+  },
+  {
+    "plan": "iPhone 17Pro 256GB Kasko Smart 30m",
+    "tier": "GOLD",
+    "inflow": 14.93
+  },
+  {
+    "plan": "Tab S11 128GB Kasko Smart 24m",
+    "tier": "GOLD",
+    "inflow": 14.8478
+  },
+  {
+    "plan": "Galaxy A56 EE 128GB​ Kasko Extra 36m",
+    "tier": "GOLD",
+    "inflow": 14.65
+  },
+  {
+    "plan": "iPhone 17E 256GB Kasko Extra24m",
+    "tier": "PLATINUM",
+    "inflow": 14.64322
+  },
+  {
+    "plan": "iPad 2025 11 256GB Kasko Comfort 24m",
+    "tier": "SILVER",
+    "inflow": 14.61
+  },
+  {
+    "plan": "Galaxy Book5 Edge 5G Kasko Smart 36m",
+    "tier": "SILVER",
+    "inflow": 14.5988
+  },
+  {
+    "plan": "Galaxy Z Flip 7 256GB Kasko Comfort 30m",
+    "tier": "GOLD",
+    "inflow": 14.507146
+  },
+  {
+    "plan": "Tab A11 Plus 128GB Kasko Extra 24m",
+    "tier": "GOLD",
+    "inflow": 14.47
+  },
+  {
+    "plan": "iPad 2025 11 256GB Kasko Comfort 30m",
+    "tier": "SILVER",
+    "inflow": 14.45
+  },
+  {
+    "plan": "Galaxy Z Fold 7 256GB Kasko Smart 36m",
+    "tier": "PLATINUM",
+    "inflow": 14.409561
+  },
+  {
+    "plan": "Galaxy A36 EE 128GB Kasko Extra 36m",
+    "tier": "GOLD",
+    "inflow": 14.4
+  },
+  {
+    "plan": "iPhone 17Pro 256GB Kasko Smart 36m",
+    "tier": "GOLD",
+    "inflow": 14.36
+  },
+  {
+    "plan": "iPhone 17 256GB Kasko Smart 36m",
+    "tier": "GOLD",
+    "inflow": 14.32
+  },
+  {
+    "plan": "iPhone 17 256GB Kasko Smart 30m",
+    "tier": "SILVER",
+    "inflow": 14.3
+  },
+  {
+    "plan": "Galaxy Book5 Edge 5G Kasko Smart 30m",
+    "tier": "SILVER",
+    "inflow": 14.29
+  },
+  {
+    "plan": "Galaxy Z Flip 7 256GB Kasko Comfort 36m",
+    "tier": "PLATINUM",
+    "inflow": 14.28681
+  },
+  {
+    "plan": "Tab A11 Plus 128GB Kasko Smart 24m V",
+    "tier": "SILVER",
+    "inflow": 14.205
+  },
+  {
+    "plan": "iPad 2025 11 128GB Kasko Comfort 24m",
+    "tier": "SILVER",
+    "inflow": 14.16
+  },
+  {
+    "plan": "Galaxy S25 Ultra EE 256GB Kasko Smart 30m",
+    "tier": "GOLD",
+    "inflow": 14.15
+  },
+  {
+    "plan": "iPad 2025 11 128GB Kasko Comfort 36m",
+    "tier": "SILVER",
+    "inflow": 14.09
+  },
+  {
+    "plan": "Galaxy Z Fold 7 256GB Kasko Comfort 24m",
+    "tier": "PLATINUM",
+    "inflow": 14.08888
+  },
+  {
+    "plan": "Tab A11 Plus 128GB Kasko Extra 30m",
+    "tier": "GOLD",
+    "inflow": 13.87
+  },
+  {
+    "plan": "iPadAir 2026 11 128GB Kasko Smart 30m",
+    "tier": "SILVER",
+    "inflow": 13.81177
+  },
+  {
+    "plan": "iPadAir 2026 11 128GB Kasko Smart 36m",
+    "tier": "SILVER",
+    "inflow": 13.781311
+  },
+  {
+    "plan": "Tab A11 Plus 128GB Kasko Extra 36m",
+    "tier": "GOLD",
+    "inflow": 13.74
+  },
+  {
+    "plan": "iPadAir 2025 11 128GB Kasko Smart 36m",
+    "tier": "SILVER",
+    "inflow": 13.72
+  },
+  {
+    "plan": "Galaxy S25 Ultra EE 256GB Kasko Smart 24m",
+    "tier": "GOLD",
+    "inflow": 13.7
+  },
+  {
+    "plan": "iPadAir 2025 11 128GB Kasko Smart 24m",
+    "tier": "SILVER",
+    "inflow": 13.69
+  },
+  {
+    "plan": "iPadAir 2026 11 128GB Kasko Smart 24m",
+    "tier": "SILVER",
+    "inflow": 13.641908
+  },
+  {
+    "plan": "Galaxy Book4 Kasko Comfort 24m",
+    "tier": "SILVER",
+    "inflow": 13.59
+  },
+  {
+    "plan": "iPhone 16E 128GB Kasko Comfort 36m",
+    "tier": "GOLD",
+    "inflow": 13.57
+  },
+  {
+    "plan": "iPhone 16E 128GB Kasko Comfort 24m",
+    "tier": "SILVER",
+    "inflow": 13.56
+  },
+  {
+    "plan": "Galaxy S25 Ultra EE 256GB Kasko Comfort 36m",
+    "tier": "PLATINUM",
+    "inflow": 13.5
+  },
+  {
+    "plan": "iPad 2025 11 128GB Kasko Comfort 30m",
+    "tier": "SILVER",
+    "inflow": 13.48
+  },
+  {
+    "plan": "Galaxy S25 256GB Kasko Comfort 24m",
+    "tier": "GOLD",
+    "inflow": 13.45
+  },
+  {
+    "plan": "iPhone 16E 128GB Kasko Comfort 30m",
+    "tier": "SILVER",
+    "inflow": 13.44
+  },
+  {
+    "plan": "iPad 2025 11 256GB Kasko Comfort 36m",
+    "tier": "SILVER",
+    "inflow": 13.42
+  },
+  {
+    "plan": "Galaxy S25 256GB Kasko Comfort 30m",
+    "tier": "GOLD",
+    "inflow": 13.4
+  },
+  {
+    "plan": "Galaxy S25 EE 128GB Kasko Comfort 24m",
+    "tier": "GOLD",
+    "inflow": 13.4
+  },
+  {
+    "plan": "iPhone 16E 256GB Kasko Comfort 30m",
+    "tier": "GOLD",
+    "inflow": 13.32
+  },
+  {
+    "plan": "Galaxy Z Fold 7 256GB Kasko Smart 30m",
+    "tier": "PLATINUM",
+    "inflow": 13.283964
+  },
+  {
+    "plan": "iPadAir 2025 11 128GB Kasko Smart 30m",
+    "tier": "SILVER",
+    "inflow": 13.25
+  },
+  {
+    "plan": "Galaxy A56 EE 128GB​ Kasko Comfort 24m",
+    "tier": "BRONZE",
+    "inflow": 13.2
+  },
+  {
+    "plan": "Galaxy S25 EE 128GB Kasko Comfort 30m",
+    "tier": "GOLD",
+    "inflow": 13.1
+  },
+  {
+    "plan": "Galaxy S25 256GB Kasko Comfort 36m",
+    "tier": "GOLD",
+    "inflow": 13.1
+  },
+  {
+    "plan": "Galaxy Z Flip 7 256GB Kasko Smart 24m",
+    "tier": "GOLD",
+    "inflow": 13.099319
+  },
+  {
+    "plan": "iPhone 16E 256GB Kasko Comfort 24m",
+    "tier": "GOLD",
+    "inflow": 13.08
+  },
+  {
+    "plan": "Tab S10 FE 128GB EE Kasko Comfort 36m",
+    "tier": "SILVER",
+    "inflow": 12.95
+  },
+  {
+    "plan": "Tab S10 FE 128GB EE Kasko Comfort 30m",
+    "tier": "SILVER",
+    "inflow": 12.81
+  },
+  {
+    "plan": "Galaxy A36 EE 128GB Kasko Comfort 30m",
+    "tier": "BRONZE",
+    "inflow": 12.8
+  },
+  {
+    "plan": "Galaxy A56 EE 128GB​ Kasko Comfort 30m",
+    "tier": "BRONZE",
+    "inflow": 12.8
+  },
+  {
+    "plan": "iPhone 16E 256GB Kasko Comfort 36m",
+    "tier": "PLATINUM",
+    "inflow": 12.71
+  },
+  {
+    "plan": "Galaxy Book4 Kasko Comfort 36m",
+    "tier": "SILVER",
+    "inflow": 12.695026
+  },
+  {
+    "plan": "Tab S10 FE 128GB EE Kasko Comfort 24m",
+    "tier": "SILVER",
+    "inflow": 12.65
+  },
+  {
+    "plan": "iPad 2025 11 256GB Kasko Smart 24m",
+    "tier": "SILVER",
+    "inflow": 12.61
+  },
+  {
+    "plan": "Galaxy A36 EE 128GB Kasko Comfort 24m",
+    "tier": "BRONZE",
+    "inflow": 12.6
+  },
+  {
+    "plan": "Galaxy S25 EE 128GB Kasko Comfort 36m",
+    "tier": "GOLD",
+    "inflow": 12.55
+  },
+  {
+    "plan": "iPhone 17E 256GB Kasko Comfort 30m",
+    "tier": "GOLD",
+    "inflow": 12.529342
+  },
+  {
+    "plan": "Galaxy Z Flip 7 256GB Kasko Smart 30m",
+    "tier": "GOLD",
+    "inflow": 12.507146
+  },
+  {
+    "plan": "iPad 2025 11 256GB Kasko Smart 30m",
+    "tier": "SILVER",
+    "inflow": 12.45
+  },
+  {
+    "plan": "Galaxy Book4 Kasko Comfort 30m",
+    "tier": "SILVER",
+    "inflow": 12.429331
+  },
+  {
+    "plan": "Galaxy A17 256GB Kasko Extra 24m",
+    "tier": "SILVER",
+    "inflow": 12.35
+  },
+  {
+    "plan": "iPhone 17E 256GB Kasko Comfort 36m",
+    "tier": "PLATINUM",
+    "inflow": 12.322586
+  },
+  {
+    "plan": "Galaxy Z Flip 7 256GB Kasko Smart 36m",
+    "tier": "PLATINUM",
+    "inflow": 12.28681
+  },
+  {
+    "plan": "iPad 2025 11 128GB Kasko Smart 24m",
+    "tier": "SILVER",
+    "inflow": 12.16
+  },
+  {
+    "plan": "iPad 2025 11 128GB Kasko Smart 36m",
+    "tier": "SILVER",
+    "inflow": 12.09
+  },
+  {
+    "plan": "Galaxy Z Fold 7 256GB Kasko Smart 24m",
+    "tier": "PLATINUM",
+    "inflow": 12.08888
+  },
+  {
+    "plan": "Galaxy A56 EE 128GB​ Kasko Comfort 36m",
+    "tier": "SILVER",
+    "inflow": 11.65
+  },
+  {
+    "plan": "iPhone 17E 256GB Kasko Comfort 24m",
+    "tier": "GOLD",
+    "inflow": 11.64322
+  },
+  {
+    "plan": "Galaxy Book4 Kasko Smart 24m",
+    "tier": "SILVER",
+    "inflow": 11.59
+  },
+  {
+    "plan": "iPhone 16E 128GB Kasko Smart 36m",
+    "tier": "GOLD",
+    "inflow": 11.57
+  },
+  {
+    "plan": "iPhone 16E 128GB Kasko Smart 24m",
+    "tier": "SILVER",
+    "inflow": 11.56
+  },
+  {
+    "plan": "Galaxy S25 Ultra EE 256GB Kasko Smart 36m",
+    "tier": "GOLD",
+    "inflow": 11.5
+  },
+  {
+    "plan": "iPad 2025 11 128GB Kasko Smart 30m",
+    "tier": "SILVER",
+    "inflow": 11.48
+  },
+  {
+    "plan": "Tab A11 Plus 128GB Kasko Comfort 24m",
+    "tier": "SILVER",
+    "inflow": 11.47
+  },
+  {
+    "plan": "Galaxy S25 256GB Kasko Smart 24m",
+    "tier": "SILVER",
+    "inflow": 11.45
+  },
+  {
+    "plan": "iPhone 16E 128GB Kasko Smart 30m",
+    "tier": "SILVER",
+    "inflow": 11.44
+  },
+  {
+    "plan": "iPad 2025 11 256GB Kasko Smart 36m",
+    "tier": "SILVER",
+    "inflow": 11.42
+  },
+  {
+    "plan": "Galaxy A17 256GB Kasko Extra 30m",
+    "tier": "SILVER",
+    "inflow": 11.405405
+  },
+  {
+    "plan": "Galaxy A36 EE 128GB Kasko Comfort 36m",
+    "tier": "SILVER",
+    "inflow": 11.4
+  },
+  {
+    "plan": "Galaxy S25 256GB Kasko Smart 30m",
+    "tier": "SILVER",
+    "inflow": 11.4
+  },
+  {
+    "plan": "Galaxy S25 EE 128GB Kasko Smart 24m",
+    "tier": "SILVER",
+    "inflow": 11.4
+  },
+  {
+    "plan": "iPhone 16E 256GB Kasko Smart 30m",
+    "tier": "GOLD",
+    "inflow": 11.32
+  },
+  {
+    "plan": "Galaxy A56 EE 128GB​ Kasko Smart 24m",
+    "tier": "BRONZE",
+    "inflow": 11.2
+  },
+  {
+    "plan": "Galaxy S25 EE 128GB Kasko Smart 30m",
+    "tier": "SILVER",
+    "inflow": 11.1
+  },
+  {
+    "plan": "Galaxy S25 256GB Kasko Smart 36m",
+    "tier": "SILVER",
+    "inflow": 11.1
+  },
+  {
+    "plan": "iPhone 16E 256GB Kasko Smart 24m",
+    "tier": "GOLD",
+    "inflow": 11.08
+  },
+  {
+    "plan": "Galaxy A17 256GB Kasko Extra 36m",
+    "tier": "SILVER",
+    "inflow": 11.074324
+  },
+  {
+    "plan": "Tab S10 FE 128GB EE Kasko Smart 36m",
+    "tier": "SILVER",
+    "inflow": 10.95
+  },
+  {
+    "plan": "Tab A11 Plus 128GB Kasko Comfort 30m",
+    "tier": "SILVER",
+    "inflow": 10.87
+  },
+  {
+    "plan": "Tab S10 FE 128GB EE Kasko Smart 30m",
+    "tier": "SILVER",
+    "inflow": 10.81
+  },
+  {
+    "plan": "Galaxy A36 EE 128GB Kasko Smart 30m",
+    "tier": "BRONZE",
+    "inflow": 10.8
+  },
+  {
+    "plan": "Galaxy A56 EE 128GB​ Kasko Smart 30m",
+    "tier": "BRONZE",
+    "inflow": 10.8
+  },
+  {
+    "plan": "Tab A11 Plus 128GB Kasko Comfort 36m",
+    "tier": "SILVER",
+    "inflow": 10.74
+  },
+  {
+    "plan": "iPhone 16E 256GB Kasko Smart 36m",
+    "tier": "PLATINUM",
+    "inflow": 10.71
+  },
+  {
+    "plan": "Galaxy Book4 Kasko Smart 36m",
+    "tier": "SILVER",
+    "inflow": 10.695026
+  },
+  {
+    "plan": "Tab S10 FE 128GB EE Kasko Smart 24m",
+    "tier": "SILVER",
+    "inflow": 10.65
+  },
+  {
+    "plan": "Galaxy A36 EE 128GB Kasko Smart 24m",
+    "tier": "BRONZE",
+    "inflow": 10.6
+  },
+  {
+    "plan": "Galaxy S25 EE 128GB Kasko Smart 36m",
+    "tier": "SILVER",
+    "inflow": 10.55
+  },
+  {
+    "plan": "iPhone 17E 256GB Kasko Smart 30m",
+    "tier": "GOLD",
+    "inflow": 10.529342
+  },
+  {
+    "plan": "Galaxy XCover 7 EE 128GB KE 36m",
+    "tier": "SILVER",
+    "inflow": 10.45
+  },
+  {
+    "plan": "Galaxy Book4 Kasko Smart 30m",
+    "tier": "SILVER",
+    "inflow": 10.429331
+  },
+  {
+    "plan": "iPhone 17E 256GB Kasko Smart 36m",
+    "tier": "PLATINUM",
+    "inflow": 10.322586
+  },
+  {
+    "plan": "Galaxy XCover 7 EE 128GB KE 30m",
+    "tier": "SILVER",
+    "inflow": 10.17
+  },
+  {
+    "plan": "Galaxy A56 EE 128GB​ Kasko Smart 36m",
+    "tier": "BRONZE",
+    "inflow": 9.65
+  },
+  {
+    "plan": "iPhone 17E 256GB Kasko Smart 24m",
+    "tier": "GOLD",
+    "inflow": 9.64322
+  },
+  {
+    "plan": "Tab A11 Plus 128GB Kasko Smart 24m",
+    "tier": "SILVER",
+    "inflow": 9.47
+  },
+  {
+    "plan": "Galaxy XCover 7 EE 128GB KE 24m",
+    "tier": "SILVER",
+    "inflow": 9.44
+  },
+  {
+    "plan": "Galaxy A36 EE 128GB Kasko Smart 36m",
+    "tier": "BRONZE",
+    "inflow": 9.4
+  },
+  {
+    "plan": "Galaxy A17 256GB Kasko Comfort 24m",
+    "tier": "BRONZE",
+    "inflow": 9.35
+  },
+  {
+    "plan": "Tab A11 Plus 128GB Kasko Smart 30m",
+    "tier": "SILVER",
+    "inflow": 8.87
+  },
+  {
+    "plan": "Tab A11 Plus 128GB Kasko Smart 36m",
+    "tier": "SILVER",
+    "inflow": 8.74
+  },
+  {
+    "plan": "Galaxy A17 256GB Kasko Comfort 30m",
+    "tier": "BRONZE",
+    "inflow": 8.405405
+  },
+  {
+    "plan": "Galaxy A17 256GB Kasko Comfort 36m",
+    "tier": "BRONZE",
+    "inflow": 8.074324
+  },
+  {
+    "plan": "Galaxy XCover 7 EE 128GB KC 36m",
+    "tier": "BRONZE",
+    "inflow": 7.45
+  },
+  {
+    "plan": "Galaxy A17 256GB Kasko Smart 24m",
+    "tier": "BRONZE",
+    "inflow": 7.35
+  },
+  {
+    "plan": "Galaxy XCover 7 EE 128GB KC 30m",
+    "tier": "BRONZE",
+    "inflow": 7.17
+  },
+  {
+    "plan": "Galaxy XCover 7 EE 128GB KC 24m",
+    "tier": "BRONZE",
+    "inflow": 6.44
+  },
+  {
+    "plan": "Galaxy A17 256GB Kasko Smart 30m",
+    "tier": "BRONZE",
+    "inflow": 6.405405
+  },
+  {
+    "plan": "Galaxy A17 256GB Kasko Smart 36m",
+    "tier": "BRONZE",
+    "inflow": 6.074324
+  },
+  {
+    "plan": "Galaxy XCover 7 EE 128GB KS 36m",
+    "tier": "BRONZE",
+    "inflow": 5.45
+  },
+  {
+    "plan": "Galaxy XCover 7 EE 128GB KS 30m",
+    "tier": "BRONZE",
+    "inflow": 5.17
+  },
+  {
+    "plan": "Galaxy XCover 7 EE 128GB KS 24m",
+    "tier": "BRONZE",
+    "inflow": 4.44
+  }
+]

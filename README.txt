@@ -1,18 +1,17 @@
-SALES TRACKER 1.1 — AGGIORNAMENTO PDF
+SALES TRACKER v1.3 ER
 
-Sostituisci nel repository GitHub questi file:
-- index.html
-- sw.js
-- manifest.webmanifest
-- icon-192.png
-- icon-512.png
+Questa versione sostituisce direttamente la v1.2.
 
-Novità:
-- Caricamento PDF dalla schermata Nuovo.
-- Lettura locale del testo delle prime quattro pagine.
-- Precompilazione di cliente, P.IVA, numero offerta, servizio e canone quando riconoscibili.
-- Conferma manuale obbligatoria prima del salvataggio.
+NOVITÀ
+- Integrate 297 righe ufficiali dal foglio PROVVIGIONI.
+- Riconoscimento automatico di modello device, Kasko e durata.
+- Recupero automatico del CANONE INFLOW Easy Rent.
+- Verde: match esatto.
+- Giallo: match simile da verificare.
+- Rosso: modello non trovato, inflow manuale.
+- Ogni Easy Rent vale 1 pezzo.
+- SIM ed Easy Rent vengono salvati su righe separate.
+- I dati già presenti nel browser restano compatibili.
 
-Nota importante:
-La lettura è una versione beta basata sui PDF digitali Vodafone/Fastweb.
-PDF scannerizzati o offerte molto diverse potrebbero richiedere inserimento manuale.
+Carica su GitHub tutti i file estratti, incluso easy-rent-list.json,
+e premi Commit changes.
