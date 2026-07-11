@@ -54,9 +54,15 @@ function catalogHints(text,rows){
  const known=new Set(rows.map(r=>norm(r.product)));
  for(const p of catalog){
   const kw=p.parser_keyword||p.name;
+  const ref=Number(p.reference_inflow||0);
+  const pname=String(p.name||'');
   if(!kw||kw.length<5)continue;
+  if(ref<=0)continue;
+  if(/^Sempre Serviti$/i.test(pname))continue;
+  if(/OneNet\s+P\.IVA/i.test(pname))continue;
   if(text.toLowerCase().includes(String(kw).toLowerCase())&&!known.has(norm(p.name))){
-    add(rows,{service:'Altro',product:p.name,category:p.category,qty:1,inflowUnit:Number(p.reference_inflow||0),confidence:'yellow',calc:'Prodotto riconosciuto dal catalogo. Verificare quantità e inflow dal PDF.'})
+    add(rows,{service:'Altro',product:p.name,category:p.category,qty:1,inflowUnit:ref,confidence:'yellow',calc:'Prodotto riconosciuto dal catalogo. Verificare quantità e inflow dal PDF.'})
+    known.add(norm(p.name));
     if(rows.length>20)break
   }
  }
@@ -107,23 +113,25 @@ export async function parsePDF(file){
     })
    }
   }else if(/OFFERTA\s+OneNet\s+P\.IVA/i.test(b)){
-   const m=b.match(/OFFERTA\s+(OneNet\s+P\.IVA[^\n€]{0,70})/i);
-   const product=m?m[1].replace(/\s+/g,' ').trim():'OneNet P.IVA';
-   const rePlan=new RegExp(product.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'),'i');
-   const x=line(b,rePlan);
+   const header=b.match(/OFFERTA\s+(OneNet\s+P\.IVA(?:\s+[A-Za-z0-9._-]+){0,4})/i);
+   const priceLine=b.match(/(OneNet\s+P\.IVA(?:\s+[A-Za-z0-9._-]+){0,4})\s+([0-9]+[,.]\d{2})\s*€/i);
+   const product=(priceLine?.[1]||header?.[1]||'OneNet P.IVA').replace(/\s+/g,' ').trim();
+   const base=priceLine?num(priceLine[2]):null;
    const net=totalNetMonthly(b);
    const activationNet=recurringActivationNet(b);
-   if(x){
-     const inflow=net!=null?Math.max(net-activationNet,0):Math.max(x.v-activationNet,0);
+   if(base!=null||net!=null){
+     const source=net!=null?net:base;
+     const inflow=Math.max(source-activationNet,0);
      add(rows,{
        service:'ADSL',
        product,
        category:'Connettività',
        qty:1,
        inflowUnit:inflow,
+       confidence:'green',
        calc:net!=null
          ?`Totale Netto Complessivo ${net.toFixed(2)} € − attivazione ricorrente netta ${activationNet.toFixed(2)} €`
-         :`Canone base ${x.v.toFixed(2)} € − attivazione ricorrente netta ${activationNet.toFixed(2)} €; totale netto non trovato`
+         :`Canone piano ${base.toFixed(2)} € − attivazione ricorrente netta ${activationNet.toFixed(2)} €`
      })
    }
   }else if(/OFFERTA\s+OneNet|OFFERTA\s+One Net/i.test(b)){
@@ -141,7 +149,7 @@ export async function parsePDF(file){
    add(rows,{service,product:service,category:'Connettività',qty:1,inflowUnit:base+promo+interni+uc+sempre+discount,calc:'Canone − promo + interni − sconto grandi clienti + UC + Sempre Serviti; attivazione e device esclusi'})
   }
  }
- if(!rows.length)catalogHints(summaryText,rows);
+ if(rows.length===0)catalogHints(summaryText,rows);
  if(!rows.length)warnings.push('Nessun prodotto gestito riconosciuto.');
  const confidence=rows.length===0?'red':rows.some(r=>r.confidence!=='green')?'yellow':'green';
  return {meta,rows,warnings,confidence,filename:file.name}

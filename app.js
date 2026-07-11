@@ -1,7 +1,7 @@
 
-import {loadStore,saveStore,importBackupObject} from './storage.js?v=205';
-import {TARGETS,generalStats,agencyStats,excellentStats,communityStats,inflowOf} from './engines.js?v=205';
-import {initParser,parsePDF} from './parser.js?v=205';
+import {loadStore,saveStore,importBackupObject} from './storage.js?v=206';
+import {TARGETS,generalStats,agencyStats,excellentStats,communityStats,inflowOf} from './engines.js?v=206';
+import {initParser,parsePDF} from './parser.js?v=206';
 
 let store=loadStore(),parsed=null;
 const $=id=>document.getElementById(id),money=v=>new Intl.NumberFormat('it-IT',{style:'currency',currency:'EUR'}).format(v||0);

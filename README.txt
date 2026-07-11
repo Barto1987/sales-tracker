@@ -90,3 +90,24 @@ FIX 2.0.5 — CONNETTIVITÀ, SEMPRE SERVITI E MNP
 
 Aprire:
 https://barto1987.github.io/sales-tracker/index.html?v=205
+
+
+FIX 2.0.6 — ONENET P.IVA DIRETTO
+- OneNet P.IVA, OneNet P.IVA Premium e varianti vengono lette direttamente dal riepilogo economico.
+- Il nome prodotto viene preso dalla stessa riga del prezzo.
+- Il parser non passa più dal Catalogo per OneNet P.IVA.
+- Il Catalogo ignora prodotti con inflow 0 €.
+- Il Catalogo ignora Sempre Serviti generico.
+- Se la connettività è riconosciuta, il fallback non aggiunge altre righe.
+- Semaforo verde per TERMOIDROELETTRICA.
+
+Test atteso:
+- 1 sola riga
+- Servizio: ADSL
+- Prodotto: OneNet P.IVA Premium
+- Inflow: 50,00 €
+- Affidabilità: verde
+- Nessuna riga Sempre Serviti 0 €
+
+Aprire:
+https://barto1987.github.io/sales-tracker/index.html?v=206
