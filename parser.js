@@ -48,14 +48,14 @@ function consolidateRows(rows){
 }
 function line(section,re){const m=section.match(new RegExp(re.source+'\\s+(?:(\\d+)\\s*x\\s*)?([+-]?\\d+[,.]\\d{2})\\s*€','i'));return m?{q:Number(m[1]||1),v:num(m[2])}:null}
 function totalNetMonthly(section){
- const m=section.match(/Totale\s+Netto\s+Complessivo[\s\S]{0,120}?\(Al mese IVA esclusa\)\s*([0-9]+[,.]\d{2})\s*€/i)
-   || section.match(/Totale\s+Netto\s+Complessivo[\s\S]{0,150}?([0-9]+[,.]\d{2})\s*€/i)
-   || section.match(/Totale\s+netto\s+attivazione\s*([0-9]+[,.]\d{2})\s*€/i);
+ const m=section.match(/Totale\s+Netto\s+Complessivo[\s\S]{0,120}?\(Al mese IVA esclusa\)\s*([0-9]{1,3}(?:\.[0-9]{3})*,\d{2}|[0-9]+[,.]\d{2})\s*€/i)
+   || section.match(/Totale\s+Netto\s+Complessivo[\s\S]{0,150}?([0-9]{1,3}(?:\.[0-9]{3})*,\d{2}|[0-9]+[,.]\d{2})\s*€/i)
+   || section.match(/Totale\s+netto\s+attivazione\s*([0-9]{1,3}(?:\.[0-9]{3})*,\d{2}|[0-9]+[,.]\d{2})\s*€/i);
  return m?num(m[1]):null
 }
 function recurringActivationNet(section){
  let activation=0,discount=0;
- for(const m of section.matchAll(/(?:Contributo|Costo)\s+(?:di\s+)?Attivazione(?:\s+\d+\s*mesi)?\s+([0-9]+[,.]\d{2})\s*€/gi)){
+ for(const m of section.matchAll(/(?:Contributo|Costo)\s+(?:di\s+)?Attivazione(?:\s+\d+\s*mesi)?\s+([0-9]{1,3}(?:\.[0-9]{3})*,\d{2}|[0-9]+[,.]\d{2})\s*€/gi)){
    activation+=num(m[1]);
  }
  for(const m of section.matchAll(/Sconto[^€\n]{0,100}Attivazione[^€\n]{0,40}\s+(-[0-9]+[,.]\d{2})\s*€/gi)){
@@ -67,7 +67,7 @@ function hasMnpLine(section){
  return /(?:^|\s)MNP\s+(?:(\d+)\s*x\s*)?0[,.]00\s*€/i.test(section);
 }
 function ipActivationMonthly(section){
- const m=section.match(/(?:8|16|24|32)\s+indirizzi\s+IP[\s\S]{0,120}?Costo\s+di\s+Attivazione\s*\(una\s+tantum\)\s+([0-9]+[,.]\d{2})\s*€/i);
+ const m=section.match(/(?:8|16|24|32)\s+indirizzi\s+IP[\s\S]{0,120}?Costo\s+di\s+Attivazione\s*\(una\s+tantum\)\s+([0-9]{1,3}(?:\.[0-9]{3})*,\d{2}|[0-9]+[,.]\d{2})\s*€/i);
  return m?num(m[1])/36:0;
 }
 function catalogHints(text,rows){
@@ -101,7 +101,7 @@ export async function parsePDF(file){
    }
   }else if(/OFFERTA\s+(?:M2M|IoT)\b/i.test(b)){
    const head=b.match(/OFFERTA\s+([^\n€]{3,90})/i);
-   const price=b.match(/(?:^|\s)((?:M2M|IoT)[^€]{1,80}?)\s+(?:(\d+)\s*x\s*)?([0-9]+[,.]\d{2})\s*€/i);
+   const price=b.match(/(?:^|\s)((?:M2M|IoT)[^€]{1,80}?)\s+(?:(\d+)\s*x\s*)?([0-9]{1,3}(?:\.[0-9]{3})*,\d{2}|[0-9]+[,.]\d{2})\s*€/i);
    const qty=Number(price?.[2]||1);
    const net=totalNetMonthly(b);
    const product=(price?.[1]||head?.[1]||'SIM M2M').replace(/\s+/g,' ').trim();
@@ -111,7 +111,7 @@ export async function parsePDF(file){
    const x=line(b,/Zero:\s*RED Business XS/i);if(x){if(hasMnpLine(b))detectedMnp=true;add(rows,{service:'SIM Voce',product:'Zero: RED Business XS',category:'Mobile',qty:x.q,inflowUnit:x.v,calc:'Conteggiata come SIM Voce'})}
   }else if(/OFFERTA\s+Mobile\s+/i.test(b)){
    const head=b.match(/OFFERTA\s+(Mobile\s+[^\n€]{2,60})/i);
-   const price=b.match(/\b(Mobile\s+[A-Za-z0-9._+-]+(?:\s+[A-Za-z0-9._+-]+){0,2})\s+(?:(\d+)\s*x\s*)?([0-9]+[,.]\d{2})\s*€/i);
+   const price=b.match(/\b(Mobile\s+[A-Za-z0-9._+-]+(?:\s+[A-Za-z0-9._+-]+){0,2})\s+(?:(\d+)\s*x\s*)?([0-9]{1,3}(?:\.[0-9]{3})*,\d{2}|[0-9]+[,.]\d{2})\s*€/i);
    const product=(price?.[1]||head?.[1]||'Mobile').replace(/\s+/g,' ').trim();
    const qty=Number(price?.[2]||1),net=totalNetMonthly(b);
    const unit=net!=null?net/Math.max(qty,1):num(price?.[3]||0);
@@ -126,7 +126,7 @@ export async function parsePDF(file){
    }
   }else if(/OFFERTA\s+Fissa\s+/i.test(b)){
    const header=b.match(/OFFERTA\s+(Fissa\s+[A-Za-z0-9._-]+)/i);
-   const priceLine=b.match(/\b(Fissa\s+[A-Za-z0-9._-]+)\s+([0-9]+[,.]\d{2})\s*€/i);
+   const priceLine=b.match(/\b(Fissa\s+[A-Za-z0-9._-]+)\s+([0-9]{1,3}(?:\.[0-9]{3})*,\d{2}|[0-9]+[,.]\d{2})\s*€/i);
    const product=(priceLine?.[1]||header?.[1]||'Fissa').replace(/\s+/g,' ').trim();
    const base=priceLine?num(priceLine[2]):null;
    const net=totalNetMonthly(b);
@@ -156,14 +156,14 @@ export async function parsePDF(file){
        product,
        category:'Easy Deal / Connettività Custom',
        qty:1,
-       inflowUnit:net+ipMonthly,
+       inflowUnit:Math.round((net+ipMonthly)*100)/100,
        confidence:'green',
        calc:`Totale Netto Complessivo ${net.toFixed(2)} € + quota IP ${ipMonthly.toFixed(2)} € (una tantum ÷ 36). Attivazione generale esclusa`
      })
    }
   }else if(/OFFERTA\s+OneNet\s+P\.IVA/i.test(b)){
    const header=b.match(/OFFERTA\s+(OneNet\s+P\.IVA(?:\s+[A-Za-z0-9._-]+){0,4})/i);
-   const priceLine=b.match(/(OneNet\s+P\.IVA(?:\s+[A-Za-z0-9._-]+){0,4})\s+([0-9]+[,.]\d{2})\s*€/i);
+   const priceLine=b.match(/(OneNet\s+P\.IVA(?:\s+[A-Za-z0-9._-]+){0,4})\s+([0-9]{1,3}(?:\.[0-9]{3})*,\d{2}|[0-9]+[,.]\d{2})\s*€/i);
    const product=(priceLine?.[1]||header?.[1]||'OneNet P.IVA').replace(/\s+/g,' ').trim();
    const base=priceLine?num(priceLine[2]):null;
    const net=totalNetMonthly(b);
@@ -185,12 +185,12 @@ export async function parsePDF(file){
    }
   }else if(/OFFERTA\s+OneNet|OFFERTA\s+One Net/i.test(b)){
    const isU=/Ufficio/i.test(b),service=isU?'One Net Ufficio':'One Net Azienda';
-   const bm=b.match(/(?:OneNet|One Net)\s+(?:Azienda|Ufficio)[^€]{0,80}?\s+([0-9]+[,.]\d{2})\s*€/i);if(!bm)continue;
+   const bm=b.match(/(?:OneNet|One Net)\s+(?:Azienda|Ufficio)[^€]{0,80}?\s+([0-9]{1,3}(?:\.[0-9]{3})*,\d{2}|[0-9]+[,.]\d{2})\s*€/i);if(!bm)continue;
    const base=num(bm[1]),pm=b.match(/(?:Promo|Sconto)[^€]{0,120}connettivit[^€]{0,40}\s+(-[0-9]+[,.]\d{2})\s*€/i);
    let promo=pm?num(pm[1]):0,interni=0,uc=0,sempre=0,discount=0;
-   for(const m of b.matchAll(/Interno\s+(?:Red|Black)\s+(?:(\d+)\s*x\s*)?([0-9]+[,.]\d{2})\s*€/gi))interni+=Number(m[1]||1)*num(m[2]);
-   for(const m of b.matchAll(/UC Phone(?: Pro)?\s+(?:(\d+)\s*x\s*)?([0-9]+[,.]\d{2})\s*€/gi))uc+=Number(m[1]||1)*num(m[2]);
-   for(const m of b.matchAll(/Sempre Serviti\s+(Core|Critical|FWA\s*5G)\s+([0-9]+[,.]\d{2})\s*€/gi)){
+   for(const m of b.matchAll(/Interno\s+(?:Red|Black)\s+(?:(\d+)\s*x\s*)?([0-9]{1,3}(?:\.[0-9]{3})*,\d{2}|[0-9]+[,.]\d{2})\s*€/gi))interni+=Number(m[1]||1)*num(m[2]);
+   for(const m of b.matchAll(/UC Phone(?: Pro)?\s+(?:(\d+)\s*x\s*)?([0-9]{1,3}(?:\.[0-9]{3})*,\d{2}|[0-9]+[,.]\d{2})\s*€/gi))uc+=Number(m[1]||1)*num(m[2]);
+   for(const m of b.matchAll(/Sempre Serviti\s+(Core|Critical|FWA\s*5G)\s+([0-9]{1,3}(?:\.[0-9]{3})*,\d{2}|[0-9]+[,.]\d{2})\s*€/gi)){
      const value=num(m[2]);
      if(value>0)sempre+=value;
    }

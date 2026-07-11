@@ -201,3 +201,17 @@ TEST ATTESI
 
 Aprire dopo il commit:
 https://barto1987.github.io/sales-tracker/index.html?v=210
+
+
+FIX 2.1.1 — IMPORTI CON MIGLIAIA EASY DEAL
+- Corretta lettura degli importi italiani con separatore delle migliaia.
+- 1.030,00 € viene letto come 1030,00 €, non 30,00 €.
+- 1.050,00 € viene letto come 1050,00 €, non 50,00 €.
+- Inflow Easy Deal arrotondato a 2 decimali.
+
+TEST ATTESI
+- TOPPAZZINI: 1.033,33 €
+- ROEFIX: 1.053,33 €
+
+Aprire:
+https://barto1987.github.io/sales-tracker/index.html?v=211
