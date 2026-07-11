@@ -39,3 +39,15 @@ FIX 2.0.1
 - Easy Rent resta separato.
 - Test: AISI 18,00 €; TECNOCOLORI 2 15,00 €.
 - Link test: https://barto1987.github.io/sales-tracker/?v=201
+
+
+FIX 2.0.2 — CACHE PARSER
+- Disattivata la cache del Service Worker durante lo sviluppo.
+- Forzato parser.js?v=202.
+- Cancellazione automatica delle vecchie cache.
+- TECNOCOLORI 2 deve risultare 15,00 €.
+- AISI deve risultare 18,00 €.
+
+Dopo il commit aprire:
+https://barto1987.github.io/sales-tracker/index.html?v=202
+La prima apertura può richiedere un secondo ricaricamento perché deve rimuovere il vecchio Service Worker.
