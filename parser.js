@@ -33,6 +33,19 @@ function common(text){
  return {offer,vat,client:client.trim().replace(/\s{2,}/g,' ')}
 }
 function add(rows,r){rows.push({id:'S-'+Math.random().toString(36).slice(2),qty:1,confidence:'green',category:'',product:r.service,...r})}
+function consolidateRows(rows){
+ const out=[],map=new Map();
+ for(const r of rows){
+  const key=[r.service,r.product,r.category,Number(r.inflowUnit||0).toFixed(6),r.confidence||'green'].join('|');
+  if(map.has(key)){
+    map.get(key).qty+=Number(r.qty||1);
+  }else{
+    const copy={...r,qty:Number(r.qty||1)};
+    map.set(key,copy);out.push(copy);
+  }
+ }
+ return out;
+}
 function line(section,re){const m=section.match(new RegExp(re.source+'\\s+(?:(\\d+)\\s*x\\s*)?([+-]?\\d+[,.]\\d{2})\\s*€','i'));return m?{q:Number(m[1]||1),v:num(m[2])}:null}
 function totalNetMonthly(section){
  const m=section.match(/Totale\s+Netto\s+Complessivo[\s\S]{0,120}?\(Al mese IVA esclusa\)\s*([0-9]+[,.]\d{2})\s*€/i)
@@ -68,7 +81,7 @@ function catalogHints(text,rows){
  }
 }
 export async function parsePDF(file){
- const pages=await extract(file),text=pages.join(' '),summaryText=pages.slice(0,2).join(' '),meta=common(text),rows=[],warnings=[];
+ const pages=await extract(file),text=pages.join(' '),summaryText=pages.slice(0,3).join(' '),meta=common(text),warnings=[];let rows=[];
  const blocks=summaryText.split(/(?=OFFERTA\s+)/i).filter(b=>/^OFFERTA\s+/i.test(b));
  for(const b of blocks){
   if(/Mobile Comfort - Easy Rent/i.test(b)){
@@ -150,6 +163,7 @@ export async function parsePDF(file){
   }
  }
  if(rows.length===0)catalogHints(summaryText,rows);
+ rows=consolidateRows(rows);
  if(!rows.length)warnings.push('Nessun prodotto gestito riconosciuto.');
  const confidence=rows.length===0?'red':rows.some(r=>r.confidence!=='green')?'yellow':'green';
  return {meta,rows,warnings,confidence,filename:file.name}

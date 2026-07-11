@@ -111,3 +111,21 @@ Test atteso:
 
 Aprire:
 https://barto1987.github.io/sales-tracker/index.html?v=206
+
+
+FIX 2.0.7 — MULTI CONNETTIVITÀ
+- Il parser legge le prime 3 pagine commerciali, non solo le prime 2.
+- Riconosce offerte di connettività che proseguono nella pagina successiva.
+- Le righe identiche vengono accorpate automaticamente.
+- Quattro Fissa Smart vengono mostrate come una riga con quantità 4.
+- L'inflow unitario esclude l'attivazione ricorrente.
+- Test CENTRO CARITAS:
+  Servizio ADSL
+  Prodotto Fissa Smart
+  Quantità 4
+  Inflow unitario 30,00 €
+  Totale inflow 120,00 €
+  Semaforo verde
+
+Aprire:
+https://barto1987.github.io/sales-tracker/index.html?v=207
