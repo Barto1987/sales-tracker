@@ -148,3 +148,18 @@ Test CENTRO CARITAS:
 
 Aprire:
 https://barto1987.github.io/sales-tracker/index.html?v=208
+
+
+FIX 2.0.9 — ATTIVAZIONE FISSA
+- Se il parser parte dal Totale Netto Complessivo, sottrae l'attivazione ricorrente netta.
+- Se il parser trova solo il canone linea, NON sottrae l'attivazione perché non è inclusa nel canone.
+- Corretto nome duplicato tipo "Fissa Smart Fissa Smart".
+- Test CENTRO CARITAS:
+  Prodotto Fissa Smart
+  Quantità 4
+  Inflow unitario 30,00 €
+  Totale inflow 120,00 €
+  Semaforo verde
+
+Aprire:
+https://barto1987.github.io/sales-tracker/index.html?v=209
