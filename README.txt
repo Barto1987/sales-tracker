@@ -1,26 +1,18 @@
-SALES TRACKER PWA
+SALES TRACKER 1.1 — AGGIORNAMENTO PDF
 
-Contenuto:
+Sostituisci nel repository GitHub questi file:
 - index.html
-- manifest.webmanifest
 - sw.js
+- manifest.webmanifest
 - icon-192.png
 - icon-512.png
 
-Per installarla su iPhone deve prima essere pubblicata online su un hosting statico.
-Dopo la pubblicazione:
-1. Apri l'indirizzo con Safari.
-2. Premi Condividi.
-3. Tocca "Aggiungi alla schermata Home".
+Novità:
+- Caricamento PDF dalla schermata Nuovo.
+- Lettura locale del testo delle prime quattro pagine.
+- Precompilazione di cliente, P.IVA, numero offerta, servizio e canone quando riconoscibili.
+- Conferma manuale obbligatoria prima del salvataggio.
 
-Regole incluse:
-- Core: SIM Voce, SIM Dati, Easy Rent.
-- Easy Rent: 1 pezzo e inflow manuale.
-- One Net Ufficio: canone - 5 € - costo device.
-- One Net Azienda: canone - 10 € - costo device.
-- Energia/Gas: 80 € a contratto.
-- Periodo gara: 01/07/2026 - 30/09/2026.
-- Contratti validi appena inseriti salvo rettifica o annullamento.
-
-Nota:
-Questa versione salva i dati nel browser del dispositivo. Usa la funzione Esporta per fare backup.
+Nota importante:
+La lettura è una versione beta basata sui PDF digitali Vodafone/Fastweb.
+PDF scannerizzati o offerte molto diverse potrebbero richiedere inserimento manuale.
