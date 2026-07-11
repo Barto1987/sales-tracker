@@ -215,3 +215,35 @@ TEST ATTESI
 
 Aprire:
 https://barto1987.github.io/sales-tracker/index.html?v=211
+
+
+SALES TRACKER 2.2.0 — GESTIONE SQUADRA
+
+NUOVI CAMPI CONTRATTO
+- Agente di riferimento: Francesco, Jacopo, Luciano.
+- Valido per Gara Agenzia: Sì/No.
+- Default Francesco + Gara Agenzia Sì.
+- Se scegli Jacopo o Luciano, Gara Agenzia passa automaticamente a No.
+- Il valore resta modificabile manualmente.
+
+CONTEGGI
+- Gara Agenzia usa solo i contratti con Valido per Gara Agenzia = Sì.
+- Excellent e Community continuano a conteggiare tutti i contratti validi.
+- Archivio, inflow generale e storico mantengono tutto.
+
+SEZIONE SQUADRA
+- Totale squadra mensile.
+- Inflow, contratti e prodotti per agente.
+- SIM Voce, SIM Dati, M2M, Connettività, One Net, Easy Rent, Easy Deal.
+
+ARCHIVIO
+- Filtro per agente.
+- Filtro inclusi/esclusi Gara Agenzia.
+- Agente e stato Gara Agenzia visibili su ogni contratto.
+
+DATI ESISTENTI
+- I contratti precedenti senza agente vengono interpretati come Francesco.
+- I contratti precedenti senza flag vengono considerati inclusi nella Gara Agenzia.
+
+Aprire:
+https://barto1987.github.io/sales-tracker/index.html?v=220

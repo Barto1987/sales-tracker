@@ -1,7 +1,7 @@
 
-import {loadStore,saveStore,importBackupObject} from './storage.js?v=211';
-import {TARGETS,generalStats,agencyStats,excellentStats,communityStats,inflowOf} from './engines.js?v=211';
-import {initParser,parsePDF} from './parser.js?v=211';
+import {loadStore,saveStore,importBackupObject} from './storage.js?v=220';
+import {TARGETS,generalStats,agencyStats,excellentStats,communityStats,teamStats,inflowOf} from './engines.js?v=220';
+import {initParser,parsePDF} from './parser.js?v=220';
 
 let store=loadStore(),parsed=null;
 const $=id=>document.getElementById(id),money=v=>new Intl.NumberFormat('it-IT',{style:'currency',currency:'EUR'}).format(v||0);
@@ -17,6 +17,7 @@ function renderHome(){
  <div class="card section-link" data-go="agency"><div><small>Gara Agenzia</small><strong>${Math.round(pct(a.coreInflow,TARGETS.agency.coreInflow))}%</strong></div><span>›</span></div>
  <div class="card section-link" data-go="excellent"><div><small>Excellent</small><strong>${money(e.variable)} extra</strong><div class="muted">${e.won?'Trimestre vinto':'Mancano '+money(Math.max(1000-e.variable,0))}</div></div><span>›</span></div>
  <div class="card section-link" data-go="community"><div><small>Community</small><strong>${Math.round(c.vcoins)} V-Coin</strong><div class="muted">${c.ability?'Ability OK':'Ability da completare'}</div></div><span>›</span></div>
+ <div class="card section-link" data-go="team"><div><small>Squadra</small><strong>${money(teamStats(store).Totale.inflow)}</strong><div class="muted">inflow mese</div></div><span>›</span></div>
  <div class="card section-link" data-go="archive"><div><small>Archivio</small><strong>${store.contracts.length}</strong><div class="muted">contratti totali</div></div><span>›</span></div>`;
  document.querySelectorAll('[data-go]').forEach(x=>x.onclick=()=>go(x.dataset.go))
 }
@@ -31,6 +32,27 @@ function renderExcellent(){
  $('excellentGrid').innerHTML=kpi('Inflow totale',e.totalInflow,t.totalInflow,true)+kpi('Mobile',e.mobile,t.mobile)+kpi('Prospect inflow',e.prospectInflow,t.prospectInflow,true)+kpi('Link inflow',e.linkInflow,t.linkInflow,true)+kpi('Solution inflow',e.solutionInflow,t.solutionInflow,true)+kpi('Noleggio operativo',e.easyRentPieces,t.easyRentPieces);
  $('excellentHistory').innerHTML=store.excellentHistory.map(x=>`<div class="item"><div><strong>${x.label}</strong><div class="muted">${x.payment}</div></div><div style="text-align:right"><strong>${money(x.total)}</strong><div class="badge ok">Vinto</div></div></div>`).join('')
 }
+
+function renderTeam(){
+ const t=teamStats(store);
+ const total=t.Totale;
+ $('teamSummary').innerHTML=`<div class="card hero"><div class="muted">Totale squadra — mese corrente</div><strong>${money(total.inflow)}</strong><div class="muted">${total.contracts} contratti · ${total.products} prodotti/pezzi</div></div>`;
+ $('teamCards').innerHTML=(store.settings.agents||['Francesco','Jacopo','Luciano']).map(agent=>{
+   const x=t[agent];
+   return `<div class="card"><h3>${agent}</h3><table class="table-like">
+   <tr><td>Inflow</td><td>${money(x.inflow)}</td></tr>
+   <tr><td>Contratti</td><td>${x.contracts}</td></tr>
+   <tr><td>SIM Voce</td><td>${x.simVoice}</td></tr>
+   <tr><td>SIM Dati</td><td>${x.simData}</td></tr>
+   <tr><td>M2M</td><td>${x.m2m}</td></tr>
+   <tr><td>Connettività</td><td>${x.adsl}</td></tr>
+   <tr><td>One Net</td><td>${x.oneNet}</td></tr>
+   <tr><td>Easy Rent</td><td>${x.easyRent}</td></tr>
+   <tr><td>Easy Deal</td><td>${x.easyDeal}</td></tr>
+   </table></div>`;
+ }).join('');
+}
+
 function renderCommunity(){
  const c=communityStats(store);
  $('communitySummary').innerHTML=`<div class="card hero"><div class="muted">V-Coin stimati</div><strong>${Math.round(c.vcoins)}</strong><div class="muted">Inflow ${money(c.inflow)} · Link ${money(c.link)}</div></div>
@@ -40,11 +62,19 @@ function renderCommunity(){
  $('saveOfficial').onclick=()=>{store.officialCommunity.vcoins=Number($('officialVcoins').value||0);store.officialCommunity.updatedAt=new Date().toISOString();saveStore(store);renderCommunity()}
 }
 function archiveItem(c){
- return `<div class="card"><div class="item"><div><strong>${c.client}</strong><div class="muted">${c.offer||'Senza offerta'} · ${c.date}</div><div class="muted">${c.services.map(s=>`${s.service} ×${s.qty}`).join(' · ')}</div></div><div style="text-align:right"><strong>${money(allInflow(c))}</strong><br><span class="badge ${c.status==='Valido'?'ok':'warn'}">${c.status}</span></div></div><div class="actions"><button class="secondary" data-edit="${c.id}">Modifica attributi</button><button class="danger" data-del="${c.id}">Elimina</button></div></div>`
+ return `<div class="card"><div class="item"><div><strong>${c.client}</strong><div class="muted">${c.offer||'Senza offerta'} · ${c.date}</div><div class="muted">${c.services.map(s=>`${s.service} ×${s.qty}`).join(' · ')}</div><div class="muted">${c.agent||'Francesco'} · Gara Agenzia ${c.includeAgency===false?'No':'Sì'}</div></div><div style="text-align:right"><strong>${money(allInflow(c))}</strong><br><span class="badge ${c.status==='Valido'?'ok':'warn'}">${c.status}</span></div></div><div class="actions"><button class="secondary" data-edit="${c.id}">Modifica attributi</button><button class="danger" data-del="${c.id}">Elimina</button></div></div>`
 }
 function renderArchive(){
  const q=($('archiveSearch').value||'').toLowerCase();
- const rows=[...store.contracts].reverse().filter(c=>(c.client+' '+c.offer+' '+c.vat+' '+c.services.map(s=>s.product).join(' ')).toLowerCase().includes(q));
+ const agent=$('archiveAgent')?.value||'Tutti';
+ const agency=$('archiveAgency')?.value||'Tutti';
+ const rows=[...store.contracts].reverse().filter(c=>{
+   const text=(c.client+' '+c.offer+' '+c.vat+' '+c.services.map(s=>s.product).join(' ')).toLowerCase();
+   const agentOk=agent==='Tutti'||(c.agent||'Francesco')===agent;
+   const included=c.includeAgency!==false;
+   const agencyOk=agency==='Tutti'||(agency==='Inclusi'&&included)||(agency==='Esclusi'&&!included);
+   return text.includes(q)&&agentOk&&agencyOk;
+ });
  $('archiveList').innerHTML=rows.length?rows.map(archiveItem).join(''):'<div class="card muted">Nessun contratto.</div>';
  document.querySelectorAll('[data-del]').forEach(b=>b.onclick=()=>{if(confirm('Eliminare il contratto?')){store.contracts=store.contracts.filter(c=>c.id!==b.dataset.del);saveStore(store);renderAll()}});
  document.querySelectorAll('[data-edit]').forEach(b=>b.onclick=()=>editAttrs(b.dataset.edit))
@@ -54,7 +84,9 @@ function editAttrs(id){
  const prospect=confirm(`Cliente ${c.client}\n\nImpostare Prospect = SÌ?\nOK = Sì, Annulla = No`);
  const hasMnpEligible=c.services.some(s=>['SIM Voce','SIM Dati'].includes(s.service));
  const mnp=hasMnpEligible?confirm('Il contratto contiene SIM MNP?\nOK = Sì, Annulla = No'):false;
- c.prospect=prospect;c.mnp=mnp;saveStore(store);renderAll()
+ const agent=prompt('Agente di riferimento: Francesco, Jacopo o Luciano',c.agent||'Francesco')||c.agent||'Francesco';
+ const includeAgency=confirm('Valido per Gara Agenzia?\nOK = Sì, Annulla = No');
+ c.prospect=prospect;c.mnp=mnp;c.agent=agent;c.includeAgency=includeAgency;saveStore(store);renderAll()
 }
 function renderPreview(){
  $('previewBox').classList.remove('hidden');
@@ -65,6 +97,8 @@ function renderPreview(){
  const mnpWrap=$('mnpWrap');
  if(mnpWrap)mnpWrap.classList.toggle('hidden',!hasMnpEligible);
  $('mnp').value=hasMnpEligible&&parsed.detectedMnp?'Sì':'No';
+ $('agent').value='Francesco';
+ $('includeAgency').value='Sì';
 }
 async function handlePDF(file){
  $('pdfLoader').style.display='block';$('pdfStatus').textContent='Analisi in corso…';$('previewBox').classList.add('hidden');
@@ -78,20 +112,26 @@ function saveParsed(){
  const prospect=$('prospect').value==='Sì';
  const hasMobile=rows.some(el=>['SIM Voce','SIM Dati'].includes(el.querySelector('.pr-service').value));
  const mnp=hasMobile && $('mnp').value==='Sì';
- const contract={id:'C-'+Date.now(),date:$('contractDate').value,offer:parsed.meta.offer,client:parsed.meta.client||'Da verificare',vat:parsed.meta.vat,prospect,mnp,status:'Valido',pdfRef:parsed.filename,notes:'Sales Tracker 2.1.0',services:[]};
+ const agent=$('agent').value||'Francesco';
+ const includeAgency=$('includeAgency').value==='Sì';
+ const contract={id:'C-'+Date.now(),date:$('contractDate').value,offer:parsed.meta.offer,client:parsed.meta.client||'Da verificare',vat:parsed.meta.vat,prospect,mnp,agent,includeAgency,status:'Valido',pdfRef:parsed.filename,notes:'Sales Tracker 2.2.0',services:[]};
  for(const el of rows)contract.services.push({id:'S-'+Math.random().toString(36).slice(2),service:el.querySelector('.pr-service').value,product:el.querySelector('.pr-product').value,category:el.querySelector('.pr-category').value,qty:Number(el.querySelector('.pr-qty').value||1),inflowUnit:Number(el.querySelector('.pr-inflow').value||0),confidence:parsed.confidence,calc:''});
  store.contracts.push(contract);saveStore(store);$('previewBox').classList.add('hidden');$('pdfInput').value='';renderAll();go('home');alert('Contratto salvato')
 }
 function go(id){document.querySelectorAll('.view').forEach(x=>x.classList.remove('active'));document.querySelectorAll('nav button').forEach(x=>x.classList.remove('active'));$(id).classList.add('active');document.querySelector(`nav button[data-view="${id}"]`)?.classList.add('active');window.scrollTo(0,0)}
 function exportBackup(){const a=document.createElement('a'),blob=new Blob([JSON.stringify(store,null,2)],{type:'application/json'});a.href=URL.createObjectURL(blob);a.download='sales-tracker-2-backup.json';a.click()}
 async function importBackup(file){const obj=JSON.parse(await file.text());store=importBackupObject(obj);saveStore(store);renderAll();alert('Backup importato')}
-function renderAll(){renderHome();renderAgency();renderExcellent();renderCommunity();renderArchive()}
+function renderAll(){renderHome();renderAgency();renderExcellent();renderCommunity();renderTeam();renderArchive()}
 document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>go(b.dataset.view));
 $('archiveSearch').oninput=renderArchive;
 $('pdfInput').onchange=e=>e.target.files[0]&&handlePDF(e.target.files[0]);
 $('saveParsed').onclick=saveParsed;
 $('exportBtn').onclick=exportBackup;
 $('importInput').onchange=e=>e.target.files[0]&&importBackup(e.target.files[0]);
+$('agent').onchange=()=>{$('includeAgency').value=$('agent').value==='Francesco'?'Sì':'No'};
+$('archiveAgent').onchange=renderArchive;
+$('archiveAgency').onchange=renderArchive;
+
 $('contractDate').valueAsDate=new Date();
 await initParser();
 renderAll();

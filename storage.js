@@ -10,7 +10,8 @@ export function emptyStore(){
       currentMonth:'2026-07',
       agencyPeriod:{start:'2026-07-01',end:'2026-09-30'},
       excellentPeriod:{start:'2026-07-01',end:'2026-09-30'},
-      communityMonth:'2026-07'
+      communityMonth:'2026-07',
+      agents:['Francesco','Jacopo','Luciano']
     },
     officialCommunity:{vcoins:null,updatedAt:null},
     excellentHistory:[
@@ -39,7 +40,7 @@ export function migrateLegacy(rows){
       id:'C-'+Date.now()+'-'+Math.random().toString(36).slice(2),
       date:r.date||new Date().toISOString().slice(0,10),
       offer:r.offer||'',client:r.client||'Da verificare',vat:r.vat||'',
-      prospect:false,mnp:false,status:r.status||'Valido',pdfRef:r.pdfRef||'',
+      prospect:false,mnp:false,agent:'Francesco',includeAgency:true,status:r.status||'Valido',pdfRef:r.pdfRef||'',
       notes:'Migrato da backup/versione 1',services:[]
     };
     grouped[key].services.push({

@@ -11,8 +11,8 @@ const active=c=>c.status!=='Annullato';
 const inRange=(date,start,end)=>date>=start&&date<=end;
 export const inflowOf=s=>Number(s.inflowUnit||0)*Number(s.qty||0);
 
-function flatServices(store,start,end){
-  return store.contracts.filter(c=>active(c)&&inRange(c.date,start,end)).flatMap(c=>
+function flatServices(store,start,end,agencyOnly=false){
+  return store.contracts.filter(c=>active(c)&&inRange(c.date,start,end)&&(!agencyOnly||c.includeAgency!==false)).flatMap(c=>
     c.services.map(s=>({...s,contract:c,totalInflow:inflowOf(s)}))
   )
 }
@@ -27,7 +27,7 @@ export function generalStats(store){
   }
 }
 export function agencyStats(store){
-  const {start,end}=store.settings.agencyPeriod, x=flatServices(store,start,end);
+  const {start,end}=store.settings.agencyPeriod, x=flatServices(store,start,end,true);
   const core=x.filter(r=>['SIM Voce','SIM Dati','Easy Rent'].includes(r.service));
   return {
     corePieces:core.reduce((a,r)=>a+Number(r.qty||0),0),
@@ -109,4 +109,33 @@ export function communityStats(store){
   }
   const official=store.officialCommunity.vcoins;
   return {inflow,link,vcoins,boosts,ability:inflow>=800&&link>=350,official,difference:official==null?null:official-vcoins}
+}
+
+
+export function teamStats(store){
+  const month=store.settings.currentMonth;
+  const agents=store.settings.agents||['Francesco','Jacopo','Luciano'];
+  const out={};
+  for(const agent of agents){
+    const contracts=store.contracts.filter(c=>active(c)&&c.date.startsWith(month)&&(c.agent||'Francesco')===agent);
+    const services=contracts.flatMap(c=>c.services);
+    const countBy=service=>services.filter(s=>s.service===service).reduce((a,s)=>a+Number(s.qty||0),0);
+    out[agent]={
+      contracts:contracts.length,
+      inflow:services.reduce((a,s)=>a+inflowOf(s),0),
+      products:services.reduce((a,s)=>a+Number(s.qty||0),0),
+      simVoice:countBy('SIM Voce'),
+      simData:countBy('SIM Dati'),
+      m2m:countBy('SIM M2M'),
+      adsl:countBy('ADSL'),
+      oneNet:countBy('One Net Ufficio')+countBy('One Net Azienda'),
+      easyRent:countBy('Easy Rent'),
+      easyDeal:countBy('Easy Deal')
+    };
+  }
+  out.Totale=Object.values(out).reduce((acc,x)=>{
+    for(const k of Object.keys(x))acc[k]=(acc[k]||0)+x[k];
+    return acc;
+  },{});
+  return out;
 }
