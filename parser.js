@@ -40,6 +40,16 @@ function totalNetMonthly(section){
    || section.match(/Totale\s+netto\s+attivazione\s*([0-9]+[,.]\d{2})\s*€/i);
  return m?num(m[1]):null
 }
+function recurringActivationNet(section){
+ let activation=0,discount=0;
+ for(const m of section.matchAll(/(?:Contributo|Costo)\s+(?:di\s+)?Attivazione(?:\s+\d+\s*mesi)?\s+([0-9]+[,.]\d{2})\s*€/gi)){
+   activation+=num(m[1]);
+ }
+ for(const m of section.matchAll(/Sconto[^€\n]{0,100}Attivazione[^€\n]{0,40}\s+(-[0-9]+[,.]\d{2})\s*€/gi)){
+   discount+=num(m[1]);
+ }
+ return Math.max(activation+discount,0);
+}
 function catalogHints(text,rows){
  const known=new Set(rows.map(r=>norm(r.product)));
  for(const p of catalog){
@@ -52,8 +62,8 @@ function catalogHints(text,rows){
  }
 }
 export async function parsePDF(file){
- const pages=await extract(file),text=pages.join(' '),meta=common(text),rows=[],warnings=[];
- const blocks=text.split(/(?=OFFERTA\s+)/i).filter(b=>/^OFFERTA\s+/i.test(b));
+ const pages=await extract(file),text=pages.join(' '),summaryText=pages.slice(0,2).join(' '),meta=common(text),rows=[],warnings=[];
+ const blocks=summaryText.split(/(?=OFFERTA\s+)/i).filter(b=>/^OFFERTA\s+/i.test(b));
  for(const b of blocks){
   if(/Mobile Comfort - Easy Rent/i.test(b)){
    const base=line(b,/Mobile Comfort - Easy Rent SoHo SME/i),promo=line(b,/Promo Mobile Comfort \+ Easy Rent/i);
@@ -76,8 +86,26 @@ export async function parsePDF(file){
     const unit=net!=null?net/Math.max(x.q,1):x.v;
     add(rows,{service:'SIM Dati',product:'Dati Comfort',category:'Mobile',qty:x.q,inflowUnit:unit,calc:net!=null?'Inflow dalla voce Totale Netto Complessivo mensile della sezione; device esclusi':'Totale netto non trovato: usato canone base, verificare'})
    }
-  }else if(/OFFERTA\s+Fissa Smart/i.test(b)){
-   const x=line(b,/Fissa Smart/i),p=line(b,/Promo Rete Fissa[^€]*/i);if(x)add(rows,{service:'ADSL',product:'Fissa Smart',category:'Connettività',qty:1,inflowUnit:x.v+(p?p.v:0),calc:'Canone base meno promo; attivazione esclusa'})
+  }else if(/OFFERTA\s+Fissa\s+/i.test(b)){
+   const m=b.match(/OFFERTA\s+(Fissa\s+[^\n€]{2,70})/i);
+   const product=m?m[1].replace(/\s+/g,' ').trim():'Fissa';
+   const rePlan=new RegExp(product.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'),'i');
+   const x=line(b,rePlan);
+   const net=totalNetMonthly(b);
+   const activationNet=recurringActivationNet(b);
+   if(x){
+    const inflow=net!=null?Math.max(net-activationNet,0):Math.max(x.v-activationNet,0);
+    add(rows,{
+      service:'ADSL',
+      product,
+      category:'Connettività',
+      qty:1,
+      inflowUnit:inflow,
+      calc:net!=null
+        ?`Totale Netto Complessivo ${net.toFixed(2)} € − attivazione ricorrente netta ${activationNet.toFixed(2)} €`
+        :`Canone base ${x.v.toFixed(2)} € − attivazione ricorrente netta ${activationNet.toFixed(2)} €; totale netto non trovato`
+    })
+   }
   }else if(/OFFERTA\s+OneNet|OFFERTA\s+One Net/i.test(b)){
    const isU=/Ufficio/i.test(b),service=isU?'One Net Ufficio':'One Net Azienda';
    const bm=b.match(/(?:OneNet|One Net)\s+(?:Azienda|Ufficio)[^€]{0,80}?\s+([0-9]+[,.]\d{2})\s*€/i);if(!bm)continue;
@@ -90,7 +118,7 @@ export async function parsePDF(file){
    add(rows,{service,product:service,category:'Connettività',qty:1,inflowUnit:base+promo+interni+uc+sempre+discount,calc:'Canone − promo + interni − sconto grandi clienti + UC + Sempre Serviti; attivazione e device esclusi'})
   }
  }
- if(!rows.length)catalogHints(text,rows);
+ if(!rows.length)catalogHints(summaryText,rows);
  if(!rows.length)warnings.push('Nessun prodotto gestito riconosciuto.');
  const confidence=rows.length===0?'red':rows.some(r=>r.confidence!=='green')?'yellow':'green';
  return {meta,rows,warnings,confidence,filename:file.name}

@@ -51,3 +51,30 @@ FIX 2.0.2 — CACHE PARSER
 Dopo il commit aprire:
 https://barto1987.github.io/sales-tracker/index.html?v=202
 La prima apertura può richiedere un secondo ricaricamento perché deve rimuovere il vecchio Service Worker.
+
+
+FIX 2.0.3 — FISSA E PAGINE CONTRATTUALI
+- Riconoscimento diretto di Fissa Smart, Fissa Comfort e Fissa Extra.
+- Per il fisso usa il Totale Netto Complessivo mensile della sezione commerciale.
+- Il Catalogo non analizza più le pagine contrattuali/descriptive del PDF.
+- Extra Supporto, Extra Qualità, Extra Servizi e altri esempi generici non vengono più proposti se non presenti nel riepilogo costi.
+- Test VANESIA: una sola riga ADSL / Fissa Comfort, quantità 1, inflow 35,00 €.
+
+Aprire dopo il commit:
+https://barto1987.github.io/sales-tracker/index.html?v=203
+
+
+FIX 2.0.4 — FAMIGLIA FISSA GENERICA
+- Riconosce qualsiasi offerta che inizi con OFFERTA Fissa.
+- Compatibile con Fissa Smart, Comfort, Extra, Premium e future denominazioni.
+- Inflow = Totale Netto Complessivo mensile meno attivazione ricorrente netta rimasta a carico.
+- Gli sconti attivazione compensano automaticamente il contributo.
+- I costi una tantum non entrano nell'inflow.
+- Le pagine descrittive successive restano escluse.
+
+Esempi:
+- Totale netto 35 €, attivazione 5 €, sconto attivazione -5 € => inflow 35 €.
+- Totale netto 40 €, attivazione 5 €, nessuno sconto => inflow 35 €.
+
+Aprire:
+https://barto1987.github.io/sales-tracker/index.html?v=204
