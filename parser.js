@@ -106,23 +106,24 @@ export async function parsePDF(file){
     add(rows,{service:'SIM Dati',product:'Dati Comfort',category:'Mobile',qty:x.q,inflowUnit:unit,calc:net!=null?'Inflow dalla voce Totale Netto Complessivo mensile della sezione; device esclusi':'Totale netto non trovato: usato canone base, verificare'})
    }
   }else if(/OFFERTA\s+Fissa\s+/i.test(b)){
-   const m=b.match(/OFFERTA\s+(Fissa\s+[^\n€]{2,70})/i);
-   const product=m?m[1].replace(/\s+/g,' ').trim():'Fissa';
-   const rePlan=new RegExp(product.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'),'i');
-   const x=line(b,rePlan);
+   const priceLine=b.match(/(Fissa\s+[A-Za-z0-9._-]+(?:\s+[A-Za-z0-9._-]+){0,3})\s+([0-9]+[,.]\d{2})\s*€/i);
+   const product=(priceLine?.[1]||'Fissa').replace(/\s+/g,' ').trim();
+   const base=priceLine?num(priceLine[2]):null;
    const net=totalNetMonthly(b);
    const activationNet=recurringActivationNet(b);
-   if(x){
-    const inflow=net!=null?Math.max(net-activationNet,0):Math.max(x.v-activationNet,0);
+   if(base!=null||net!=null){
+    const source=net!=null?net:base;
+    const inflow=Math.max(source-activationNet,0);
     add(rows,{
       service:'ADSL',
       product,
       category:'Connettività',
       qty:1,
       inflowUnit:inflow,
+      confidence:'green',
       calc:net!=null
-        ?`Totale Netto Complessivo ${net.toFixed(2)} € − attivazione ricorrente netta ${activationNet.toFixed(2)} €`
-        :`Canone base ${x.v.toFixed(2)} € − attivazione ricorrente netta ${activationNet.toFixed(2)} €; totale netto non trovato`
+        ?`Totale netto del singolo blocco ${net.toFixed(2)} € − attivazione ricorrente netta ${activationNet.toFixed(2)} €`
+        :`Canone piano ${base.toFixed(2)} € − attivazione ricorrente netta ${activationNet.toFixed(2)} €`
     })
    }
   }else if(/OFFERTA\s+OneNet\s+P\.IVA/i.test(b)){

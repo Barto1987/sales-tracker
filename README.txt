@@ -129,3 +129,22 @@ FIX 2.0.7 — MULTI CONNETTIVITÀ
 
 Aprire:
 https://barto1987.github.io/sales-tracker/index.html?v=207
+
+
+FIX 2.0.8 — LETTURA DIRETTA FISSA
+- La famiglia Fissa viene letta direttamente dalla riga nome + prezzo.
+- Evita la cattura di descrizioni troppo lunghe nel testo PDF.
+- Riconosce ogni blocco OFFERTA Fissa separatamente.
+- Accorpa automaticamente blocchi identici.
+- Non usa il Catalogo quando trova la riga economica.
+
+Test CENTRO CARITAS:
+- Servizio ADSL
+- Prodotto Fissa Smart
+- Quantità 4
+- Inflow unitario 30,00 €
+- Totale 120,00 €
+- Semaforo verde
+
+Aprire:
+https://barto1987.github.io/sales-tracker/index.html?v=208
