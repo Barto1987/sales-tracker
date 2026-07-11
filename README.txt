@@ -78,3 +78,15 @@ Esempi:
 
 Aprire:
 https://barto1987.github.io/sales-tracker/index.html?v=204
+
+
+FIX 2.0.5 — CONNETTIVITÀ, SEMPRE SERVITI E MNP
+- OneNet P.IVA Premium e varianti P.IVA riconosciute come ADSL/connettività.
+- Sempre Serviti generico a 0 € non crea righe e non richiede verifica.
+- Solo Sempre Serviti Core, Critical e FWA 5G con importo > 0 entrano nel calcolo.
+- Campo MNP visibile solo se l'offerta contiene SIM Voce o SIM Dati.
+- Senza SIM, MNP viene salvato automaticamente come No.
+- Test TERMOIDROELETTRICA: una sola riga ADSL / OneNet P.IVA Premium, inflow 50,00 €, semaforo verde.
+
+Aprire:
+https://barto1987.github.io/sales-tracker/index.html?v=205

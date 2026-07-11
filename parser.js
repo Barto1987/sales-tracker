@@ -106,6 +106,26 @@ export async function parsePDF(file){
         :`Canone base ${x.v.toFixed(2)} € − attivazione ricorrente netta ${activationNet.toFixed(2)} €; totale netto non trovato`
     })
    }
+  }else if(/OFFERTA\s+OneNet\s+P\.IVA/i.test(b)){
+   const m=b.match(/OFFERTA\s+(OneNet\s+P\.IVA[^\n€]{0,70})/i);
+   const product=m?m[1].replace(/\s+/g,' ').trim():'OneNet P.IVA';
+   const rePlan=new RegExp(product.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'),'i');
+   const x=line(b,rePlan);
+   const net=totalNetMonthly(b);
+   const activationNet=recurringActivationNet(b);
+   if(x){
+     const inflow=net!=null?Math.max(net-activationNet,0):Math.max(x.v-activationNet,0);
+     add(rows,{
+       service:'ADSL',
+       product,
+       category:'Connettività',
+       qty:1,
+       inflowUnit:inflow,
+       calc:net!=null
+         ?`Totale Netto Complessivo ${net.toFixed(2)} € − attivazione ricorrente netta ${activationNet.toFixed(2)} €`
+         :`Canone base ${x.v.toFixed(2)} € − attivazione ricorrente netta ${activationNet.toFixed(2)} €; totale netto non trovato`
+     })
+   }
   }else if(/OFFERTA\s+OneNet|OFFERTA\s+One Net/i.test(b)){
    const isU=/Ufficio/i.test(b),service=isU?'One Net Ufficio':'One Net Azienda';
    const bm=b.match(/(?:OneNet|One Net)\s+(?:Azienda|Ufficio)[^€]{0,80}?\s+([0-9]+[,.]\d{2})\s*€/i);if(!bm)continue;
@@ -113,7 +133,10 @@ export async function parsePDF(file){
    let promo=pm?num(pm[1]):0,interni=0,uc=0,sempre=0,discount=0;
    for(const m of b.matchAll(/Interno\s+(?:Red|Black)\s+(?:(\d+)\s*x\s*)?([0-9]+[,.]\d{2})\s*€/gi))interni+=Number(m[1]||1)*num(m[2]);
    for(const m of b.matchAll(/UC Phone(?: Pro)?\s+(?:(\d+)\s*x\s*)?([0-9]+[,.]\d{2})\s*€/gi))uc+=Number(m[1]||1)*num(m[2]);
-   for(const m of b.matchAll(/Sempre Serviti(?:\s+(?:Core|Critical|FWA 5G))?\s+([0-9]+[,.]\d{2})\s*€/gi))sempre+=num(m[1]);
+   for(const m of b.matchAll(/Sempre Serviti\s+(Core|Critical|FWA\s*5G)\s+([0-9]+[,.]\d{2})\s*€/gi)){
+     const value=num(m[2]);
+     if(value>0)sempre+=value;
+   }
    const d=text.match(/Sconto grandi clienti\s+(-[0-9]+[,.]\d{2})\s*€/i);if(d)discount=num(d[1]);
    add(rows,{service,product:service,category:'Connettività',qty:1,inflowUnit:base+promo+interni+uc+sempre+discount,calc:'Canone − promo + interni − sconto grandi clienti + UC + Sempre Serviti; attivazione e device esclusi'})
   }
