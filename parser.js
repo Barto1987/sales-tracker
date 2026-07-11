@@ -117,13 +117,24 @@ export async function parsePDF(file){
    const unit=net!=null?net/Math.max(qty,1):num(price?.[3]||0);
    if(hasMnpLine(b))detectedMnp=true;
    if(unit||net!=null)add(rows,{service:'SIM Voce',product,category:'Mobile',qty,inflowUnit:unit,confidence:'green',calc:net!=null?'Inflow dalla voce Totale Netto Complessivo mensile della sezione':'Canone mobile letto dalla riga economica'})
-  }else if(/Dati comfort/i.test(b)){
-   const x=line(b,/Dati comfort/i),net=totalNetMonthly(b);
-   if(x){
-    const unit=net!=null?net/Math.max(x.q,1):x.v;
-    if(hasMnpLine(b))detectedMnp=true;
-    add(rows,{service:'SIM Dati',product:'Dati Comfort',category:'Mobile',qty:x.q,inflowUnit:unit,calc:net!=null?'Inflow dalla voce Totale Netto Complessivo mensile della sezione; device esclusi':'Totale netto non trovato: usato canone base, verificare'})
-   }
+  }else if(/OFFERTA\s+Dati\s+/i.test(b)){
+   const head=b.match(/OFFERTA\s+(Dati\s+[^\n€]{2,60})/i);
+   const price=b.match(/\b(Dati\s+[A-Za-z0-9._+-]+(?:\s+[A-Za-z0-9._+-]+){0,2})\s+(?:(\d+)\s*x\s*)?([0-9]{1,3}(?:\.[0-9]{3})*,\d{2}|[0-9]+[,.]\d{2})\s*€/i);
+   const product=(price?.[1]||head?.[1]||'Dati').replace(/\s+/g,' ').trim();
+   const qty=Number(price?.[2]||1),net=totalNetMonthly(b);
+   const unit=net!=null?net/Math.max(qty,1):num(price?.[3]||0);
+   if(hasMnpLine(b))detectedMnp=true;
+   if(unit||net!=null)add(rows,{
+     service:'SIM Dati',
+     product,
+     category:'Mobile',
+     qty,
+     inflowUnit:Math.round(unit*100)/100,
+     confidence:'green',
+     calc:net!=null
+       ?'Inflow dalla voce Totale Netto Complessivo mensile della sezione; device e costi una tantum esclusi'
+       :'Canone SIM Dati letto dalla riga economica'
+   })
   }else if(/OFFERTA\s+Fissa\s+/i.test(b)){
    const header=b.match(/OFFERTA\s+(Fissa\s+[A-Za-z0-9._-]+)/i);
    const priceLine=b.match(/\b(Fissa\s+[A-Za-z0-9._-]+)\s+([0-9]{1,3}(?:\.[0-9]{3})*,\d{2}|[0-9]+[,.]\d{2})\s*€/i);

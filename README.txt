@@ -247,3 +247,24 @@ DATI ESISTENTI
 
 Aprire:
 https://barto1987.github.io/sales-tracker/index.html?v=220
+
+
+FIX 2.2.1 — FAMIGLIA SIM DATI
+- Riconoscimento generico delle offerte che iniziano con OFFERTA Dati.
+- Compatibile con Dati Smart, Dati Comfort e future varianti.
+- Quantità letta direttamente dalla riga economica.
+- Inflow unitario calcolato dal Totale Netto Complessivo diviso quantità.
+- Costi una tantum esclusi.
+- Semaforo verde quando il riepilogo è completo.
+
+TEST VECAR
+- Servizio: SIM Dati
+- Prodotto: Dati Smart
+- Quantità: 3
+- Inflow unitario: 15,00 €
+- Inflow totale: 45,00 €
+- MNP: No / nascosto se non presente
+- Affidabilità: verde
+
+Aprire:
+https://barto1987.github.io/sales-tracker/index.html?v=221
