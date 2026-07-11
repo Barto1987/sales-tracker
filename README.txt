@@ -1,20 +1,32 @@
-SALES TRACKER v1.3 ER
+SALES TRACKER 2.0
 
-Questa versione sostituisce direttamente la v1.2.
+CONTENUTO
+- Home generale
+- Inserimento PDF
+- Prospect e MNP manuali
+- Archivio unico
+- Gara Agenzia
+- Excellent
+- Community
+- Confronto V-Coin con portale
+- Importazione backup v1 e v2
+- Catalogo prodotti separato (421 voci)
+- Listino Easy Rent aggiornato (297 combinazioni)
 
-NOVITÀ
-- Integrate 297 righe ufficiali dal foglio PROVVIGIONI.
-- Riconoscimento automatico di modello device, Kasko e durata.
-- Recupero automatico del CANONE INFLOW Easy Rent.
-- Verde: match esatto.
-- Giallo: match simile da verificare.
-- Rosso: modello non trovato, inflow manuale.
-- Ogni Easy Rent vale 1 pezzo.
-- SIM ed Easy Rent vengono salvati su righe separate.
-- I dati già presenti nel browser restano compatibili.
+COME PUBBLICARE
+1. Estrai lo ZIP.
+2. Nel repository GitHub sales-tracker carica TUTTI i file.
+3. Conferma la sostituzione dei file esistenti.
+4. Commit directly to main.
+5. Attendi 1-2 minuti.
+6. Apri:
+   https://barto1987.github.io/sales-tracker/?v=200
+7. Dopo il test, elimina la vecchia icona Home e aggiungi nuovamente il sito alla schermata Home.
 
-Carica su GitHub tutti i file estratti, incluso easy-rent-list.json,
-e premi Commit changes.
+MIGRAZIONE
+- Dalla Home usa Importa backup.
+- Puoi importare direttamente sales-tracker-backup.json della versione 1.
+- Il sistema raggruppa automaticamente le righe con stesso cliente/offerta/data in un unico contratto con più servizi.
 
-
-FIX 1.3.1: corretto errore JavaScript che impediva il caricamento di dashboard e funzioni.
+NOTA
+La sezione Provvigioni è predisposta a livello dati ma non ancora mostrata come dashboard definitiva.
