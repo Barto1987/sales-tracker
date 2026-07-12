@@ -396,3 +396,28 @@ TEST CLIRE SRL
 
 Aprire:
 https://barto1987.github.io/sales-tracker/index.html?v=231
+
+
+FIX 2.3.2 — ONENET START REGOLA DEFINITIVA
+
+Regola unica:
+- Inflow = Totale Netto Complessivo - 10,00 €
+
+Il parser:
+- non interpreta il canone base;
+- non interpreta promo o sconti;
+- non usa il catalogo;
+- non crea righe Sempre Serviti a 0 €;
+- assegna semaforo verde se trova il Totale Netto Complessivo;
+- richiede inserimento manuale solo se il totale non è presente.
+
+TEST CLIRE SRL
+- Totale Netto Complessivo: 97,50 €
+- Attivazione: 10,00 €
+- Inflow corretto: 87,50 €
+- Servizio: One Net Azienda
+- Prodotto: OneNet Start
+- Affidabilità: verde
+
+Aprire:
+https://barto1987.github.io/sales-tracker/index.html?v=232
