@@ -7,11 +7,11 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icon-192.png">
-<link rel="stylesheet" href="style.css?v=310">
-<title>Sales Tracker 3.1.0</title>
+<link rel="stylesheet" href="style.css?v=330">
+<title>Sales Tracker 3.3.0</title>
 </head>
 <body>
-<header><div class="title">Sales Tracker 3.1.0</div><div class="sub">Cruscotto commerciale personale</div></header>
+<header><div class="title">Sales Tracker 3.3.0</div><div class="sub">Cruscotto commerciale personale</div></header>
 <main>
 <section id="home" class="view active">
 <h2>Home</h2><div id="homeTop"></div><div id="homeCards" class="grid"></div>
@@ -103,6 +103,13 @@
   </div>
 </section>
 
+
+<section id="customers" class="view">
+<h2>Clienti</h2>
+<div class="card"><label>Ricerca globale</label><input id="globalCustomerSearch" type="search" placeholder="Cliente, P.IVA, codice cliente, offerta o prodotto"></div>
+<div id="customerList"></div><div id="customerDashboard" class="hidden"></div>
+</section>
+
 <section id="archive" class="view"><h2>Archivio</h2><div class="card"><input id="archiveSearch" placeholder="Cerca cliente, P.IVA, codice cliente, offerta o prodotto"><label>Agente</label><select id="archiveAgent"><option>Tutti</option><option>Francesco</option><option>Jacopo</option><option>Luciano</option></select><label>Gara Agenzia</label><select id="archiveAgency"><option>Tutti</option><option>Inclusi</option><option>Esclusi</option></select></div><div id="archiveList"></div></section>
 </main>
 <nav>
@@ -112,9 +119,10 @@
 <button data-view="excellent">Excellent</button>
 <button data-view="community">Community</button>
 <button data-view="team">Squadra</button>
+<button data-view="customers">Clienti</button>
 <button data-view="backup">Backup</button>
 </nav>
-<script type="module" src="app.js?v=310"></script>
+<script type="module" src="app.js?v=330"></script>
 <script>
 (async()=>{
   if('serviceWorker' in navigator){

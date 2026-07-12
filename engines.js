@@ -341,3 +341,25 @@ export function availableMonths(store){
   set.add(current);
   return [...set].sort().reverse();
 }
+
+export function customerKey(c){
+  if(c.vat)return `vat:${String(c.vat).trim()}`;
+  if(c.customerCode)return `code:${String(c.customerCode).trim().toLowerCase()}`;
+  return `name:${String(c.client||'Cliente').trim().toLowerCase()}`;
+}
+export function customerDashboard(store,key){
+  const contracts=(store.contracts||[]).filter(c=>c.status!=='Eliminato'&&customerKey(c)===key).sort((a,b)=>(b.date||'').localeCompare(a.date||''));
+  if(!contracts.length)return null;
+  const rows=contracts.flatMap(c=>(c.services||[]).map(s=>({...s,contract:c,totalInflow:inflowOf(s)})));
+  const inflow=rows.reduce((a,r)=>a+r.totalInflow,0);
+  const pieces=rows.reduce((a,r)=>a+Number(r.qty||0),0);
+  const vcoins=rows.reduce((a,r)=>a+r.totalInflow*communityMultiplier(r),0);
+  const agencyInflow=rows.filter(r=>r.contract.includeAgency!==false).reduce((a,r)=>a+r.totalInflow,0);
+  const mix={}; rows.forEach(r=>mix[r.service]=(mix[r.service]||0)+Number(r.qty||0));
+  const first=[...contracts].sort((a,b)=>(a.date||'').localeCompare(b.date||''))[0],last=contracts[0];
+  return {key,client:last.client||first.client||'Cliente',vat:last.vat||first.vat||'',customerCode:last.customerCode||first.customerCode||'',prospect:contracts.some(c=>c.prospect),firstDate:first.date||'',lastDate:last.date||'',inflow,contracts:contracts.length,pieces,vcoins,excellentInflow:inflow,agencyInflow,productMix:mix,contractsList:contracts};
+}
+export function customerList(store){
+  const keys=[...new Set((store.contracts||[]).filter(c=>c.status!=='Eliminato').map(customerKey))];
+  return keys.map(k=>customerDashboard(store,k)).filter(Boolean).sort((a,b)=>b.inflow-a.inflow);
+}

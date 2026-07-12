@@ -1,9 +1,9 @@
 
-import {loadStore,saveStore,importBackupObject} from './storage.js?v=310';
-import {TARGETS,generalStats,agencyStats,agencyBreakdown,excellentStats,excellentBreakdown,communityStats,communityBreakdown,teamStats,teamBreakdown,availableMonths,inflowOf} from './engines.js?v=310';
-import {savePdf,openPdf,deletePdf} from './pdf-store.js?v=310';
-import {initParser,parsePDF} from './parser.js?v=310';
-import {createAutoBackup,getAutoBackupMeta,getFullBackupMeta,downloadDatabaseBackup,downloadCompleteBackup,restoreCompleteBackup,getArchiveStats,formatBytes,formatDate} from './backup.js?v=310';
+import {loadStore,saveStore,importBackupObject} from './storage.js?v=330';
+import {TARGETS,generalStats,agencyStats,agencyBreakdown,excellentStats,excellentBreakdown,communityStats,communityBreakdown,teamStats,teamBreakdown,availableMonths,customerList,customerDashboard,customerKey,inflowOf} from './engines.js?v=330';
+import {savePdf,openPdf,deletePdf} from './pdf-store.js?v=330';
+import {initParser,parsePDF} from './parser.js?v=330';
+import {createAutoBackup,getAutoBackupMeta,getFullBackupMeta,downloadDatabaseBackup,downloadCompleteBackup,restoreCompleteBackup,getArchiveStats,formatBytes,formatDate} from './backup.js?v=330';
 
 let store=loadStore(),parsed=null,pendingPdf=null;
 function persistStore(){
@@ -373,6 +373,41 @@ function renderCommunity(){
 function archiveItem(c){
  return `<div class="card"><div class="item"><div><strong>${c.client}</strong><div class="muted">${c.offer||'Senza offerta'} · ${c.date}</div><div class="muted">P.IVA ${c.vat||'—'} · Codice cliente ${c.customerCode||'—'}</div><div class="muted">${c.services.map(s=>`${s.service} ×${s.qty}${s.service==='SIM Voce'&&s.mnp?' MNP':''}`).join(' · ')}</div><div class="muted">${c.agent||'Francesco'} · Gara Agenzia ${c.includeAgency===false?'No':'Sì'}</div></div><div style="text-align:right"><strong>${money(allInflow(c))}</strong><br><span class="badge ${c.status==='Valido'?'ok':'warn'}">${c.status}</span></div></div><div class="actions">${c.pdfStored?`<button class="secondary" data-open-pdf="${c.id}">📄 Apri PDF</button>`:''}<button class="secondary" data-edit="${c.id}">Modifica attributi</button><button class="danger" data-del="${c.id}">Elimina</button></div></div>`
 }
+
+function customerSearchText(d){
+ return [d.client,d.vat,d.customerCode,...(d.contractsList||[]).flatMap(c=>[c.offer,c.pdfRef,...(c.services||[]).flatMap(x=>[x.service,x.product,x.category])])].join(' ').toLowerCase();
+}
+function renderCustomers(){
+ const list=$('customerList'),dash=$('customerDashboard');if(!list||!dash)return;
+ const q=($('globalCustomerSearch')?.value||'').trim().toLowerCase();
+ const rows=customerList(store).filter(d=>!q||customerSearchText(d).includes(q));
+ list.classList.remove('hidden');dash.classList.add('hidden');
+ list.innerHTML=rows.length?rows.map(d=>`<div class="card customer-list-card" data-customer-key="${encodeURIComponent(d.key)}"><div class="customer-head"><div><div class="customer-name">${d.client}</div><div class="muted">P.IVA ${d.vat||'—'} · Codice cliente ${d.customerCode||'—'}</div></div><strong>${money(d.inflow)}</strong></div><div class="muted" style="margin-top:8px">${d.contracts} contratti · ${d.pieces} pezzi/servizi · ${Math.round(d.vcoins)} V-Coin</div></div>`).join(''):'<div class="card"><div class="note">Nessun cliente trovato.</div></div>';
+ document.querySelectorAll('[data-customer-key]').forEach(x=>x.onclick=()=>openCustomerDashboard(decodeURIComponent(x.dataset.customerKey)));
+ const search=$('globalCustomerSearch');if(search&&!search.dataset.bound){search.dataset.bound='1';search.addEventListener('input',renderCustomers)}
+}
+function opportunitySuggestions(d){
+ const m=d.productMix||{},mobile=(m['SIM Voce']||0)+(m['SIM Dati']||0)+(m['SIM M2M']||0),tips=[];
+ if(mobile>=3&&!((m['One Net Ufficio']||0)+(m['One Net Azienda']||0)))tips.push('Cliente mobile senza One Net.');
+ if(mobile>=3&&!(m['Easy Rent']||0))tips.push('Cliente con più SIM ma senza Easy Rent.');
+ if(!((m['Energia']||0)+(m['Gas']||0)))tips.push('Nessuna fornitura Energia/Gas registrata.');
+ return tips;
+}
+function openCustomerDashboard(key){
+ const d=customerDashboard(store,key);if(!d)return;
+ const list=$('customerList'),dash=$('customerDashboard');list.classList.add('hidden');dash.classList.remove('hidden');
+ const years=[...new Set(d.contractsList.map(c=>(c.date||'').slice(0,4)).filter(Boolean))].sort().reverse();
+ const services=[...new Set(d.contractsList.flatMap(c=>(c.services||[]).map(x=>x.service)).filter(Boolean))].sort();
+ const tips=opportunitySuggestions(d);
+ dash.innerHTML=`<button class="secondary customer-back">← Torna ai clienti</button><div class="card"><div class="customer-head"><div><h3 style="margin:0">${d.client}</h3><div class="muted">P.IVA ${d.vat||'—'} · Codice cliente ${d.customerCode||'—'}</div><div class="muted">${d.prospect?'Prospect rilevato':'Cliente censito'} · Prima ${d.firstDate||'—'} · Ultima ${d.lastDate||'—'}</div></div></div><div class="customer-kpis"><div class="customer-kpi"><small>Inflow totale</small><strong>${money(d.inflow)}</strong></div><div class="customer-kpi"><small>Contratti</small><strong>${d.contracts}</strong></div><div class="customer-kpi"><small>Pezzi/servizi</small><strong>${d.pieces}</strong></div><div class="customer-kpi"><small>V-Coin stimati</small><strong>${Math.round(d.vcoins)}</strong></div><div class="customer-kpi"><small>Excellent inflow</small><strong>${money(d.excellentInflow)}</strong></div><div class="customer-kpi"><small>Gara Agenzia</small><strong>${money(d.agencyInflow)}</strong></div></div></div>
+ <div class="card customer-opportunities"><h3>Opportunità rilevate</h3>${tips.length?tips.map(t=>`<div class="note" style="margin-top:8px">${t}</div>`).join(''):'<div class="muted">Nessuna opportunità automatica evidente.</div>'}</div>
+ <div class="card"><h3>Filtri timeline</h3><div class="customer-filters"><div><label>Anno</label><select id="customerYearFilter"><option value="">Tutti</option>${years.map(y=>`<option>${y}</option>`).join('')}</select></div><div><label>Servizio</label><select id="customerServiceFilter"><option value="">Tutti</option>${services.map(x=>`<option>${x}</option>`).join('')}</select></div></div></div><div class="card"><h3>Timeline pratiche</h3><div id="customerTimeline"></div></div>`;
+ dash.querySelector('.customer-back').onclick=()=>{dash.classList.add('hidden');list.classList.remove('hidden')};
+ const timeline=()=>{const y=$('customerYearFilter').value,sv=$('customerServiceFilter').value,cs=d.contractsList.filter(c=>(!y||(c.date||'').startsWith(y))&&(!sv||(c.services||[]).some(x=>x.service===sv)));
+ $('customerTimeline').innerHTML=cs.length?cs.map(c=>{const total=(c.services||[]).reduce((a,x)=>a+inflowOf(x),0);return `<div class="customer-timeline-item"><div class="customer-head"><div><strong>${c.date||'—'} · ${c.offer||'Senza numero offerta'}</strong><div class="muted">${c.agent||'Francesco'} · Gara Agenzia ${c.includeAgency===false?'No':'Sì'}${c.prospect?' · Prospect':''}</div></div><strong>${money(total)}</strong></div>${(c.services||[]).map(x=>`<div class="customer-product-row"><span>${x.product||x.service} · ${x.qty||1}${x.service==='SIM Voce'&&x.mnp?' · MNP':''}</span><strong>${money(inflowOf(x))}</strong></div>`).join('')}${c.pdfStored?`<button class="secondary open-customer-pdf" data-pdf-id="${c.id}" style="margin-top:10px">📄 Apri PDF</button>`:''}</div>`}).join(''):'<div class="muted">Nessuna pratica con questi filtri.</div>';
+ dash.querySelectorAll('.open-customer-pdf').forEach(b=>b.onclick=async()=>{if(!await openPdf(b.dataset.pdfId))alert('PDF non disponibile su questo dispositivo')})};
+ $('customerYearFilter').onchange=timeline;$('customerServiceFilter').onchange=timeline;timeline();dash.scrollIntoView({behavior:'smooth',block:'start'});
+}
 function renderArchive(){
  const q=($('archiveSearch').value||'').toLowerCase();
  const agent=$('archiveAgent')?.value||'Tutti';
@@ -437,7 +472,7 @@ async function saveParsed(){
  const prospect=$('prospect').value==='Sì';
  const agent=$('agent').value||'Francesco';
  const includeAgency=$('includeAgency').value==='Sì';
- const contract={id:'C-'+Date.now(),date:$('contractDate').value,offer:parsed.meta.offer,client:parsed.meta.client||'Da verificare',vat:parsed.meta.vat,customerCode:parsed.meta.customerCode||'',prospect,agent,includeAgency,status:'Valido',pdfRef:parsed.filename,pdfStored:false,notes:'Sales Tracker 3.1.0',services:[]};
+ const contract={id:'C-'+Date.now(),date:$('contractDate').value,offer:parsed.meta.offer,client:parsed.meta.client||'Da verificare',vat:parsed.meta.vat,customerCode:parsed.meta.customerCode||'',prospect,agent,includeAgency,status:'Valido',pdfRef:parsed.filename,pdfStored:false,notes:'Sales Tracker 3.3.0',services:[]};
  for(const el of rows){
    const service=el.querySelector('.pr-service').value;
    const mnpEl=el.querySelector('.pr-mnp');
@@ -524,7 +559,7 @@ async function renderBackup(){
  };
 }
 
-function renderAll(){renderHome();renderAgency();renderExcellent();renderCommunity();renderTeam();renderArchive();renderBackup()}
+function renderAll(){renderHome();renderAgency();renderExcellent();renderCommunity();renderTeam();renderCustomers();renderArchive();renderBackup()}
 document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>go(b.dataset.view));
 $('archiveSearch').oninput=renderArchive;
 $('pdfInput').onchange=e=>e.target.files[0]&&handlePDF(e.target.files[0]);

@@ -651,3 +651,15 @@ IMPORTANTE
 
 Aprire:
 https://barto1987.github.io/sales-tracker/index.html?v=310
+
+
+SALES TRACKER 3.3.0 — DASHBOARD CLIENTE
+- Ricerca globale per cliente, P.IVA, codice cliente, offerta e prodotto.
+- Scheda cliente con inflow, contratti, pezzi, V-Coin, Excellent e Gara Agenzia.
+- Timeline delle pratiche con filtri per anno e servizio.
+- Apertura PDF originale quando disponibile.
+- Opportunità automatiche: One Net, Easy Rent, Energia/Gas.
+- Tutte le funzioni Backup Center della 3.1.0 restano incluse.
+
+Aprire:
+https://barto1987.github.io/sales-tracker/index.html?v=330

@@ -8,7 +8,7 @@ body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,B
 header{position:sticky;top:0;z-index:20;background:var(--red);color:#fff;padding:calc(14px + env(safe-area-inset-top)) 16px 14px}
 header .title{font-size:22px;font-weight:800} header .sub{font-size:12px;opacity:.9}
 main{max-width:980px;margin:auto;padding:14px 14px 100px}
-nav{position:fixed;left:0;right:0;bottom:0;z-index:30;background:#fff;border-top:1px solid var(--border);display:grid;grid-template-columns:repeat(7,1fr);padding-bottom:env(safe-area-inset-bottom)}
+nav{position:fixed;left:0;right:0;bottom:0;z-index:30;background:#fff;border-top:1px solid var(--border);display:grid;grid-template-columns:repeat(8,1fr);padding-bottom:env(safe-area-inset-bottom)}
 nav button{border:0;background:#fff;padding:11px 2px;font-size:11px}nav button.active{color:var(--red);font-weight:800}
 .view{display:none}.view.active{display:block}
 .card{background:var(--card);border-radius:18px;padding:15px;box-shadow:0 2px 12px rgba(0,0,0,.06);margin-bottom:12px}
@@ -186,6 +186,13 @@ textarea{min-height:74px}
 @media(max-width:520px){
   nav{
     overflow-x:auto;
-    grid-template-columns:repeat(7,minmax(72px,1fr));
+    grid-template-columns:repeat(8,minmax(72px,1fr));
   }
 }
+
+.customer-list-card{cursor:pointer}.customer-head{display:flex;justify-content:space-between;gap:14px;align-items:flex-start}
+.customer-name{font-weight:900;font-size:1.05rem}.customer-kpis{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:14px}
+.customer-kpi{background:#f7f8fa;border-radius:14px;padding:14px}.customer-kpi small{display:block;color:#6b7280}.customer-kpi strong{display:block;margin-top:4px;font-size:1.25rem}
+.customer-timeline-item{border-top:1px solid #e5e7eb;padding:16px 0}.customer-timeline-item:first-child{border-top:0}
+.customer-product-row{display:flex;justify-content:space-between;gap:12px;padding:7px 0}.customer-filters{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.customer-opportunities{background:#eef7ff;border:1px solid #cfe7ff}.customer-back{margin-bottom:14px}
