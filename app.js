@@ -1,10 +1,10 @@
 
-import {loadStore,saveStore,importBackupObject} from './storage.js?v=352';
-import {TARGETS,generalStats,agencyStats,agencyBreakdown,excellentStats,excellentBreakdown,communityStats,communityBreakdown,teamStats,teamBreakdown,availableMonths,customerList,customerDashboard,customerKey,inflowOf} from './engines.js?v=352';
-import {savePdf,openPdf,deletePdf} from './pdf-store.js?v=352';
-import {initParser,parsePDF} from './parser.js?v=352';
-import {createAutoBackup,getAutoBackupMeta,getFullBackupMeta,downloadDatabaseBackup,downloadCompleteBackup,restoreCompleteBackup,getArchiveStats,formatBytes,formatDate} from './backup.js?v=352';
-import {exportSync,readSyncFile,previewMerge,applyMerge,getSyncMeta} from './sync.js?v=352';
+import {loadStore,saveStore,importBackupObject} from './storage.js?v=353';
+import {TARGETS,generalStats,agencyStats,agencyBreakdown,excellentStats,excellentBreakdown,communityStats,communityBreakdown,teamStats,teamBreakdown,availableMonths,customerList,customerDashboard,customerKey,inflowOf} from './engines.js?v=353';
+import {savePdf,openPdf,deletePdf} from './pdf-store.js?v=353';
+import {initParser,parsePDF} from './parser.js?v=353';
+import {createAutoBackup,getAutoBackupMeta,getFullBackupMeta,downloadDatabaseBackup,downloadCompleteBackup,restoreCompleteBackup,getArchiveStats,formatBytes,formatDate} from './backup.js?v=353';
+import {exportSync,readSyncFile,previewMerge,applyMerge,getSyncMeta} from './sync.js?v=353';
 
 let store=loadStore(),parsed=null,pendingPdf=null;
 function persistStore(){
@@ -442,7 +442,9 @@ function renderPreview(){
    /soluzioni digitali|solution security/i.test(r.category||'') ||
    /smart digital marketing|movylo|lookout/i.test(r.product||'')
  );
- $('digitalSplitBox').classList.toggle('hidden',!hasDigitalSolution);
+ const splitBox=$('digitalSplitBox');
+ splitBox.classList.toggle('hidden',!hasDigitalSolution);
+ splitBox.style.display=hasDigitalSolution?'block':'none';
  $('teamSplit').value='none';
 
  const badge=$('confidenceBadge');badge.className='badge '+(parsed.confidence==='green'?'ok':parsed.confidence==='yellow'?'warn':'bad');badge.textContent=parsed.confidence==='green'?'🟢 Alta affidabilità':parsed.confidence==='yellow'?'🟡 Verifica richiesta':'🔴 Manuale';
@@ -460,7 +462,6 @@ function renderPreview(){
  $('agent').value='Francesco';
  $('includeAgency').value='Sì';
  $('teamSplit').value='none';
- $('digitalSplitBox').classList.add('hidden');
 }
 async function handlePDF(file){
  pendingPdf=file;
@@ -493,7 +494,7 @@ async function saveParsed(){
      ?[{agent:'Jacopo',share:.5},{agent:'Luciano',share:.5}]
      :[{agent,share:1}];
  const nowIso=new Date().toISOString();
- const contract={id:'C-'+Date.now(),createdAt:nowIso,updatedAt:nowIso,date:$('contractDate').value,offer:parsed.meta.offer,client:parsed.meta.client||'Da verificare',vat:parsed.meta.vat,customerCode:parsed.meta.customerCode||'',prospect,agent,includeAgency,teamAllocations,status:'Valido',pdfRef:parsed.filename,pdfStored:false,notes:'Sales Tracker 3.5.2',services:[]};
+ const contract={id:'C-'+Date.now(),createdAt:nowIso,updatedAt:nowIso,date:$('contractDate').value,offer:parsed.meta.offer,client:parsed.meta.client||'Da verificare',vat:parsed.meta.vat,customerCode:parsed.meta.customerCode||'',prospect,agent,includeAgency,teamAllocations,status:'Valido',pdfRef:parsed.filename,pdfStored:false,notes:'Sales Tracker 3.5.3',services:[]};
  for(const el of rows){
    const service=el.querySelector('.pr-service').value;
    const mnpEl=el.querySelector('.pr-mnp');

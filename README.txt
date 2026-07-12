@@ -798,3 +798,20 @@ SALES TRACKER 3.5.2 — SOLUTION SPLIT FIX
 
 Aprire:
 https://barto1987.github.io/sales-tracker/index.html?v=352
+
+
+SALES TRACKER 3.5.3 — SPLIT VISIBILITY FIX
+
+- Corretto il bug che nascondeva nuovamente il campo 50/50 alla fine dell'anteprima.
+- Il campo “Condivisione Squadra / Gara Agenzia” ora compare per:
+  * Smart Digital Marketing Start, Expert e Pro;
+  * Movylo Exclusive;
+  * Lookout for Business e Lookout Mobile.
+- Opzioni:
+  * Nessuna condivisione;
+  * 50% Francesco + 50% Jacopo;
+  * 50% Jacopo + 50% Luciano.
+- Excellent e Community restano al 100% su Francesco.
+
+Aprire:
+https://barto1987.github.io/sales-tracker/index.html?v=353
