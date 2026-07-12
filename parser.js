@@ -100,22 +100,36 @@ export async function parsePDF(file){
     add(rows,{service:'Easy Rent',product:desc||'Easy Rent',category:'Noleggio',qty:base.q,inflowUnit:er?er.inflow:0,confidence:er?er.confidence:'red',calc:er?`Listino ${er.plan} · ${er.tier}`:'Easy Rent non trovato: inserire inflow manualmente'});
    }
   }else if(/OFFERTA\s+Easy Rent/i.test(b)){
-   const dm=b.match(/([A-Za-z0-9+ ._-]{4,140}Kasko\s+(?:Smart|Comfort|Extra)\s+(?:24|30|36)m)/i);
-   const desc=dm?dm[1].replace(/\s+/g,' ').trim():'';
-   const er=findER(desc);
-   const price=b.match(/Kasko\s+(?:Smart|Comfort|Extra)\s+(?:24|30|36)m\s+(?:(\d+)\s*x\s*)?([0-9]{1,3}(?:\.[0-9]{3})*,\d{2}|[0-9]+[,.]\d{2})\s*€/i);
-   const qty=Number(price?.[1]||1);
-   add(rows,{
-     service:'Easy Rent',
-     product:desc||'Easy Rent',
-     category:'Noleggio',
-     qty,
-     inflowUnit:er?er.inflow:0,
-     confidence:er?er.confidence:'red',
-     calc:er
-       ?`Listino ufficiale Easy Rent: ${er.plan} · fascia ${er.tier}`
-       :'Easy Rent non trovato nel listino: inserire inflow manualmente'
-   })
+   const erPattern=/(?:OFFERTA\s+Easy Rent|Vincolo\s+\d+\s+mesi)\s+(.+?Kasko\s+(?:Smart|Comfort|Extra)\s+(?:24|30|36)m)\s+(?:(\d+)\s*x\s*)?([0-9]{1,3}(?:\.[0-9]{3})*,\d{2}|[0-9]+[,.]\d{2})\s*€/gi;
+   let found=0;
+   for(const m of b.matchAll(erPattern)){
+     const desc=m[1].replace(/^OFFERTA\s+Easy Rent\s*/i,'').replace(/\s+/g,' ').trim();
+     const qty=Number(m[2]||1);
+     const er=findER(desc);
+     add(rows,{
+       service:'Easy Rent',
+       product:desc||'Easy Rent',
+       category:'Noleggio',
+       qty,
+       inflowUnit:er?Math.round(Number(er.inflow||0)*100)/100:0,
+       confidence:er?er.confidence:'red',
+       calc:er
+         ?`Listino ufficiale Easy Rent: ${er.plan} · fascia ${er.tier}`
+         :'Easy Rent non trovato nel listino: inserire inflow manualmente'
+     });
+     found++;
+   }
+   if(!found){
+     add(rows,{
+       service:'Easy Rent',
+       product:'Easy Rent da verificare',
+       category:'Noleggio',
+       qty:1,
+       inflowUnit:0,
+       confidence:'red',
+       calc:'Nessun device Easy Rent riconosciuto: inserire i dati manualmente'
+     })
+   }
   }else if(/OFFERTA\s+(?:M2M|IoT)\b/i.test(b)){
    const head=b.match(/OFFERTA\s+([^\n€]{3,90})/i);
    const price=b.match(/(?:^|\s)((?:M2M|IoT)[^€]{1,80}?)\s+(?:(\d+)\s*x\s*)?([0-9]{1,3}(?:\.[0-9]{3})*,\d{2}|[0-9]+[,.]\d{2})\s*€/i);

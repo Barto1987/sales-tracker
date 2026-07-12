@@ -287,3 +287,30 @@ TEST ANGHIR SRL
 
 Aprire:
 https://barto1987.github.io/sales-tracker/index.html?v=222
+
+
+FIX 2.2.3 — MULTI EASY RENT STANDALONE
+- Riconosce più dispositivi Easy Rent nello stesso blocco.
+- Crea una riga distinta per ogni modello/Kasko/durata.
+- Ogni dispositivo mantiene il proprio inflow ufficiale e la propria fascia.
+- Il testo "OFFERTA Easy Rent" non entra più nel nome prodotto.
+- Prodotti identici vengono comunque accorpati dal consolidamento esistente.
+
+TEST UNIDEA
+1) iPhone 17 Pro 256GB Kasko Comfort 30m
+   - quantità 1
+   - inflow 16,93 €
+   - fascia PLATINUM
+
+2) iPadPro 2025 13 256GB Kasko Comfort 30m
+   - quantità 1
+   - inflow 20,04 €
+   - fascia SILVER
+
+Totale:
+- 2 pezzi Easy Rent
+- inflow complessivo 36,97 €
+- affidabilità verde
+
+Aprire:
+https://barto1987.github.io/sales-tracker/index.html?v=223
