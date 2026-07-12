@@ -1,10 +1,16 @@
 
-import {loadStore,saveStore,importBackupObject} from './storage.js?v=302';
-import {TARGETS,generalStats,agencyStats,agencyBreakdown,excellentStats,excellentBreakdown,communityStats,communityBreakdown,teamStats,teamBreakdown,availableMonths,inflowOf} from './engines.js?v=302';
-import {savePdf,openPdf,deletePdf} from './pdf-store.js?v=302';
-import {initParser,parsePDF} from './parser.js?v=302';
+import {loadStore,saveStore,importBackupObject} from './storage.js?v=310';
+import {TARGETS,generalStats,agencyStats,agencyBreakdown,excellentStats,excellentBreakdown,communityStats,communityBreakdown,teamStats,teamBreakdown,availableMonths,inflowOf} from './engines.js?v=310';
+import {savePdf,openPdf,deletePdf} from './pdf-store.js?v=310';
+import {initParser,parsePDF} from './parser.js?v=310';
+import {createAutoBackup,getAutoBackupMeta,getFullBackupMeta,downloadDatabaseBackup,downloadCompleteBackup,restoreCompleteBackup,getArchiveStats,formatBytes,formatDate} from './backup.js?v=310';
 
 let store=loadStore(),parsed=null,pendingPdf=null;
+function persistStore(){
+  saveStore(store);
+  createAutoBackup(store);
+}
+createAutoBackup(store);
 const $=id=>document.getElementById(id),money=v=>new Intl.NumberFormat('it-IT',{style:'currency',currency:'EUR'}).format(v||0);
 const pct=(v,t)=>Math.min((v/t)*100,100);
 
@@ -44,7 +50,7 @@ function ensureAutomaticPeriods(){
    store.settings.lastAutoQuarter=validQuarter.key;
  }
 
- saveStore(store);
+ persistStore();
 }
 function quarterOptions(){
  const map=new Map();
@@ -90,7 +96,7 @@ function renderHome(){
 function renderAgency(){
  const periods=quarterOptions(),selected=periodKey(store.settings.agencyPeriod);
  $('agencyPeriodSelect').innerHTML=periods.map(q=>`<option value="${q.key}" ${q.key===selected?'selected':''}>${q.label}</option>`).join('');
- $('agencyPeriodSelect').onchange=()=>{const q=periods.find(x=>x.key===$('agencyPeriodSelect').value);store.settings.agencyPeriod={start:q.start,end:q.end};saveStore(store);renderAgency()};
+ $('agencyPeriodSelect').onchange=()=>{const q=periods.find(x=>x.key===$('agencyPeriodSelect').value);store.settings.agencyPeriod={start:q.start,end:q.end};persistStore();renderAgency()};
  const a=agencyStats(store);
  $('agencyGrid').innerHTML=
    kpi('SIM + Dati + Easy Rent',a.corePieces,TARGETS.agency.corePieces,false,'corePieces','agency')+
@@ -100,12 +106,12 @@ function renderAgency(){
    kpi('Energia + Gas',a.energyGas,TARGETS.agency.energyGas,false,'energyGas','agency');
  bindMetricDetails('agency');
  $('agencyHistory').innerHTML=periods.map(q=>`<div class="item agency-history-item" data-agency-quarter="${q.key}"><div><strong>${q.label}</strong><div class="muted">${q.key===selected?'Visualizzato':'Apri riepilogo'}</div></div><span>›</span></div>`).join('');
- document.querySelectorAll('[data-agency-quarter]').forEach(x=>x.onclick=()=>{const q=periods.find(p=>p.key===x.dataset.agencyQuarter);store.settings.agencyPeriod={start:q.start,end:q.end};saveStore(store);renderAgency();window.scrollTo(0,0)});
+ document.querySelectorAll('[data-agency-quarter]').forEach(x=>x.onclick=()=>{const q=periods.find(p=>p.key===x.dataset.agencyQuarter);store.settings.agencyPeriod={start:q.start,end:q.end};persistStore();renderAgency();window.scrollTo(0,0)});
 }
 function renderExcellent(){
  const periods=quarterOptions(),selected=periodKey(store.settings.excellentPeriod);
  $('excellentPeriodSelect').innerHTML=periods.map(q=>`<option value="${q.key}" ${q.key===selected?'selected':''}>${q.label}</option>`).join('');
- $('excellentPeriodSelect').onchange=()=>{const q=periods.find(x=>x.key===$('excellentPeriodSelect').value);store.settings.excellentPeriod={start:q.start,end:q.end};saveStore(store);renderExcellent()};
+ $('excellentPeriodSelect').onchange=()=>{const q=periods.find(x=>x.key===$('excellentPeriodSelect').value);store.settings.excellentPeriod={start:q.start,end:q.end};persistStore();renderExcellent()};
  const e=excellentStats(store),t=TARGETS.excellent;
  $('excellentSummary').innerHTML=`<div class="card hero"><div class="muted">Premio stimato trimestre</div><strong>${money(e.totalPrize)}</strong><div class="muted">Base 1.000 € + variabile ${money(e.variable)}</div></div>
  <div class="card"><h3>Status ciclo</h3><table class="table-like"><tr><td>Trimestri storici vinti</td><td>${e.historyWon} / 8</td></tr><tr><td>Obiettivo minimo</td><td>6 / 8</td></tr><tr><td>Trimestre corrente</td><td>${e.won?'🟢 Vinto':'🟡 In corso'}</td></tr><tr><td>Ancora necessari</td><td>${e.trimestersNeeded}</td></tr><tr><td>Errori residui consentiti</td><td>2</td></tr></table></div>`;
@@ -137,7 +143,7 @@ function renderExcellent(){
  document.querySelectorAll('[data-excellent-quarter]').forEach(x=>x.onclick=()=>{
    const q=periods.find(p=>p.key===x.dataset.excellentQuarter);
    store.settings.excellentPeriod={start:q.start,end:q.end};
-   saveStore(store);
+   persistStore();
    renderExcellent();
    window.scrollTo(0,0);
  })
@@ -320,8 +326,8 @@ function renderTeam(){
    </table></div>`;
  }).join('');
  $('teamHistory').innerHTML=months.map(m=>`<div class="item team-history-item" data-team-month="${m}"><div><strong>${new Date(m+'-01T12:00:00').toLocaleDateString('it-IT',{month:'long',year:'numeric'})}</strong></div><span>›</span></div>`).join('');
- $('teamMonthSelect').onchange=()=>{store.settings.teamMonth=$('teamMonthSelect').value;saveStore(store);renderTeam()};
- document.querySelectorAll('[data-team-month]').forEach(x=>x.onclick=()=>{store.settings.teamMonth=x.dataset.teamMonth;saveStore(store);renderTeam();window.scrollTo(0,0)});
+ $('teamMonthSelect').onchange=()=>{store.settings.teamMonth=$('teamMonthSelect').value;persistStore();renderTeam()};
+ document.querySelectorAll('[data-team-month]').forEach(x=>x.onclick=()=>{store.settings.teamMonth=x.dataset.teamMonth;persistStore();renderTeam();window.scrollTo(0,0)});
  document.querySelectorAll('[data-team-agent]').forEach(row=>row.onclick=()=>renderTeamDetail(row.dataset.teamAgent,row.dataset.teamKey,row));
 }
 function renderTeamDetail(agent,key,row){
@@ -362,7 +368,7 @@ function renderCommunity(){
  </table></div>`;
  $('communityCompare').innerHTML=`<div class="card"><h3>Confronto portale</h3><label>V-Coin ufficiali dichiarati</label><input id="officialVcoins" type="number" value="${store.officialCommunity.vcoins??''}" placeholder="Inserisci dato portale"><button id="saveOfficial" class="secondary" style="margin-top:10px">Salva confronto</button>${c.difference==null?'':`<div class="note" style="margin-top:10px">Differenza portale − app: <strong>${Math.round(c.difference)}</strong> V-Coin</div>`}</div>`;
  bindMetricDetails('community');
- $('saveOfficial').onclick=()=>{store.officialCommunity.vcoins=Number($('officialVcoins').value||0);store.officialCommunity.updatedAt=new Date().toISOString();saveStore(store);renderCommunity()}
+ $('saveOfficial').onclick=()=>{store.officialCommunity.vcoins=Number($('officialVcoins').value||0);store.officialCommunity.updatedAt=new Date().toISOString();persistStore();renderCommunity()}
 }
 function archiveItem(c){
  return `<div class="card"><div class="item"><div><strong>${c.client}</strong><div class="muted">${c.offer||'Senza offerta'} · ${c.date}</div><div class="muted">P.IVA ${c.vat||'—'} · Codice cliente ${c.customerCode||'—'}</div><div class="muted">${c.services.map(s=>`${s.service} ×${s.qty}${s.service==='SIM Voce'&&s.mnp?' MNP':''}`).join(' · ')}</div><div class="muted">${c.agent||'Francesco'} · Gara Agenzia ${c.includeAgency===false?'No':'Sì'}</div></div><div style="text-align:right"><strong>${money(allInflow(c))}</strong><br><span class="badge ${c.status==='Valido'?'ok':'warn'}">${c.status}</span></div></div><div class="actions">${c.pdfStored?`<button class="secondary" data-open-pdf="${c.id}">📄 Apri PDF</button>`:''}<button class="secondary" data-edit="${c.id}">Modifica attributi</button><button class="danger" data-del="${c.id}">Elimina</button></div></div>`
@@ -379,7 +385,7 @@ function renderArchive(){
    return text.includes(q)&&agentOk&&agencyOk;
  });
  $('archiveList').innerHTML=rows.length?rows.map(archiveItem).join(''):'<div class="card muted">Nessun contratto.</div>';
- document.querySelectorAll('[data-del]').forEach(b=>b.onclick=async()=>{if(confirm('Eliminare il contratto?')){await deletePdf(b.dataset.del).catch(()=>{});store.contracts=store.contracts.filter(c=>c.id!==b.dataset.del);saveStore(store);renderAll()}});
+ document.querySelectorAll('[data-del]').forEach(b=>b.onclick=async()=>{if(confirm('Eliminare il contratto?')){await deletePdf(b.dataset.del).catch(()=>{});store.contracts=store.contracts.filter(c=>c.id!==b.dataset.del);persistStore();renderAll()}});
  document.querySelectorAll('[data-open-pdf]').forEach(b=>b.onclick=async()=>{if(!await openPdf(b.dataset.openPdf))alert('PDF non disponibile su questo dispositivo')});
  document.querySelectorAll('[data-edit]').forEach(b=>b.onclick=()=>editAttrs(b.dataset.edit))
 }
@@ -388,7 +394,7 @@ function editAttrs(id){
  const prospect=confirm(`Cliente ${c.client}\n\nImpostare Prospect = SÌ?\nOK = Sì, Annulla = No`);
  const agent=prompt('Agente di riferimento: Francesco, Jacopo o Luciano',c.agent||'Francesco')||c.agent||'Francesco';
  const includeAgency=confirm('Valido per Gara Agenzia?\nOK = Sì, Annulla = No');
- c.prospect=prospect;c.agent=agent;c.includeAgency=includeAgency;saveStore(store);renderAll()
+ c.prospect=prospect;c.agent=agent;c.includeAgency=includeAgency;persistStore();renderAll()
 }
 function renderPreview(){
  $('previewBox').classList.remove('hidden');
@@ -431,7 +437,7 @@ async function saveParsed(){
  const prospect=$('prospect').value==='Sì';
  const agent=$('agent').value||'Francesco';
  const includeAgency=$('includeAgency').value==='Sì';
- const contract={id:'C-'+Date.now(),date:$('contractDate').value,offer:parsed.meta.offer,client:parsed.meta.client||'Da verificare',vat:parsed.meta.vat,customerCode:parsed.meta.customerCode||'',prospect,agent,includeAgency,status:'Valido',pdfRef:parsed.filename,pdfStored:false,notes:'Sales Tracker 3.0.2',services:[]};
+ const contract={id:'C-'+Date.now(),date:$('contractDate').value,offer:parsed.meta.offer,client:parsed.meta.client||'Da verificare',vat:parsed.meta.vat,customerCode:parsed.meta.customerCode||'',prospect,agent,includeAgency,status:'Valido',pdfRef:parsed.filename,pdfStored:false,notes:'Sales Tracker 3.1.0',services:[]};
  for(const el of rows){
    const service=el.querySelector('.pr-service').value;
    const mnpEl=el.querySelector('.pr-mnp');
@@ -440,12 +446,85 @@ async function saveParsed(){
  if(pendingPdf){
    try{await savePdf(contract.id,pendingPdf);contract.pdfStored=true}catch(e){console.error('PDF non salvato',e)}
  }
- store.contracts.push(contract);saveStore(store);pendingPdf=null;$('previewBox').classList.add('hidden');$('pdfInput').value='';renderAll();go('home');alert(contract.pdfStored?'Contratto e PDF salvati':'Contratto salvato; PDF non disponibile')
+ store.contracts.push(contract);persistStore();pendingPdf=null;$('previewBox').classList.add('hidden');$('pdfInput').value='';renderAll();go('home');alert(contract.pdfStored?'Contratto e PDF salvati':'Contratto salvato; PDF non disponibile')
 }
 function go(id){document.querySelectorAll('.view').forEach(x=>x.classList.remove('active'));document.querySelectorAll('nav button').forEach(x=>x.classList.remove('active'));$(id).classList.add('active');document.querySelector(`nav button[data-view="${id}"]`)?.classList.add('active');window.scrollTo(0,0)}
 function exportBackup(){const a=document.createElement('a'),blob=new Blob([JSON.stringify(store,null,2)],{type:'application/json'});a.href=URL.createObjectURL(blob);a.download='sales-tracker-2-backup.json';a.click()}
-async function importBackup(file){const obj=JSON.parse(await file.text());store=importBackupObject(obj);saveStore(store);renderAll();alert('Backup importato')}
-function renderAll(){renderHome();renderAgency();renderExcellent();renderCommunity();renderTeam();renderArchive()}
+async function importBackup(file){const obj=JSON.parse(await file.text());store=importBackupObject(obj);persistStore();renderAll();alert('Backup importato')}
+
+async function renderBackup(){
+ const health=$('backupHealth');
+ if(!health)return;
+
+ try{
+   const stats=await getArchiveStats(store);
+   health.innerHTML=`<div class="card"><h3>Stato archivio</h3><div class="backup-health-grid">
+     <div class="backup-health-item"><small>Contratti</small><strong>${stats.contracts}</strong></div>
+     <div class="backup-health-item"><small>PDF salvati</small><strong>${stats.pdfs}</strong></div>
+     <div class="backup-health-item"><small>PDF mancanti</small><strong>${stats.missing}</strong></div>
+     <div class="backup-health-item"><small>Spazio PDF</small><strong>${formatBytes(stats.bytes)}</strong></div>
+   </div></div>`;
+
+   const auto=getAutoBackupMeta();
+   $('autoBackupInfo').innerHTML=`<div class="note">Ultimo backup automatico: <strong>${formatDate(auto?.createdAt)}</strong><br>Contratti inclusi: ${auto?.contracts??0} · Dimensione: ${formatBytes(auto?.bytes||0)}</div>`;
+
+   const full=getFullBackupMeta();
+   $('fullBackupInfo').textContent=`Ultimo backup completo: ${formatDate(full?.createdAt)}${full?` · ${full.pdfs} PDF · ${formatBytes(full.bytes)}`:''}`;
+ }catch(e){
+   console.error(e);
+   health.innerHTML='<div class="card"><div class="note">Impossibile leggere lo stato dell’archivio.</div></div>';
+ }
+
+ $('downloadDbBackup').onclick=()=>{
+   const when=downloadDatabaseBackup(store);
+   alert(`Backup rapido creato: ${formatDate(when)}`);
+   renderBackup();
+ };
+
+ $('downloadFullBackup').onclick=async()=>{
+   const btn=$('downloadFullBackup');
+   btn.disabled=true;
+   btn.textContent='Creazione backup…';
+   try{
+     const meta=await downloadCompleteBackup(store);
+     alert(`Backup completo creato con ${meta.pdfs} PDF.`);
+   }catch(e){
+     console.error(e);
+     alert('Errore durante la creazione del backup completo.');
+   }finally{
+     btn.disabled=false;
+     btn.textContent='Scarica backup completo';
+     renderBackup();
+   }
+ };
+
+ $('restoreFullBackup').onclick=async()=>{
+   const file=$('restoreFullInput').files?.[0];
+   if(!file)return alert('Seleziona prima un file ZIP di backup.');
+   if(!confirm('Il ripristino sostituirà il database attuale. Continuare?'))return;
+
+   const btn=$('restoreFullBackup');
+   btn.disabled=true;
+   btn.textContent='Ripristino…';
+
+   try{
+     const result=await restoreCompleteBackup(file);
+     store=result.store;
+     persistStore();
+     alert(`Ripristino completato. PDF ripristinati: ${result.restored}`);
+     renderAll();
+     go('home');
+   }catch(e){
+     console.error(e);
+     alert('Backup non valido o ripristino non riuscito.');
+   }finally{
+     btn.disabled=false;
+     btn.textContent='Ripristina backup completo';
+   }
+ };
+}
+
+function renderAll(){renderHome();renderAgency();renderExcellent();renderCommunity();renderTeam();renderArchive();renderBackup()}
 document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>go(b.dataset.view));
 $('archiveSearch').oninput=renderArchive;
 $('pdfInput').onchange=e=>e.target.files[0]&&handlePDF(e.target.files[0]);

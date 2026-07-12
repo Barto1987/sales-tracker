@@ -612,3 +612,42 @@ GARA AGENZIA
 
 Aprire:
 https://barto1987.github.io/sales-tracker/index.html?v=302
+
+
+SALES TRACKER 3.1.0 — BACKUP CENTER
+
+BACKUP AUTOMATICO
+- Creato all'apertura dell'app.
+- Aggiornato dopo ogni salvataggio o modifica.
+- Include database, contratti, storico e impostazioni.
+- Non include i PDF.
+- È locale: cancellando i dati di Safari può essere eliminato.
+
+BACKUP RAPIDO
+- Download manuale JSON.
+- Non include i PDF.
+- Ideale prima di modifiche o pulizia del browser.
+
+BACKUP COMPLETO
+- Download ZIP con database.json e cartella pdf/.
+- Include tutti i PDF salvati nell'app.
+- Da fare prima di cancellare dati/cache Safari o cambiare dispositivo.
+
+RIPRISTINO COMPLETO
+- Ripristina database e PDF da un backup ZIP Sales Tracker.
+
+CENTRO SALUTE
+- Contratti presenti.
+- PDF salvati.
+- PDF mancanti.
+- Spazio occupato dai PDF.
+- Ultimo backup automatico.
+- Ultimo backup completo.
+
+IMPORTANTE
+- Safari non consente un backup notturno quando la PWA è chiusa.
+- Il backup automatico avviene all'apertura e durante l'uso.
+- Prima di cancellare dati e cache di Safari, scaricare almeno un backup manuale.
+
+Aprire:
+https://barto1987.github.io/sales-tracker/index.html?v=310

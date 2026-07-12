@@ -47,3 +47,32 @@ export async function openPdf(id){
   setTimeout(()=>URL.revokeObjectURL(url),120000);
   return true;
 }
+
+
+export async function listPdfs(){
+  const database=await db();
+  return new Promise((resolve,reject)=>{
+    const tx=database.transaction(STORE,'readonly');
+    const store=tx.objectStore(STORE);
+    const req=store.openCursor();
+    const rows=[];
+    req.onsuccess=()=>{
+      const cursor=req.result;
+      if(!cursor){ resolve(rows); return; }
+      const file=cursor.value;
+      rows.push({
+        id:String(cursor.key),
+        file,
+        name:file?.name||`${cursor.key}.pdf`,
+        size:Number(file?.size||0),
+        type:file?.type||'application/pdf'
+      });
+      cursor.continue();
+    };
+    req.onerror=()=>reject(req.error);
+  });
+}
+
+export async function restorePdf(id,file){
+  return savePdf(id,file);
+}

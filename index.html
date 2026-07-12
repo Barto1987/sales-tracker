@@ -7,11 +7,11 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icon-192.png">
-<link rel="stylesheet" href="style.css?v=302">
-<title>Sales Tracker 3.0.2</title>
+<link rel="stylesheet" href="style.css?v=310">
+<title>Sales Tracker 3.1.0</title>
 </head>
 <body>
-<header><div class="title">Sales Tracker 3.0.2</div><div class="sub">Cruscotto commerciale personale</div></header>
+<header><div class="title">Sales Tracker 3.1.0</div><div class="sub">Cruscotto commerciale personale</div></header>
 <main>
 <section id="home" class="view active">
 <h2>Home</h2><div id="homeTop"></div><div id="homeCards" class="grid"></div>
@@ -65,6 +65,44 @@
 <div class="card"><h3>Storico mensile</h3><div id="teamHistory"></div></div>
 </section>
 
+
+<section id="backup" class="view">
+  <h2>Backup Center</h2>
+
+  <div class="card warning-card">
+    <h3>Prima di cancellare i dati di Safari</h3>
+    <p>Il backup automatico e i PDF salvati nell’app risiedono nei dati del sito. Se cancelli cache e dati di Safari, possono essere eliminati. Prima scarica almeno un backup manuale.</p>
+  </div>
+
+  <div id="backupHealth"></div>
+
+  <div class="card">
+    <h3>Backup automatico database</h3>
+    <p class="muted">Creato all’apertura dell’app e dopo ogni salvataggio o modifica. Non include i PDF e non protegge dalla cancellazione dei dati del sito.</p>
+    <div id="autoBackupInfo"></div>
+  </div>
+
+  <div class="card">
+    <h3>Backup rapido</h3>
+    <p class="muted">Scarica database, contratti, storico e impostazioni. Non include i PDF.</p>
+    <button id="downloadDbBackup">Scarica backup JSON</button>
+  </div>
+
+  <div class="card">
+    <h3>Backup completo</h3>
+    <p class="muted">Scarica un file ZIP con database e tutti i PDF conservati nell’app.</p>
+    <button id="downloadFullBackup">Scarica backup completo</button>
+    <div id="fullBackupInfo" class="field-hint prospect-auto-no"></div>
+  </div>
+
+  <div class="card">
+    <h3>Ripristino completo</h3>
+    <p class="muted">Seleziona un backup ZIP creato da Sales Tracker. Sostituisce il database attuale e ripristina i PDF contenuti.</p>
+    <input id="restoreFullInput" type="file" accept=".zip,application/zip">
+    <button id="restoreFullBackup" class="secondary" style="margin-top:10px">Ripristina backup completo</button>
+  </div>
+</section>
+
 <section id="archive" class="view"><h2>Archivio</h2><div class="card"><input id="archiveSearch" placeholder="Cerca cliente, P.IVA, codice cliente, offerta o prodotto"><label>Agente</label><select id="archiveAgent"><option>Tutti</option><option>Francesco</option><option>Jacopo</option><option>Luciano</option></select><label>Gara Agenzia</label><select id="archiveAgency"><option>Tutti</option><option>Inclusi</option><option>Esclusi</option></select></div><div id="archiveList"></div></section>
 </main>
 <nav>
@@ -74,8 +112,9 @@
 <button data-view="excellent">Excellent</button>
 <button data-view="community">Community</button>
 <button data-view="team">Squadra</button>
+<button data-view="backup">Backup</button>
 </nav>
-<script type="module" src="app.js?v=302"></script>
+<script type="module" src="app.js?v=310"></script>
 <script>
 (async()=>{
   if('serviceWorker' in navigator){
