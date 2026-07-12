@@ -1,10 +1,10 @@
 
-import {loadStore,saveStore,importBackupObject} from './storage.js?v=351';
-import {TARGETS,generalStats,agencyStats,agencyBreakdown,excellentStats,excellentBreakdown,communityStats,communityBreakdown,teamStats,teamBreakdown,availableMonths,customerList,customerDashboard,customerKey,inflowOf} from './engines.js?v=351';
-import {savePdf,openPdf,deletePdf} from './pdf-store.js?v=351';
-import {initParser,parsePDF} from './parser.js?v=351';
-import {createAutoBackup,getAutoBackupMeta,getFullBackupMeta,downloadDatabaseBackup,downloadCompleteBackup,restoreCompleteBackup,getArchiveStats,formatBytes,formatDate} from './backup.js?v=351';
-import {exportSync,readSyncFile,previewMerge,applyMerge,getSyncMeta} from './sync.js?v=351';
+import {loadStore,saveStore,importBackupObject} from './storage.js?v=352';
+import {TARGETS,generalStats,agencyStats,agencyBreakdown,excellentStats,excellentBreakdown,communityStats,communityBreakdown,teamStats,teamBreakdown,availableMonths,customerList,customerDashboard,customerKey,inflowOf} from './engines.js?v=352';
+import {savePdf,openPdf,deletePdf} from './pdf-store.js?v=352';
+import {initParser,parsePDF} from './parser.js?v=352';
+import {createAutoBackup,getAutoBackupMeta,getFullBackupMeta,downloadDatabaseBackup,downloadCompleteBackup,restoreCompleteBackup,getArchiveStats,formatBytes,formatDate} from './backup.js?v=352';
+import {exportSync,readSyncFile,previewMerge,applyMerge,getSyncMeta} from './sync.js?v=352';
 
 let store=loadStore(),parsed=null,pendingPdf=null;
 function persistStore(){
@@ -438,14 +438,17 @@ function editAttrs(id){
 }
 function renderPreview(){
  $('previewBox').classList.remove('hidden');
- const hasDigitalSolution=(parsed.rows||[]).some(r=>r.service==='Solution'&&/soluzioni digitali|solution security/i.test(r.category||''));
+ const hasDigitalSolution=(parsed.rows||[]).some(r=>
+   /soluzioni digitali|solution security/i.test(r.category||'') ||
+   /smart digital marketing|movylo|lookout/i.test(r.product||'')
+ );
  $('digitalSplitBox').classList.toggle('hidden',!hasDigitalSolution);
  $('teamSplit').value='none';
 
  const badge=$('confidenceBadge');badge.className='badge '+(parsed.confidence==='green'?'ok':parsed.confidence==='yellow'?'warn':'bad');badge.textContent=parsed.confidence==='green'?'🟢 Alta affidabilità':parsed.confidence==='yellow'?'🟡 Verifica richiesta':'🔴 Manuale';
  $('previewMeta').innerHTML=`<strong>${parsed.meta.client||'Cliente da verificare'}</strong><br>P.IVA ${parsed.meta.vat||'—'} · Codice cliente ${parsed.meta.customerCode||'—'} · Offerta ${parsed.meta.offer||'—'}`;
  $('previewRows').innerHTML=parsed.rows.length
-   ?parsed.rows.map(r=>`<div class="preview-row"><div class="row"><div><label>Servizio</label><select class="pr-service">${['SIM Voce','SIM Dati','SIM M2M','Easy Rent','Easy Deal','ADSL','One Net Ufficio','One Net Azienda','Energia','Gas','Altro'].map(x=>`<option ${x===r.service?'selected':''}>${x}</option>`).join('')}</select></div><div><label>Quantità</label><input class="pr-qty" type="number" value="${r.qty}"></div></div><label>Prodotto</label><input class="pr-product" value="${r.product}"><label>Categoria</label><input class="pr-category" value="${r.category||''}">${r.service==='SIM Voce'?`<label>MNP</label><select class="pr-mnp"><option ${r.mnp?'':'selected'}>No</option><option ${r.mnp?'selected':''}>Sì</option></select>`:''}<label>Inflow unitario €</label><input class="pr-inflow" type="number" step="0.01" value="${r.inflowUnit||0}"><div class="calc">${r.calc||''}</div></div>`).join('')
+   ?parsed.rows.map(r=>`<div class="preview-row"><div class="row"><div><label>Servizio</label><select class="pr-service">${['SIM Voce','SIM Dati','SIM M2M','Easy Rent','Easy Deal','ADSL','One Net Ufficio','One Net Azienda','Solution','Energia','Gas','Altro'].map(x=>`<option ${x===r.service?'selected':''}>${x}</option>`).join('')}</select></div><div><label>Quantità</label><input class="pr-qty" type="number" value="${r.qty}"></div></div><label>Prodotto</label><input class="pr-product" value="${r.product}"><label>Categoria</label><input class="pr-category" value="${r.category||''}">${r.service==='SIM Voce'?`<label>MNP</label><select class="pr-mnp"><option ${r.mnp?'':'selected'}>No</option><option ${r.mnp?'selected':''}>Sì</option></select>`:''}<label>Inflow unitario €</label><input class="pr-inflow" type="number" step="0.01" value="${r.inflowUnit||0}"><div class="calc">${r.calc||''}</div></div>`).join('')
    :`<div class="note">${(parsed.warnings&&parsed.warnings[0])||'Inserimento manuale richiesto.'}</div>`;
  const suggestedProspect=!!parsed.meta.prospectSuggested;
  $('prospect').value=suggestedProspect?'Sì':'No';
@@ -490,7 +493,7 @@ async function saveParsed(){
      ?[{agent:'Jacopo',share:.5},{agent:'Luciano',share:.5}]
      :[{agent,share:1}];
  const nowIso=new Date().toISOString();
- const contract={id:'C-'+Date.now(),createdAt:nowIso,updatedAt:nowIso,date:$('contractDate').value,offer:parsed.meta.offer,client:parsed.meta.client||'Da verificare',vat:parsed.meta.vat,customerCode:parsed.meta.customerCode||'',prospect,agent,includeAgency,teamAllocations,status:'Valido',pdfRef:parsed.filename,pdfStored:false,notes:'Sales Tracker 3.5.1',services:[]};
+ const contract={id:'C-'+Date.now(),createdAt:nowIso,updatedAt:nowIso,date:$('contractDate').value,offer:parsed.meta.offer,client:parsed.meta.client||'Da verificare',vat:parsed.meta.vat,customerCode:parsed.meta.customerCode||'',prospect,agent,includeAgency,teamAllocations,status:'Valido',pdfRef:parsed.filename,pdfStored:false,notes:'Sales Tracker 3.5.2',services:[]};
  for(const el of rows){
    const service=el.querySelector('.pr-service').value;
    const mnpEl=el.querySelector('.pr-mnp');

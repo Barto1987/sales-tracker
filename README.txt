@@ -780,3 +780,21 @@ SALES TRACKER 3.5.1 — RUNTIME FIX
 
 Aprire:
 https://barto1987.github.io/sales-tracker/index.html?v=351
+
+
+SALES TRACKER 3.5.2 — SOLUTION SPLIT FIX
+
+- Aggiunta la voce “Solution” nel menu Servizio dell’anteprima.
+- Le Soluzioni Digitali non vengono più trasformate automaticamente in SIM Voce.
+- Il campo “Condivisione Squadra / Gara Agenzia” compare quando vengono riconosciuti:
+  * Smart Digital Marketing Start, Expert o Pro;
+  * Movylo Exclusive;
+  * Lookout for Business o Lookout Mobile.
+- Opzioni disponibili:
+  * Nessuna condivisione;
+  * 50% Francesco + 50% Jacopo;
+  * 50% Jacopo + 50% Luciano.
+- Excellent e Community restano sempre attribuiti a Francesco al 100%.
+
+Aprire:
+https://barto1987.github.io/sales-tracker/index.html?v=352
