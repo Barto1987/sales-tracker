@@ -250,7 +250,14 @@ export async function parsePDF(file){
      })
    }
   }else if(/OFFERTA\s+OneNet\s+Start/i.test(b)){
-   const total=totalNetMonthly(b);
+   let total=totalNetMonthly(b);
+
+   if(total==null){
+     const totalMatch=b.match(
+       /Totale\s+Netto\s+Complessivo[\s\S]{0,120}?([0-9]{1,3}(?:\.[0-9]{3})*,\d{2}|[0-9]+[,.]\d{2})\s*€/i
+     );
+     if(totalMatch)total=num(totalMatch[1]);
+   }
 
    if(total!=null){
      const inflow=Math.max(total-10,0);

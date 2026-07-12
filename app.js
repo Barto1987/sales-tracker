@@ -1,7 +1,7 @@
 
-import {loadStore,saveStore,importBackupObject} from './storage.js?v=232';
-import {TARGETS,generalStats,agencyStats,excellentStats,excellentBreakdown,communityStats,teamStats,inflowOf} from './engines.js?v=232';
-import {initParser,parsePDF} from './parser.js?v=232';
+import {loadStore,saveStore,importBackupObject} from './storage.js?v=233';
+import {TARGETS,generalStats,agencyStats,excellentStats,excellentBreakdown,communityStats,teamStats,inflowOf} from './engines.js?v=233';
+import {initParser,parsePDF} from './parser.js?v=233';
 
 let store=loadStore(),parsed=null;
 const $=id=>document.getElementById(id),money=v=>new Intl.NumberFormat('it-IT',{style:'currency',currency:'EUR'}).format(v||0);
@@ -206,7 +206,7 @@ function saveParsed(){
  const mnp=hasMobile && $('mnp').value==='Sì';
  const agent=$('agent').value||'Francesco';
  const includeAgency=$('includeAgency').value==='Sì';
- const contract={id:'C-'+Date.now(),date:$('contractDate').value,offer:parsed.meta.offer,client:parsed.meta.client||'Da verificare',vat:parsed.meta.vat,prospect,mnp,agent,includeAgency,status:'Valido',pdfRef:parsed.filename,notes:'Sales Tracker 2.3.2',services:[]};
+ const contract={id:'C-'+Date.now(),date:$('contractDate').value,offer:parsed.meta.offer,client:parsed.meta.client||'Da verificare',vat:parsed.meta.vat,prospect,mnp,agent,includeAgency,status:'Valido',pdfRef:parsed.filename,notes:'Sales Tracker 2.3.3',services:[]};
  for(const el of rows)contract.services.push({id:'S-'+Math.random().toString(36).slice(2),service:el.querySelector('.pr-service').value,product:el.querySelector('.pr-product').value,category:el.querySelector('.pr-category').value,qty:Number(el.querySelector('.pr-qty').value||1),inflowUnit:Number(el.querySelector('.pr-inflow').value||0),confidence:parsed.confidence,calc:''});
  store.contracts.push(contract);saveStore(store);$('previewBox').classList.add('hidden');$('pdfInput').value='';renderAll();go('home');alert('Contratto salvato')
 }

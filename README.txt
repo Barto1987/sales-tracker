@@ -421,3 +421,16 @@ TEST CLIRE SRL
 
 Aprire:
 https://barto1987.github.io/sales-tracker/index.html?v=232
+
+
+FIX 2.3.3 — ONENET START MULTIRIGA
+- Legge il Totale Netto Complessivo anche nei vecchi PDF con dicitura intermedia.
+- Regola invariata: inflow = Totale Netto Complessivo - 10,00 €.
+
+TEST NATURALMENTE DA LATTE FRIULANO
+- Totale netto: 150,00 €
+- Inflow: 140,00 €
+- Semaforo verde
+
+Aprire:
+https://barto1987.github.io/sales-tracker/index.html?v=233
