@@ -74,8 +74,9 @@ async function extract(file){
 function common(text){
  const offer=(text.match(/Numero Offerta\s*([A-Z0-9]{8,})/i)||text.match(/\b(20\d{2}[A-Z0-9]{7,})\b/)||[])[1]||'';
  const vat=(text.match(/Partita IVA\s*([0-9]{11})/i)||[])[1]||'';
+ const customerCode=(text.match(/Custcode\s*([0-9.]+)/i)||text.match(/Codice\s+Cliente\s*([A-Z0-9.\-]+)/i)||[])[1]||'';
  let client=(text.match(/per\s+([A-Z0-9À-Ü&'.\- ]{3,80}?)(?:Pagina|pagina|Numero Offerta|Riepilogo|$)/i)||[])[1]||'';
- return {offer,vat,client:client.trim().replace(/\s{2,}/g,' ')}
+ return {offer,vat,customerCode,client:client.trim().replace(/\s{2,}/g,' ')}
 }
 function add(rows,r){rows.push({id:'S-'+Math.random().toString(36).slice(2),qty:1,confidence:'green',category:'',product:r.service,mnp:false,...r})}
 function consolidateRows(rows){

@@ -4,13 +4,16 @@ export const LEGACY_KEY='salesTrackerContracts';
 
 export function emptyStore(){
   return {
-    version:2,
+    version:3,
     contracts:[],
     settings:{
       currentMonth:'2026-07',
+      teamMonth:'2026-07',
       agencyPeriod:{start:'2026-07-01',end:'2026-09-30'},
       excellentPeriod:{start:'2026-07-01',end:'2026-09-30'},
       communityMonth:'2026-07',
+      lastAutoMonth:'2026-07',
+      lastAutoQuarter:'2026-Q3',
       agents:['Francesco','Jacopo','Luciano']
     },
     officialCommunity:{vcoins:null,updatedAt:null},
@@ -26,6 +29,9 @@ export function loadStore(){
   if(v2){
     try{
       const store=JSON.parse(v2);
+      store.settings=store.settings||emptyStore().settings;
+      store.settings.agents=store.settings.agents||['Francesco','Jacopo','Luciano'];
+      store.settings.teamMonth=store.settings.teamMonth||store.settings.currentMonth||'2026-07';
       store.contracts=(store.contracts||[]).map(c=>({
         ...c,
         services:(c.services||[]).map(s=>({
@@ -71,7 +77,7 @@ export function migrateLegacy(rows){
 export function importBackupObject(obj){
   const store=emptyStore();
   if(Array.isArray(obj)) store.contracts=migrateLegacy(obj);
-  else if(obj&&obj.version===2&&Array.isArray(obj.contracts)){
+  else if(obj&&(obj.version===2||obj.version===3)&&Array.isArray(obj.contracts)){
     obj.contracts=obj.contracts.map(c=>({
       ...c,
       services:(c.services||[]).map(s=>({

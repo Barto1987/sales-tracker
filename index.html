@@ -7,11 +7,11 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icon-192.png">
-<link rel="stylesheet" href="style.css?v=250">
-<title>Sales Tracker 2.5.0</title>
+<link rel="stylesheet" href="style.css?v=300">
+<title>Sales Tracker 3.0.0</title>
 </head>
 <body>
-<header><div class="title">Sales Tracker 2.5.0</div><div class="sub">Cruscotto commerciale personale</div></header>
+<header><div class="title">Sales Tracker 3.0.0</div><div class="sub">Cruscotto commerciale personale</div></header>
 <main>
 <section id="home" class="view active">
 <h2>Home</h2><div id="homeTop"></div><div id="homeCards" class="grid"></div>
@@ -32,12 +32,15 @@
 
 <section id="agency" class="view">
 <h2>Gara Agenzia</h2>
+<div class="card period-bar"><label>Trimestre visualizzato</label><select id="agencyPeriodSelect"></select></div>
 <div id="agencyGrid" class="grid"></div>
 <div id="agencyDetail" class="hidden"></div>
+<div class="card"><h3>Storico trimestrale</h3><div id="agencyHistory"></div></div>
 </section>
 
 <section id="excellent" class="view">
 <h2>Excellent</h2>
+<div class="card period-bar"><label>Trimestre visualizzato</label><select id="excellentPeriodSelect"></select></div>
 <div id="excellentSummary"></div>
 <div id="excellentGrid" class="grid"></div>
 <div id="excellentDetail" class="hidden"></div>
@@ -55,11 +58,14 @@
 
 <section id="team" class="view">
 <h2>Squadra</h2>
+<div class="card period-bar"><label>Mese visualizzato</label><select id="teamMonthSelect"></select></div>
 <div id="teamSummary"></div>
 <div id="teamCards"></div>
+<div id="teamDetail" class="hidden"></div>
+<div class="card"><h3>Storico mensile</h3><div id="teamHistory"></div></div>
 </section>
 
-<section id="archive" class="view"><h2>Archivio</h2><div class="card"><input id="archiveSearch" placeholder="Cerca cliente, P.IVA, offerta o prodotto"><label>Agente</label><select id="archiveAgent"><option>Tutti</option><option>Francesco</option><option>Jacopo</option><option>Luciano</option></select><label>Gara Agenzia</label><select id="archiveAgency"><option>Tutti</option><option>Inclusi</option><option>Esclusi</option></select></div><div id="archiveList"></div></section>
+<section id="archive" class="view"><h2>Archivio</h2><div class="card"><input id="archiveSearch" placeholder="Cerca cliente, P.IVA, codice cliente, offerta o prodotto"><label>Agente</label><select id="archiveAgent"><option>Tutti</option><option>Francesco</option><option>Jacopo</option><option>Luciano</option></select><label>Gara Agenzia</label><select id="archiveAgency"><option>Tutti</option><option>Inclusi</option><option>Esclusi</option></select></div><div id="archiveList"></div></section>
 </main>
 <nav>
 <button class="active" data-view="home">Home</button>
@@ -69,7 +75,7 @@
 <button data-view="community">Community</button>
 <button data-view="team">Squadra</button>
 </nav>
-<script type="module" src="app.js?v=250"></script>
+<script type="module" src="app.js?v=300"></script>
 <script>
 (async()=>{
   if('serviceWorker' in navigator){

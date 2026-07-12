@@ -136,3 +136,7 @@ textarea{min-height:74px}
 .metric-table-row td:last-child{font-weight:800;text-align:right}
 .hero.metric-clickable{position:relative;cursor:pointer}
 .hero.metric-clickable::after{content:'›';position:absolute;right:20px;top:50%;transform:translateY(-50%);font-size:32px;font-weight:900}
+
+.period-bar label{margin-top:0}
+.team-history-item,.agency-history-item,.excellent-history-item{cursor:pointer}
+.open-pdf{margin-top:10px}

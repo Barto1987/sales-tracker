@@ -112,8 +112,7 @@ export function communityStats(store){
 }
 
 
-export function teamStats(store){
-  const month=store.settings.currentMonth;
+export function teamStats(store,month=store.settings.teamMonth||store.settings.currentMonth){
   const agents=store.settings.agents||['Francesco','Jacopo','Luciano'];
   const out={};
   for(const agent of agents){
@@ -149,6 +148,9 @@ export function excellentBreakdown(store){
     contractId:r.contract.id,
     client:r.contract.client||'Cliente',
     offer:r.contract.offer||'',
+    vat:r.contract.vat||'',
+    customerCode:r.contract.customerCode||'',
+    pdfStored:!!r.contract.pdfStored,
     date:r.contract.date||'',
     agent:r.contract.agent||'Francesco',
     prospect:!!r.contract.prospect,
@@ -201,6 +203,10 @@ function detailRow(r,metricValue,metricType='inflow',extra={}){
     contractId:r.contract.id,
     client:r.contract.client||'Cliente',
     offer:r.contract.offer||'',
+    vat:r.contract.vat||'',
+    customerCode:r.contract.customerCode||'',
+    pdfStored:!!r.contract.pdfStored,
+    includeAgency:r.contract.includeAgency!==false,
     date:r.contract.date||'',
     agent:r.contract.agent||'Francesco',
     prospect:!!r.contract.prospect,
@@ -302,4 +308,36 @@ export function communityBreakdown(store){
   }
 
   return {totalVcoins,baseVcoins,inflow,link,mnp,prospect,easyRent,other};
+}
+
+
+export function teamBreakdown(store,month,agent,key){
+  const contracts=store.contracts.filter(c=>active(c)&&c.date.startsWith(month)&&(c.agent||'Francesco')===agent);
+  const rows=contracts.flatMap(c=>c.services.map(s=>({...s,contract:c,totalInflow:inflowOf(s)})));
+  const base=r=>detailRow(r,key==='inflow'?r.totalInflow:Number(r.qty||0),key==='inflow'?'inflow':'pieces');
+  if(key==='contracts')return contracts.map(c=>({
+    contractId:c.id,client:c.client||'Cliente',offer:c.offer||'',vat:c.vat||'',customerCode:c.customerCode||'',
+    pdfStored:!!c.pdfStored,date:c.date||'',agent:c.agent||'Francesco',prospect:!!c.prospect,includeAgency:c.includeAgency!==false,
+    service:'Contratto',product:(c.services||[]).map(s=>s.product||s.service).join(' · '),qty:(c.services||[]).reduce((a,s)=>a+Number(s.qty||0),0),
+    inflow:(c.services||[]).reduce((a,s)=>a+inflowOf(s),0),metricValue:1,metricType:'contracts'
+  }));
+  const filters={
+    inflow:r=>r.totalInflow>0,
+    products:r=>Number(r.qty||0)>0,
+    simVoice:r=>r.service==='SIM Voce',
+    simData:r=>r.service==='SIM Dati',
+    m2m:r=>r.service==='SIM M2M',
+    adsl:r=>r.service==='ADSL',
+    oneNet:r=>['One Net Ufficio','One Net Azienda'].includes(r.service),
+    easyRent:r=>r.service==='Easy Rent',
+    easyDeal:r=>r.service==='Easy Deal'
+  };
+  return rows.filter(filters[key]||(()=>false)).map(base);
+}
+
+export function availableMonths(store){
+  const set=new Set((store.contracts||[]).map(c=>(c.date||'').slice(0,7)).filter(Boolean));
+  const now=new Date(), current=`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
+  set.add(current);
+  return [...set].sort().reverse();
 }

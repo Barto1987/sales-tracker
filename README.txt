@@ -541,3 +541,29 @@ COMMUNITY
 
 Aprire:
 https://barto1987.github.io/sales-tracker/index.html?v=250
+
+
+SALES TRACKER 3.0.0 — PERIODI, SQUADRA E PDF ORIGINALI
+
+SQUADRA
+- Visione mensile con selettore mese.
+- Ogni voce per agente è espandibile.
+- Storico mensile ricostruito dai contratti, senza cancellare dati.
+
+AGENZIA ED EXCELLENT
+- Cambio automatico al nuovo trimestre.
+- Selettore e storico trimestrale.
+- I contratti restano nell'archivio e ogni periodo ricalcola i propri valori.
+
+DETTAGLIO PRATICHE
+- Cliente, Partita IVA, codice cliente, numero offerta, data, agente,
+  prodotto, quantità, inflow, Prospect, MNP e inclusione Gara Agenzia.
+
+PDF ORIGINALI
+- Il PDF caricato viene salvato localmente in IndexedDB.
+- Pulsante "Apri PDF" in Archivio e nei dettagli.
+- I PDF restano soltanto nel browser/dispositivo in cui sono stati caricati.
+- Il backup JSON non contiene i file PDF binari.
+
+Aprire:
+https://barto1987.github.io/sales-tracker/index.html?v=300
