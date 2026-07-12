@@ -268,3 +268,22 @@ TEST VECAR
 
 Aprire:
 https://barto1987.github.io/sales-tracker/index.html?v=221
+
+
+FIX 2.2.2 — EASY RENT STANDALONE
+- Riconosce offerte composte soltanto da Easy Rent.
+- Legge modello device, Kasko e durata.
+- Cerca il canone inflow nel listino ufficiale Easy Rent.
+- Il canone cliente non viene usato come inflow.
+- Ogni device Easy Rent vale 1 pezzo.
+
+TEST ANGHIR SRL
+- Servizio: Easy Rent
+- Prodotto: iPhone 17 256 GB Kasko Comfort 36m
+- Quantità: 1
+- Inflow unitario: 16,32 €
+- Fascia: GOLD
+- Affidabilità: verde
+
+Aprire:
+https://barto1987.github.io/sales-tracker/index.html?v=222
