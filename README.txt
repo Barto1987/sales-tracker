@@ -663,3 +663,54 @@ SALES TRACKER 3.3.0 — DASHBOARD CLIENTE
 
 Aprire:
 https://barto1987.github.io/sales-tracker/index.html?v=330
+
+
+SALES TRACKER 3.3.1 — HOME CLIENTI E BACKUP
+
+HOME
+- Nuovo riquadro Clienti con conteggio schede.
+- Accesso diretto alla Dashboard Clienti dalla prima pagina.
+- Backup Center spostato interamente nella Home.
+- Stato archivio, backup automatico, backup rapido, backup completo e ripristino ora sono tutti nella prima pagina.
+
+NAVIGAZIONE
+- Rimossi Clienti e Backup dalla barra inferiore.
+- Barra inferiore nuovamente compatta con sole sezioni operative.
+- Clienti resta raggiungibile dalla Home e dall'Archivio.
+
+Aprire:
+https://barto1987.github.io/sales-tracker/index.html?v=331
+
+
+SALES TRACKER 3.4.0 — CENTRO DATI E SINCRONIZZAZIONE
+
+SYNC TRA DISPOSITIVI
+- Esporta un file JSON leggero.
+- Salvalo in iCloud Drive.
+- Importalo su iPhone, iPad o iMac.
+- Il sistema confronta i database prima di importare.
+- Mostra pratiche nuove, aggiornate e già presenti.
+- Unisce i contratti usando l'ID univoco.
+- Non duplica le pratiche già presenti.
+- Se una pratica importata è più recente, aggiorna quella locale.
+
+PDF
+- Il file Sync non include i PDF.
+- Per trasferire anche i PDF usa Backup completo ZIP.
+- I PDF già presenti sul dispositivo restano invariati.
+
+CENTRO DATI
+- Backup rapido JSON.
+- Backup completo ZIP con PDF.
+- Esporta Sync.
+- Importa Sync.
+- Ripristino completo.
+
+FLUSSO CONSIGLIATO
+1. Dopo aver lavorato su un dispositivo: Esporta Sync.
+2. Salva il file nella cartella Sales Tracker di iCloud Drive.
+3. Sugli altri dispositivi: Importa Sync.
+4. Per trasferire anche i PDF, usa occasionalmente il Backup completo.
+
+Aprire:
+https://barto1987.github.io/sales-tracker/index.html?v=340

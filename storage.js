@@ -34,6 +34,8 @@ export function loadStore(){
       store.settings.teamMonth=store.settings.teamMonth||store.settings.currentMonth||'2026-07';
       store.contracts=(store.contracts||[]).map(c=>({
         ...c,
+        createdAt:c.createdAt||c.date||new Date().toISOString(),
+        updatedAt:c.updatedAt||c.createdAt||c.date||new Date().toISOString(),
         services:(c.services||[]).map(s=>({
           ...s,
           mnp:s.mnp!=null?!!s.mnp:(s.service==='SIM Voce'?!!c.mnp:false)
@@ -80,6 +82,8 @@ export function importBackupObject(obj){
   else if(obj&&(obj.version===2||obj.version===3)&&Array.isArray(obj.contracts)){
     obj.contracts=obj.contracts.map(c=>({
       ...c,
+      createdAt:c.createdAt||c.date||new Date().toISOString(),
+      updatedAt:c.updatedAt||c.createdAt||c.date||new Date().toISOString(),
       services:(c.services||[]).map(s=>({
         ...s,
         mnp:s.mnp!=null?!!s.mnp:(s.service==='SIM Voce'?!!c.mnp:false)

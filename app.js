@@ -1,9 +1,10 @@
 
-import {loadStore,saveStore,importBackupObject} from './storage.js?v=330';
-import {TARGETS,generalStats,agencyStats,agencyBreakdown,excellentStats,excellentBreakdown,communityStats,communityBreakdown,teamStats,teamBreakdown,availableMonths,customerList,customerDashboard,customerKey,inflowOf} from './engines.js?v=330';
-import {savePdf,openPdf,deletePdf} from './pdf-store.js?v=330';
-import {initParser,parsePDF} from './parser.js?v=330';
-import {createAutoBackup,getAutoBackupMeta,getFullBackupMeta,downloadDatabaseBackup,downloadCompleteBackup,restoreCompleteBackup,getArchiveStats,formatBytes,formatDate} from './backup.js?v=330';
+import {loadStore,saveStore,importBackupObject} from './storage.js?v=340';
+import {TARGETS,generalStats,agencyStats,agencyBreakdown,excellentStats,excellentBreakdown,communityStats,communityBreakdown,teamStats,teamBreakdown,availableMonths,customerList,customerDashboard,customerKey,inflowOf} from './engines.js?v=340';
+import {savePdf,openPdf,deletePdf} from './pdf-store.js?v=340';
+import {initParser,parsePDF} from './parser.js?v=340';
+import {createAutoBackup,getAutoBackupMeta,getFullBackupMeta,downloadDatabaseBackup,downloadCompleteBackup,restoreCompleteBackup,getArchiveStats,formatBytes,formatDate} from './backup.js?v=340';
+import {exportSync,readSyncFile,previewMerge,applyMerge,getSyncMeta} from './sync.js?v=340';
 
 let store=loadStore(),parsed=null,pendingPdf=null;
 function persistStore(){
@@ -83,6 +84,8 @@ function kpi(label,v,t,euro=false,detailKey='',section='excellent'){
 }
 function allInflow(c){return c.services.reduce((a,s)=>a+inflowOf(s),0)}
 function renderHome(){
+ const customerCount=customerList(store).length;
+
  const g=generalStats(store),a=agencyStats(store),e=excellentStats(store),c=communityStats(store);
  $('homeTop').innerHTML=`<div class="card hero"><div class="muted">Luglio 2026</div><strong>${money(g.inflow)}</strong><div class="muted">${g.contracts} contratti · ${g.pieces} pezzi/servizi</div></div>`;
  $('homeCards').innerHTML=`
@@ -92,6 +95,8 @@ function renderHome(){
  <div class="card section-link" data-go="team"><div><small>Squadra</small><strong>${money(teamStats(store).Totale.inflow)}</strong><div class="muted">inflow mese</div></div><span>›</span></div>
  <div class="card section-link" data-go="archive"><div><small>Archivio</small><strong>${store.contracts.length}</strong><div class="muted">contratti totali</div></div><span>›</span></div>`;
  document.querySelectorAll('[data-go]').forEach(x=>x.onclick=()=>go(x.dataset.go))
+ const hc=$('homeCustomerCount');if(hc)hc.textContent=customerCount;
+
 }
 function renderAgency(){
  const periods=quarterOptions(),selected=periodKey(store.settings.agencyPeriod);
@@ -429,7 +434,7 @@ function editAttrs(id){
  const prospect=confirm(`Cliente ${c.client}\n\nImpostare Prospect = SÌ?\nOK = Sì, Annulla = No`);
  const agent=prompt('Agente di riferimento: Francesco, Jacopo o Luciano',c.agent||'Francesco')||c.agent||'Francesco';
  const includeAgency=confirm('Valido per Gara Agenzia?\nOK = Sì, Annulla = No');
- c.prospect=prospect;c.agent=agent;c.includeAgency=includeAgency;persistStore();renderAll()
+ c.prospect=prospect;c.agent=agent;c.includeAgency=includeAgency;c.updatedAt=new Date().toISOString();persistStore();renderAll()
 }
 function renderPreview(){
  $('previewBox').classList.remove('hidden');
@@ -472,7 +477,8 @@ async function saveParsed(){
  const prospect=$('prospect').value==='Sì';
  const agent=$('agent').value||'Francesco';
  const includeAgency=$('includeAgency').value==='Sì';
- const contract={id:'C-'+Date.now(),date:$('contractDate').value,offer:parsed.meta.offer,client:parsed.meta.client||'Da verificare',vat:parsed.meta.vat,customerCode:parsed.meta.customerCode||'',prospect,agent,includeAgency,status:'Valido',pdfRef:parsed.filename,pdfStored:false,notes:'Sales Tracker 3.3.0',services:[]};
+ const nowIso=new Date().toISOString();
+ const contract={id:'C-'+Date.now(),createdAt:nowIso,updatedAt:nowIso,date:$('contractDate').value,offer:parsed.meta.offer,client:parsed.meta.client||'Da verificare',vat:parsed.meta.vat,customerCode:parsed.meta.customerCode||'',prospect,agent,includeAgency,status:'Valido',pdfRef:parsed.filename,pdfStored:false,notes:'Sales Tracker 3.4.0',services:[]};
  for(const el of rows){
    const service=el.querySelector('.pr-service').value;
    const mnpEl=el.querySelector('.pr-mnp');
@@ -505,6 +511,18 @@ async function renderBackup(){
 
    const full=getFullBackupMeta();
    $('fullBackupInfo').textContent=`Ultimo backup completo: ${formatDate(full?.createdAt)}${full?` · ${full.pdfs} PDF · ${formatBytes(full.bytes)}`:''}`;
+
+   const syncMeta=getSyncMeta();
+   const deviceInput=$('syncDeviceName');
+   if(deviceInput&&!deviceInput.value){
+     deviceInput.value=localStorage.getItem('salesTrackerDeviceName')||'';
+   }
+   const syncStatus=$('syncStatus');
+   if(syncStatus){
+     syncStatus.textContent=syncMeta
+       ?`Ultima Sync: ${formatDate(syncMeta.exportedAt||syncMeta.importedAt)} · ${syncMeta.contracts||0} contratti`
+       :'Nessuna sincronizzazione eseguita';
+   }
  }catch(e){
    console.error(e);
    health.innerHTML='<div class="card"><div class="note">Impossibile leggere lo stato dell’archivio.</div></div>';
@@ -530,6 +548,52 @@ async function renderBackup(){
      btn.disabled=false;
      btn.textContent='Scarica backup completo';
      renderBackup();
+   }
+ };
+
+
+ $('exportSync').onclick=()=>{
+   const device=($('syncDeviceName').value||'Dispositivo').trim();
+   localStorage.setItem('salesTrackerDeviceName',device);
+   const payload=exportSync(store,device);
+   $('syncStatus').textContent=`Sync esportata: ${formatDate(payload.exportedAt)} · ${payload.store.contracts.length} contratti`;
+ };
+
+ $('importSyncInput').onchange=async()=>{
+   const file=$('importSyncInput').files?.[0];
+   if(!file)return;
+
+   try{
+     const payload=await readSyncFile(file);
+     const preview=previewMerge(store,payload.store);
+     const box=$('syncPreview');
+     box.classList.remove('hidden');
+     box.innerHTML=`<div class="sync-preview-card">
+       <strong>Confronto sincronizzazione</strong>
+       <div class="muted">File da ${payload.deviceName||'altro dispositivo'} · ${formatDate(payload.exportedAt)}</div>
+       <div class="sync-preview-grid">
+         <div class="sync-preview-item"><small>Nuove pratiche</small><strong>${preview.added}</strong></div>
+         <div class="sync-preview-item"><small>Da aggiornare</small><strong>${preview.updated}</strong></div>
+         <div class="sync-preview-item"><small>Già presenti</small><strong>${preview.unchanged}</strong></div>
+         <div class="sync-preview-item"><small>Totale finale</small><strong>${preview.finalContracts}</strong></div>
+       </div>
+       <button id="confirmSyncImport" style="margin-top:12px">Conferma sincronizzazione</button>
+     </div>`;
+
+     $('confirmSyncImport').onclick=()=>{
+       const result=applyMerge(store,payload.store);
+       store=result.store;
+       persistStore();
+       alert(`Sincronizzazione completata. Nuove: ${result.added} · Aggiornate: ${result.updated}`);
+       box.classList.add('hidden');
+       box.innerHTML='';
+       $('importSyncInput').value='';
+       renderAll();
+     };
+   }catch(e){
+     console.error(e);
+     alert('File Sync non valido o non leggibile.');
+     $('importSyncInput').value='';
    }
  };
 
