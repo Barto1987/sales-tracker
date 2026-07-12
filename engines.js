@@ -141,7 +141,23 @@ export function communityStats(store){
     }
   }
   const official=store.officialCommunity.vcoins;
-  return {inflow,link,vcoins,boosts,ability:inflow>=800&&link>=350,official,difference:official==null?null:official-vcoins}
+  const manual=store.communityManualExtras?.[month]||{};
+  const flashVcoins=Number(manual.flashVcoins||0);
+  const courseVcoins=Number(manual.courseVcoins||0);
+  const automaticVcoins=vcoins;
+  const totalVcoins=automaticVcoins+flashVcoins+courseVcoins;
+  return {
+    inflow,link,
+    vcoins:totalVcoins,
+    automaticVcoins,
+    flashVcoins,
+    courseVcoins,
+    manualExtras:flashVcoins+courseVcoins,
+    boosts,
+    ability:inflow>=800&&link>=350,
+    official,
+    difference:official==null?null:official-totalVcoins
+  }
 }
 
 

@@ -937,3 +937,15 @@ COMMUNITY
 
 Aprire:
 https://barto1987.github.io/sales-tracker/index.html?v=370
+
+
+SALES TRACKER 3.7.1 — COMMUNITY EXTRA MANUALI
+- Gare Flash: V-Coin e nota manuale per mese.
+- Corsi obbligatori: V-Coin e nota manuale per mese.
+- Spunte di verifica sul portale.
+- Totale Community = automatici + extra manuali.
+- Confronto portale aggiornato sul totale completo.
+- Storico separato per ogni mese Community.
+
+Aprire:
+https://barto1987.github.io/sales-tracker/index.html?v=371

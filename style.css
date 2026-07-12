@@ -370,3 +370,9 @@ textarea{min-height:74px}
 .regulations-intro{
   background:#f7f8fa;
 }
+
+.community-extra-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.community-extra-checks{display:grid;gap:8px;margin-top:14px}
+.community-extra-checks label{display:flex;align-items:center;gap:8px;font-weight:700}
+.community-extra-checks input{width:auto}
+@media(max-width:600px){.community-extra-grid{grid-template-columns:1fr}}

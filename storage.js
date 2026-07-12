@@ -17,6 +17,7 @@ export function emptyStore(){
       agents:['Francesco','Jacopo','Luciano']
     },
     officialCommunity:{vcoins:null,updatedAt:null},
+    communityManualExtras:{},
     excellentHistory:[
       {period:'2025 Q4',label:'Ott–Dic 2025',won:true,total:2250,variable:1250,payment:'Marzo 2026'},
       {period:'2026 Q1',label:'Gen–Mar 2026',won:true,total:2400,variable:1400,payment:'Giugno 2026'},
@@ -30,6 +31,7 @@ export function loadStore(){
     try{
       const store=JSON.parse(v2);
       store.settings=store.settings||emptyStore().settings;
+      store.communityManualExtras=store.communityManualExtras||{};
       store.settings.agents=store.settings.agents||['Francesco','Jacopo','Luciano'];
       store.settings.teamMonth=store.settings.teamMonth||store.settings.currentMonth||'2026-07';
       store.contracts=(store.contracts||[]).map(c=>({

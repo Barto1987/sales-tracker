@@ -7,11 +7,11 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icon-192.png">
-<link rel="stylesheet" href="style.css?v=370">
-<title>Sales Tracker 3.7.0</title>
+<link rel="stylesheet" href="style.css?v=371">
+<title>Sales Tracker 3.7.1</title>
 </head>
 <body>
-<header><div class="title">Sales Tracker 3.7.0</div><div class="sub">Cruscotto commerciale personale</div></header>
+<header><div class="title">Sales Tracker 3.7.1</div><div class="sub">Cruscotto commerciale personale</div></header>
 <main>
 <section id="home" class="view active">
 <h2>Home</h2><div id="homeTop"></div><div id="homeCards" class="grid"></div>
@@ -138,6 +138,20 @@
 <h2>Community</h2>
 <div id="communitySummary"></div>
 <div id="communityBoosts"></div>
+<div class="card">
+<h3>Extra Community manuali</h3>
+<p class="muted">Valori salvati per il mese Community selezionato.</p>
+<div class="community-extra-grid">
+<div><label>Gare Flash — V-Coin</label><input id="communityFlashVcoins" type="number" min="0" step="1" value="0"><label>Nota Gare Flash</label><input id="communityFlashNote" type="text" placeholder="Es. promo settimana 29"></div>
+<div><label>Corsi obbligatori — V-Coin</label><input id="communityCourseVcoins" type="number" min="0" step="1" value="0"><label>Nota Corsi</label><input id="communityCourseNote" type="text" placeholder="Es. COPPA luglio"></div>
+</div>
+<div class="community-extra-checks">
+<label><input id="communityFlashVerified" type="checkbox"> Gare Flash verificate sul portale</label>
+<label><input id="communityCourseVerified" type="checkbox"> Corsi verificati sul portale</label>
+</div>
+<button id="saveCommunityExtras" style="margin-top:12px">Salva extra del mese</button>
+<div id="communityExtrasStatus" class="field-hint prospect-auto-no"></div>
+</div>
 <div id="communityDetail" class="hidden"></div>
 <div id="communityCompare"></div>
 </section>
@@ -174,8 +188,8 @@
 <button data-view="community">Community</button>
 <button data-view="team">Squadra</button>
 </nav>
-<script src="jszip.min.js?v=370"></script>
-<script type="module" src="app.js?v=370"></script>
+<script src="jszip.min.js?v=371"></script>
+<script type="module" src="app.js?v=371"></script>
 <script>
 (async()=>{
   if('serviceWorker' in navigator){

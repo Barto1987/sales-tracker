@@ -1,11 +1,11 @@
 
-import {loadStore,saveStore,importBackupObject} from './storage.js?v=370';
-import {TARGETS,generalStats,agencyStats,agencyBreakdown,excellentStats,excellentBreakdown,communityStats,communityBreakdown,teamStats,teamBreakdown,availableMonths,customerList,customerDashboard,customerKey,inflowOf} from './engines.js?v=370';
-import {savePdf,openPdf,deletePdf} from './pdf-store.js?v=370';
-import {initParser,parsePDF} from './parser.js?v=370';
-import {createAutoBackup,getAutoBackupMeta,getFullBackupMeta,downloadDatabaseBackup,downloadCompleteBackup,restoreCompleteBackup,getArchiveStats,formatBytes,formatDate} from './backup.js?v=370';
-import {exportSync,readSyncFile,previewMerge,applyMerge,getSyncMeta} from './sync.js?v=370';
-import {regulationGroups} from './regulations.js?v=370';
+import {loadStore,saveStore,importBackupObject} from './storage.js?v=371';
+import {TARGETS,generalStats,agencyStats,agencyBreakdown,excellentStats,excellentBreakdown,communityStats,communityBreakdown,teamStats,teamBreakdown,availableMonths,customerList,customerDashboard,customerKey,inflowOf} from './engines.js?v=371';
+import {savePdf,openPdf,deletePdf} from './pdf-store.js?v=371';
+import {initParser,parsePDF} from './parser.js?v=371';
+import {createAutoBackup,getAutoBackupMeta,getFullBackupMeta,downloadDatabaseBackup,downloadCompleteBackup,restoreCompleteBackup,getArchiveStats,formatBytes,formatDate} from './backup.js?v=371';
+import {exportSync,readSyncFile,previewMerge,applyMerge,getSyncMeta} from './sync.js?v=371';
+import {regulationGroups} from './regulations.js?v=371';
 
 let store=loadStore(),parsed=null,pendingPdf=null;
 function persistStore(){
@@ -196,12 +196,24 @@ const communityDetailLabels={
  mnp:'Boost V-Coin MNP',
  prospect:'Boost V-Coin Prospect',
  easyRent:'Boost V-Coin Easy Rent',
- other:'Altri boost V-Coin'
+ other:'Altri boost V-Coin',manualFlash:'Gare Flash manuali',manualCourses:'Corsi obbligatori manuali'
 };
 
 function renderMetricDetail(section,key,card){
  if(section==='excellent')return renderExcellentDetail(key,card);
-
+ if(section==='community'&&(key==='manualFlash'||key==='manualCourses')){
+   const month=store.settings.communityMonth;
+   const manual=store.communityManualExtras?.[month]||{};
+   const value=key==='manualFlash'?Number(manual.flashVcoins||0):Number(manual.courseVcoins||0);
+   if(value<=0)return;
+   const note=key==='manualFlash'?(manual.flashNote||''):(manual.courseNote||'');
+   const verified=key==='manualFlash'?!!manual.flashVerified:!!manual.courseVerified;
+   const detail=$('communityDetail');
+   detail.classList.remove('hidden');
+   detail.innerHTML=`<div class="card excellent-detail-card"><div class="excellent-detail-head"><div><h3>${key==='manualFlash'?'Gare Flash manuali':'Corsi obbligatori manuali'}</h3><div class="muted">${month}</div></div><button class="excellent-close metric-close">×</button></div><div class="excellent-detail-row"><div class="excellent-detail-main"><div><div class="excellent-detail-client">Inserimento manuale</div><div class="excellent-detail-product">${note||'Nessuna nota'}</div></div><div class="excellent-detail-value">${value} V-Coin</div></div><div class="excellent-detail-meta">Verificato sul portale: ${verified?'Sì':'No'}</div></div></div>`;
+   detail.querySelector('.metric-close').onclick=()=>{detail.classList.add('hidden');detail.innerHTML=''};
+   detail.scrollIntoView({behavior:'smooth',block:'start'});return;
+ }
  const source=section==='agency'?agencyBreakdown(store):communityBreakdown(store);
  const rows=source[key]||[];
  if(!rows.length)return;
@@ -366,7 +378,7 @@ function communityAbilityRow(label,value,key){
 }
 function renderCommunity(){
  const c=communityStats(store);
- $('communitySummary').innerHTML=`<div class="card hero metric-clickable" data-community-detail="totalVcoins" role="button" tabindex="0"><div class="muted">V-Coin stimati</div><strong>${Math.round(c.vcoins)}</strong><div class="muted">Tocca per vedere la composizione</div></div>
+ $('communitySummary').innerHTML=`<div class="card hero metric-clickable" data-community-detail="totalVcoins" role="button" tabindex="0"><div class="muted">V-Coin stimati</div><strong>${Math.round(c.vcoins)}</strong><div class="muted">Automatici ${Math.round(c.automaticVcoins)} · Extra manuali ${Math.round(c.manualExtras)}</div></div>
  <div class="card"><h3>Ability</h3><table class="table-like">
  ${communityAbilityRow('Inflow minimo 800 €',c.inflow,'inflow')}
  ${communityAbilityRow('Link minimo 350 €',c.link,'link')}
@@ -376,9 +388,31 @@ function renderCommunity(){
  ${communityRow('Boost MNP',c.boosts.mnp,'mnp','+')}
  ${communityRow('Boost Prospect',c.boosts.prospect,'prospect','+')}
  ${communityRow('Boost Easy Rent',c.boosts.easyRent,'easyRent','+')}
- ${communityRow('Altri boost',c.boosts.other,'other','+')}
+ ${communityRow('Altri boost',c.boosts.other,'other','+')} ${communityRow('Gare Flash manuali',c.flashVcoins,'manualFlash','+')} ${communityRow('Corsi obbligatori manuali',c.courseVcoins,'manualCourses','+')}
  </table></div>`;
  $('communityCompare').innerHTML=`<div class="card"><h3>Confronto portale</h3><label>V-Coin ufficiali dichiarati</label><input id="officialVcoins" type="number" value="${store.officialCommunity.vcoins??''}" placeholder="Inserisci dato portale"><button id="saveOfficial" class="secondary" style="margin-top:10px">Salva confronto</button>${c.difference==null?'':`<div class="note" style="margin-top:10px">Differenza portale − app: <strong>${Math.round(c.difference)}</strong> V-Coin</div>`}</div>`;
+ const month=store.settings.communityMonth;
+ const manual=store.communityManualExtras?.[month]||{};
+ $('communityFlashVcoins').value=Number(manual.flashVcoins||0);
+ $('communityCourseVcoins').value=Number(manual.courseVcoins||0);
+ $('communityFlashNote').value=manual.flashNote||'';
+ $('communityCourseNote').value=manual.courseNote||'';
+ $('communityFlashVerified').checked=!!manual.flashVerified;
+ $('communityCourseVerified').checked=!!manual.courseVerified;
+ $('communityExtrasStatus').textContent=`Mese: ${month} · Extra totali ${Math.round(c.manualExtras)} V-Coin`;
+ $('saveCommunityExtras').onclick=()=>{
+   store.communityManualExtras=store.communityManualExtras||{};
+   store.communityManualExtras[month]={
+     flashVcoins:Number($('communityFlashVcoins').value||0),
+     courseVcoins:Number($('communityCourseVcoins').value||0),
+     flashNote:$('communityFlashNote').value.trim(),
+     courseNote:$('communityCourseNote').value.trim(),
+     flashVerified:$('communityFlashVerified').checked,
+     courseVerified:$('communityCourseVerified').checked,
+     updatedAt:new Date().toISOString()
+   };
+   persistStore();renderCommunity();alert('Extra Community salvati per '+month);
+ };
  bindMetricDetails('community');
  $('saveOfficial').onclick=()=>{store.officialCommunity.vcoins=Number($('officialVcoins').value||0);store.officialCommunity.updatedAt=new Date().toISOString();persistStore();renderCommunity()}
 }
@@ -502,7 +536,7 @@ async function saveParsed(){
      ?[{agent:'Jacopo',share:.5},{agent:'Luciano',share:.5}]
      :[{agent,share:1}];
  const nowIso=new Date().toISOString();
- const contract={id:'C-'+Date.now(),createdAt:nowIso,updatedAt:nowIso,date:$('contractDate').value,offer:parsed.meta.offer,client:parsed.meta.client||'Da verificare',vat:parsed.meta.vat,customerCode:parsed.meta.customerCode||'',prospect,agent,includeAgency,teamAllocations,status:'Valido',pdfRef:parsed.filename,pdfStored:false,notes:'Sales Tracker 3.7.0',services:[]};
+ const contract={id:'C-'+Date.now(),createdAt:nowIso,updatedAt:nowIso,date:$('contractDate').value,offer:parsed.meta.offer,client:parsed.meta.client||'Da verificare',vat:parsed.meta.vat,customerCode:parsed.meta.customerCode||'',prospect,agent,includeAgency,teamAllocations,status:'Valido',pdfRef:parsed.filename,pdfStored:false,notes:'Sales Tracker 3.7.1',services:[]};
  for(const el of rows){
    const service=el.querySelector('.pr-service').value;
    const mnpEl=el.querySelector('.pr-mnp');
