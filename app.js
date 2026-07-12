@@ -1,10 +1,10 @@
 
-import {loadStore,saveStore,importBackupObject} from './storage.js?v=363';
-import {TARGETS,generalStats,agencyStats,agencyBreakdown,excellentStats,excellentBreakdown,communityStats,communityBreakdown,teamStats,teamBreakdown,availableMonths,customerList,customerDashboard,customerKey,inflowOf} from './engines.js?v=363';
-import {savePdf,openPdf,deletePdf} from './pdf-store.js?v=363';
-import {initParser,parsePDF} from './parser.js?v=363';
-import {createAutoBackup,getAutoBackupMeta,getFullBackupMeta,downloadDatabaseBackup,downloadCompleteBackup,restoreCompleteBackup,getArchiveStats,formatBytes,formatDate} from './backup.js?v=363';
-import {exportSync,readSyncFile,previewMerge,applyMerge,getSyncMeta} from './sync.js?v=363';
+import {loadStore,saveStore,importBackupObject} from './storage.js?v=364';
+import {TARGETS,generalStats,agencyStats,agencyBreakdown,excellentStats,excellentBreakdown,communityStats,communityBreakdown,teamStats,teamBreakdown,availableMonths,customerList,customerDashboard,customerKey,inflowOf} from './engines.js?v=364';
+import {savePdf,openPdf,deletePdf} from './pdf-store.js?v=364';
+import {initParser,parsePDF} from './parser.js?v=364';
+import {createAutoBackup,getAutoBackupMeta,getFullBackupMeta,downloadDatabaseBackup,downloadCompleteBackup,restoreCompleteBackup,getArchiveStats,formatBytes,formatDate} from './backup.js?v=364';
+import {exportSync,readSyncFile,previewMerge,applyMerge,getSyncMeta} from './sync.js?v=364';
 
 let store=loadStore(),parsed=null,pendingPdf=null;
 function persistStore(){
@@ -500,7 +500,7 @@ async function saveParsed(){
      ?[{agent:'Jacopo',share:.5},{agent:'Luciano',share:.5}]
      :[{agent,share:1}];
  const nowIso=new Date().toISOString();
- const contract={id:'C-'+Date.now(),createdAt:nowIso,updatedAt:nowIso,date:$('contractDate').value,offer:parsed.meta.offer,client:parsed.meta.client||'Da verificare',vat:parsed.meta.vat,customerCode:parsed.meta.customerCode||'',prospect,agent,includeAgency,teamAllocations,status:'Valido',pdfRef:parsed.filename,pdfStored:false,notes:'Sales Tracker 3.6.3',services:[]};
+ const contract={id:'C-'+Date.now(),createdAt:nowIso,updatedAt:nowIso,date:$('contractDate').value,offer:parsed.meta.offer,client:parsed.meta.client||'Da verificare',vat:parsed.meta.vat,customerCode:parsed.meta.customerCode||'',prospect,agent,includeAgency,teamAllocations,status:'Valido',pdfRef:parsed.filename,pdfStored:false,notes:'Sales Tracker 3.6.4',services:[]};
  for(const el of rows){
    const service=el.querySelector('.pr-service').value;
    const mnpEl=el.querySelector('.pr-mnp');
@@ -609,7 +609,7 @@ async function renderBackup(){
      alert(`Backup completo creato con ${meta.pdfs} PDF.`);
    }catch(e){
      console.error(e);
-     alert('Errore durante la creazione del backup completo.');
+     alert(`Errore durante la creazione del backup completo: ${e?.message||'errore sconosciuto'}`);
    }finally{
      btn.disabled=false;
      btn.textContent='Scarica backup completo';

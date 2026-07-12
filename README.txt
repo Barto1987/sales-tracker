@@ -887,3 +887,19 @@ IMPORTANTE
 
 Aprire:
 https://barto1987.github.io/sales-tracker/index.html?v=363
+
+
+SALES TRACKER 3.6.4 — FULL BACKUP FIX
+
+- Inclusa JSZip direttamente nell'app.
+- Il backup completo non dipende più da una libreria esterna/CDN.
+- Corretto l'errore “JSZip non disponibile”.
+- Backup completo ZIP con:
+  * database.json;
+  * tutti i PDF presenti nell'app.
+- Ripristino completo ZIP mantenuto.
+- Il semaforo si aggiorna dopo il download riuscito.
+- In caso di errore viene mostrato anche il motivo tecnico.
+
+Aprire:
+https://barto1987.github.io/sales-tracker/index.html?v=364
