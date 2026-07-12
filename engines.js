@@ -156,7 +156,12 @@ export function teamStats(store,month=store.settings.teamMonth||store.settings.c
       adsl:countBy('ADSL'),
       oneNet:countBy('One Net Ufficio')+countBy('One Net Azienda'),
       easyRent:countBy('Easy Rent'),
-      easyDeal:countBy('Easy Deal')
+      easyDeal:countBy('Easy Deal'),
+      digital:rows.filter(s=>
+        s.service==='Solution' ||
+        /soluzioni digitali|solution security/i.test(s.category||'') ||
+        /smart digital marketing|movylo|lookout/i.test(s.product||'')
+      ).reduce((a,s)=>a+s.allocatedInflow,0)
     };
   }
   out.Totale=Object.values(out).reduce((acc,x)=>{
@@ -356,7 +361,11 @@ export function teamBreakdown(store,month,agent,key){
   const rows=allocations.flatMap(({contract,share})=>
     contract.services.map(s=>({...s,contract,allocationShare:share,allocatedAgent:agent,totalInflow:inflowOf(s)*share,allocatedQty:Number(s.qty||0)*share}))
   );
-  const base=r=>detailRow(r,key==='inflow'?r.totalInflow:Number(r.allocatedQty||0),key==='inflow'?'inflow':'pieces');
+  const base=r=>detailRow(
+    r,
+    (key==='inflow'||key==='digital')?r.totalInflow:Number(r.allocatedQty||0),
+    (key==='inflow'||key==='digital')?'inflow':'pieces'
+  );
   const filters={
     inflow:r=>r.totalInflow>0,
     products:r=>Number(r.allocatedQty||0)>0,
@@ -366,7 +375,11 @@ export function teamBreakdown(store,month,agent,key){
     adsl:r=>r.service==='ADSL',
     oneNet:r=>['One Net Ufficio','One Net Azienda'].includes(r.service),
     easyRent:r=>r.service==='Easy Rent',
-    easyDeal:r=>r.service==='Easy Deal'
+    easyDeal:r=>r.service==='Easy Deal',
+    digital:r=>
+      r.service==='Solution' ||
+      /soluzioni digitali|solution security/i.test(r.category||'') ||
+      /smart digital marketing|movylo|lookout/i.test(r.product||'')
   };
   return rows.filter(filters[key]||(()=>false)).map(base);
 }

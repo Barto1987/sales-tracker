@@ -827,3 +827,26 @@ CONDIVISIONE 50/50
 
 Aprire:
 https://barto1987.github.io/sales-tracker/index.html?v=360
+
+
+SALES TRACKER 3.6.1 — COMMUNITY & TEAM DIGITAL
+
+COMMUNITY
+- Nelle due righe Ability vengono mostrati solo i valori inflow in euro.
+- Rimossi i valori numerici duplicati dopo l'importo.
+- Restano cliccabili per vedere la composizione.
+
+SQUADRA
+- Aggiunta la voce Digitali per Francesco, Jacopo e Luciano.
+- Digitali comprende:
+  * Smart Digital Marketing Start, Expert e Pro;
+  * Movylo Exclusive;
+  * Lookout for Business e Lookout Mobile;
+  * altre righe classificate come Solution / Soluzioni Digitali / Solution Security.
+- Il valore Digitali è espresso in euro di inflow.
+- Il dettaglio mostra i singoli contratti e prodotti.
+- Le quote 50/50 restano applicate solo a Squadra e Gara Agenzia.
+- Excellent e Community restano sempre 100% Francesco.
+
+Aprire:
+https://barto1987.github.io/sales-tracker/index.html?v=361
