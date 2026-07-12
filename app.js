@@ -1,7 +1,7 @@
 
-import {loadStore,saveStore,importBackupObject} from './storage.js?v=235';
-import {TARGETS,generalStats,agencyStats,excellentStats,excellentBreakdown,communityStats,teamStats,inflowOf} from './engines.js?v=235';
-import {initParser,parsePDF} from './parser.js?v=235';
+import {loadStore,saveStore,importBackupObject} from './storage.js?v=240';
+import {TARGETS,generalStats,agencyStats,excellentStats,excellentBreakdown,communityStats,teamStats,inflowOf} from './engines.js?v=240';
+import {initParser,parsePDF} from './parser.js?v=240';
 
 let store=loadStore(),parsed=null;
 const $=id=>document.getElementById(id),money=v=>new Intl.NumberFormat('it-IT',{style:'currency',currency:'EUR'}).format(v||0);
@@ -141,7 +141,7 @@ function renderCommunity(){
  $('saveOfficial').onclick=()=>{store.officialCommunity.vcoins=Number($('officialVcoins').value||0);store.officialCommunity.updatedAt=new Date().toISOString();saveStore(store);renderCommunity()}
 }
 function archiveItem(c){
- return `<div class="card"><div class="item"><div><strong>${c.client}</strong><div class="muted">${c.offer||'Senza offerta'} · ${c.date}</div><div class="muted">${c.services.map(s=>`${s.service} ×${s.qty}`).join(' · ')}</div><div class="muted">${c.agent||'Francesco'} · Gara Agenzia ${c.includeAgency===false?'No':'Sì'}</div></div><div style="text-align:right"><strong>${money(allInflow(c))}</strong><br><span class="badge ${c.status==='Valido'?'ok':'warn'}">${c.status}</span></div></div><div class="actions"><button class="secondary" data-edit="${c.id}">Modifica attributi</button><button class="danger" data-del="${c.id}">Elimina</button></div></div>`
+ return `<div class="card"><div class="item"><div><strong>${c.client}</strong><div class="muted">${c.offer||'Senza offerta'} · ${c.date}</div><div class="muted">${c.services.map(s=>`${s.service} ×${s.qty}${s.service==='SIM Voce'&&s.mnp?' MNP':''}`).join(' · ')}</div><div class="muted">${c.agent||'Francesco'} · Gara Agenzia ${c.includeAgency===false?'No':'Sì'}</div></div><div style="text-align:right"><strong>${money(allInflow(c))}</strong><br><span class="badge ${c.status==='Valido'?'ok':'warn'}">${c.status}</span></div></div><div class="actions"><button class="secondary" data-edit="${c.id}">Modifica attributi</button><button class="danger" data-del="${c.id}">Elimina</button></div></div>`
 }
 function renderArchive(){
  const q=($('archiveSearch').value||'').toLowerCase();
@@ -161,23 +161,17 @@ function renderArchive(){
 function editAttrs(id){
  const c=store.contracts.find(x=>x.id===id);if(!c)return;
  const prospect=confirm(`Cliente ${c.client}\n\nImpostare Prospect = SÌ?\nOK = Sì, Annulla = No`);
- const hasMnpEligible=c.services.some(s=>['SIM Voce','SIM Dati'].includes(s.service));
- const mnp=hasMnpEligible?confirm('Il contratto contiene SIM MNP?\nOK = Sì, Annulla = No'):false;
  const agent=prompt('Agente di riferimento: Francesco, Jacopo o Luciano',c.agent||'Francesco')||c.agent||'Francesco';
  const includeAgency=confirm('Valido per Gara Agenzia?\nOK = Sì, Annulla = No');
- c.prospect=prospect;c.mnp=mnp;c.agent=agent;c.includeAgency=includeAgency;saveStore(store);renderAll()
+ c.prospect=prospect;c.agent=agent;c.includeAgency=includeAgency;saveStore(store);renderAll()
 }
 function renderPreview(){
  $('previewBox').classList.remove('hidden');
  const badge=$('confidenceBadge');badge.className='badge '+(parsed.confidence==='green'?'ok':parsed.confidence==='yellow'?'warn':'bad');badge.textContent=parsed.confidence==='green'?'🟢 Alta affidabilità':parsed.confidence==='yellow'?'🟡 Verifica richiesta':'🔴 Manuale';
  $('previewMeta').innerHTML=`<strong>${parsed.meta.client||'Cliente da verificare'}</strong><br>P.IVA ${parsed.meta.vat||'—'} · Offerta ${parsed.meta.offer||'—'}`;
  $('previewRows').innerHTML=parsed.rows.length
-   ?parsed.rows.map(r=>`<div class="preview-row"><div class="row"><div><label>Servizio</label><select class="pr-service">${['SIM Voce','SIM Dati','SIM M2M','Easy Rent','Easy Deal','ADSL','One Net Ufficio','One Net Azienda','Energia','Gas','Altro'].map(x=>`<option ${x===r.service?'selected':''}>${x}</option>`).join('')}</select></div><div><label>Quantità</label><input class="pr-qty" type="number" value="${r.qty}"></div></div><label>Prodotto</label><input class="pr-product" value="${r.product}"><label>Categoria</label><input class="pr-category" value="${r.category||''}"><label>Inflow unitario €</label><input class="pr-inflow" type="number" step="0.01" value="${r.inflowUnit||0}"><div class="calc">${r.calc||''}</div></div>`).join('')
+   ?parsed.rows.map(r=>`<div class="preview-row"><div class="row"><div><label>Servizio</label><select class="pr-service">${['SIM Voce','SIM Dati','SIM M2M','Easy Rent','Easy Deal','ADSL','One Net Ufficio','One Net Azienda','Energia','Gas','Altro'].map(x=>`<option ${x===r.service?'selected':''}>${x}</option>`).join('')}</select></div><div><label>Quantità</label><input class="pr-qty" type="number" value="${r.qty}"></div></div><label>Prodotto</label><input class="pr-product" value="${r.product}"><label>Categoria</label><input class="pr-category" value="${r.category||''}">${r.service==='SIM Voce'?`<label>MNP</label><select class="pr-mnp"><option ${r.mnp?'':'selected'}>No</option><option ${r.mnp?'selected':''}>Sì</option></select>`:''}<label>Inflow unitario €</label><input class="pr-inflow" type="number" step="0.01" value="${r.inflowUnit||0}"><div class="calc">${r.calc||''}</div></div>`).join('')
    :`<div class="note">${(parsed.warnings&&parsed.warnings[0])||'Inserimento manuale richiesto.'}</div>`;
- const hasMnpEligible=parsed.rows.some(r=>['SIM Voce','SIM Dati'].includes(r.service));
- const mnpWrap=$('mnpWrap');
- if(mnpWrap)mnpWrap.classList.toggle('hidden',!hasMnpEligible);
- $('mnp').value=hasMnpEligible&&parsed.detectedMnp?'Sì':'No';
  $('agent').value='Francesco';
  $('includeAgency').value='Sì';
 }
@@ -202,12 +196,14 @@ function saveParsed(){
  if(!parsed)return;
  const rows=[...document.querySelectorAll('.preview-row')];
  const prospect=$('prospect').value==='Sì';
- const hasMobile=rows.some(el=>['SIM Voce','SIM Dati'].includes(el.querySelector('.pr-service').value));
- const mnp=hasMobile && $('mnp').value==='Sì';
  const agent=$('agent').value||'Francesco';
  const includeAgency=$('includeAgency').value==='Sì';
- const contract={id:'C-'+Date.now(),date:$('contractDate').value,offer:parsed.meta.offer,client:parsed.meta.client||'Da verificare',vat:parsed.meta.vat,prospect,mnp,agent,includeAgency,status:'Valido',pdfRef:parsed.filename,notes:'Sales Tracker 2.3.5',services:[]};
- for(const el of rows)contract.services.push({id:'S-'+Math.random().toString(36).slice(2),service:el.querySelector('.pr-service').value,product:el.querySelector('.pr-product').value,category:el.querySelector('.pr-category').value,qty:Number(el.querySelector('.pr-qty').value||1),inflowUnit:Number(el.querySelector('.pr-inflow').value||0),confidence:parsed.confidence,calc:''});
+ const contract={id:'C-'+Date.now(),date:$('contractDate').value,offer:parsed.meta.offer,client:parsed.meta.client||'Da verificare',vat:parsed.meta.vat,prospect,agent,includeAgency,status:'Valido',pdfRef:parsed.filename,notes:'Sales Tracker 2.4.0',services:[]};
+ for(const el of rows){
+   const service=el.querySelector('.pr-service').value;
+   const mnpEl=el.querySelector('.pr-mnp');
+   contract.services.push({id:'S-'+Math.random().toString(36).slice(2),service,product:el.querySelector('.pr-product').value,category:el.querySelector('.pr-category').value,qty:Number(el.querySelector('.pr-qty').value||1),inflowUnit:Number(el.querySelector('.pr-inflow').value||0),mnp:service==='SIM Voce'&&mnpEl?mnpEl.value==='Sì':false,confidence:parsed.confidence,calc:''});
+ }
  store.contracts.push(contract);saveStore(store);$('previewBox').classList.add('hidden');$('pdfInput').value='';renderAll();go('home');alert('Contratto salvato')
 }
 function go(id){document.querySelectorAll('.view').forEach(x=>x.classList.remove('active'));document.querySelectorAll('nav button').forEach(x=>x.classList.remove('active'));$(id).classList.add('active');document.querySelector(`nav button[data-view="${id}"]`)?.classList.add('active');window.scrollTo(0,0)}

@@ -478,3 +478,30 @@ TEST AREAINOX
 
 Aprire:
 https://barto1987.github.io/sales-tracker/index.html?v=235
+
+
+SALES TRACKER 2.4.0 — MNP PER SINGOLA SIM
+
+- Rimosso il campo MNP globale del contratto.
+- MNP è ora salvato sulla singola riga SIM Voce.
+- Il selettore compare solo sulle righe SIM Voce.
+- Ogni blocco OFFERTA viene analizzato separatamente.
+- Promo MNP o voce MNP nel blocco impostano automaticamente MNP = Sì.
+- Blocchi senza MNP restano MNP = No.
+- Il consolidamento non unisce più SIM MNP e SIM nuove con lo stesso piano.
+- Community applica il boost MNP solo alla riga corretta.
+- I vecchi contratti vengono migrati trasferendo l'eventuale MNP globale alle righe SIM Voce.
+
+TEST Q S EUREGION SRL
+1) Mobile Comfort + Easy Rent
+   - SIM Voce: 16,00 €
+   - MNP: No
+   - Easy Rent iPhone separato
+
+2) Mobile Comfort MNP + Easy Rent
+   - SIM Voce: 13,00 €
+   - MNP: Sì
+   - Easy Rent iPad separato
+
+Aprire:
+https://barto1987.github.io/sales-tracker/index.html?v=240

@@ -81,7 +81,7 @@ function communityMultiplier(row){
   const c=row.contract;
   const name=(row.product||row.service||'').toLowerCase();
   let m=1;
-  if(row.service==='SIM Voce'&&c.mnp)m=Math.max(m,3);
+  if(row.service==='SIM Voce'&&row.mnp)m=Math.max(m,3);
   if(c.prospect)m=Math.max(m,3);
   if(row.service==='Easy Rent')m=Math.max(m,2);
   if(/miia/.test(name))m=Math.max(m,3);
@@ -101,7 +101,7 @@ export function communityStats(store){
     if(excellentFlags(r).link)link+=r.totalInflow;
     const extra=pts-r.totalInflow;
     if(extra>0){
-      if(r.service==='SIM Voce'&&r.contract.mnp)boosts.mnp+=extra;
+      if(r.service==='SIM Voce'&&r.mnp)boosts.mnp+=extra;
       else if(r.contract.prospect)boosts.prospect+=extra;
       else if(r.service==='Easy Rent')boosts.easyRent+=extra;
       else boosts.other+=extra;

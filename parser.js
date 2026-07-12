@@ -77,11 +77,11 @@ function common(text){
  let client=(text.match(/per\s+([A-Z0-9À-Ü&'.\- ]{3,80}?)(?:Pagina|pagina|Numero Offerta|Riepilogo|$)/i)||[])[1]||'';
  return {offer,vat,client:client.trim().replace(/\s{2,}/g,' ')}
 }
-function add(rows,r){rows.push({id:'S-'+Math.random().toString(36).slice(2),qty:1,confidence:'green',category:'',product:r.service,...r})}
+function add(rows,r){rows.push({id:'S-'+Math.random().toString(36).slice(2),qty:1,confidence:'green',category:'',product:r.service,mnp:false,...r})}
 function consolidateRows(rows){
  const out=[],map=new Map();
  for(const r of rows){
-  const key=[r.service,r.product,r.category,Number(r.inflowUnit||0).toFixed(6),r.confidence||'green'].join('|');
+  const key=[r.service,r.product,r.category,Number(r.inflowUnit||0).toFixed(6),r.confidence||'green',r.mnp?'mnp':'new'].join('|');
   if(map.has(key)){
     map.get(key).qty+=Number(r.qty||1);
   }else{
@@ -141,12 +141,16 @@ export async function parsePDF(file){
  const blocks=summaryText.split(/(?=OFFERTA\s+)/).filter(b=>/^OFFERTA\s+/.test(b));
  for(const b of blocks){
   if(/Mobile Comfort - Easy Rent/i.test(b)){
-   const base=line(b,/Mobile Comfort - Easy Rent SoHo SME/i),promo=line(b,/Promo Mobile Comfort \+ Easy Rent/i);
+   const base=line(b,/Mobile Comfort - Easy Rent SoHo SME/i);
+   const isMnp=hasMnpLine(b)||/Promo\s+Mobile\s+Comfort\s+MNP\s*\+\s*Easy\s+Rent/i.test(b);
+   const promo=isMnp
+     ?line(b,/Promo Mobile Comfort MNP \+ Easy Rent/i)
+     :line(b,/Promo Mobile Comfort \+ Easy Rent/i);
    if(base){
-    if(hasMnpLine(b))detectedMnp=true;
-    add(rows,{service:'SIM Voce',product:'Mobile Comfort',category:'Mobile',qty:base.q,inflowUnit:base.v+(promo?promo.v:0),calc:'SIM = canone base meno promo'});
-    const dm=b.match(/([A-Za-z0-9+ ._-]{4,110}Kasko\s+(?:Smart|Comfort|Extra)\s+(?:24|30|36)m)/i),desc=dm?dm[1].trim():'',er=findER(desc);
-    add(rows,{service:'Easy Rent',product:desc||'Easy Rent',category:'Noleggio',qty:base.q,inflowUnit:er?er.inflow:0,confidence:er?er.confidence:'red',calc:er?`Listino ${er.plan} · ${er.tier}`:'Easy Rent non trovato: inserire inflow manualmente'});
+    if(isMnp)detectedMnp=true;
+    add(rows,{service:'SIM Voce',product:'Mobile Comfort',category:'Mobile',qty:base.q,inflowUnit:base.v+(promo?promo.v:0),mnp:isMnp,calc:`SIM = canone base meno promo · ${isMnp?'MNP':'nuova attivazione'}`});
+    const dm=b.match(/([A-Za-z0-9+ ._-]{4,110}Kasko\s+(?:Smart|Comfort|Extra)\s+(?:24|30|36)m(?:\s+Voce)?)/i),desc=dm?dm[1].trim():'',er=findER(desc.replace(/\s+Voce$/i,''));
+    add(rows,{service:'Easy Rent',product:desc||'Easy Rent',category:'Noleggio',qty:base.q,inflowUnit:er?er.inflow:0,mnp:false,confidence:er?er.confidence:'red',calc:er?`Listino ${er.plan} · ${er.tier}`:'Easy Rent non trovato: inserire inflow manualmente'});
    }
   }else if(/OFFERTA\s+Easy Rent/i.test(b)){
    const erPattern=/(?:OFFERTA\s+Easy Rent|Vincolo\s+\d+\s+mesi)\s+(.+?Kasko\s+(?:Smart|Comfort|Extra)\s+(?:24|30|36)m)\s+(?:(\d+)\s*x\s*)?([0-9]{1,3}(?:\.[0-9]{3})*,\d{2}|[0-9]+[,.]\d{2})\s*€/gi;
@@ -331,5 +335,6 @@ export async function parsePDF(file){
    ?'PDF scansionato o privo di testo selezionabile: usare il PDF originale oppure inserire manualmente.'
    :'Nessun prodotto gestito riconosciuto.');
  const confidence=rows.length===0?'red':rows.some(r=>r.confidence!=='green')?'yellow':'green';
+ detectedMnp=rows.some(r=>r.service==='SIM Voce'&&r.mnp);
  return {meta,rows,warnings,confidence,filename:file.name,detectedMnp,imageOnly}
 }

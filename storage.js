@@ -23,7 +23,19 @@ export function emptyStore(){
 }
 export function loadStore(){
   const v2=localStorage.getItem(STORAGE_KEY);
-  if(v2){try{return JSON.parse(v2)}catch{}}
+  if(v2){
+    try{
+      const store=JSON.parse(v2);
+      store.contracts=(store.contracts||[]).map(c=>({
+        ...c,
+        services:(c.services||[]).map(s=>({
+          ...s,
+          mnp:s.mnp!=null?!!s.mnp:(s.service==='SIM Voce'?!!c.mnp:false)
+        }))
+      }));
+      return store;
+    }catch{}
+  }
   const legacy=localStorage.getItem(LEGACY_KEY);
   const store=emptyStore();
   if(legacy){
@@ -50,6 +62,7 @@ export function migrateLegacy(rows){
       qty:Number(r.qty||1),
       inflowUnit:Number(r.manual!==''&&r.manual!=null?r.manual:r.monthly||0),
       confidence:'legacy',
+      mnp:false,
       calc:'Dato migrato dalla versione 1'
     });
   }
@@ -58,7 +71,16 @@ export function migrateLegacy(rows){
 export function importBackupObject(obj){
   const store=emptyStore();
   if(Array.isArray(obj)) store.contracts=migrateLegacy(obj);
-  else if(obj&&obj.version===2&&Array.isArray(obj.contracts)) return obj;
+  else if(obj&&obj.version===2&&Array.isArray(obj.contracts)){
+    obj.contracts=obj.contracts.map(c=>({
+      ...c,
+      services:(c.services||[]).map(s=>({
+        ...s,
+        mnp:s.mnp!=null?!!s.mnp:(s.service==='SIM Voce'?!!c.mnp:false)
+      }))
+    }));
+    return obj;
+  }
   else throw new Error('Formato backup non riconosciuto');
   return store
 }
