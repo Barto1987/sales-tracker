@@ -869,3 +869,21 @@ SQUADRA
 
 Aprire:
 https://barto1987.github.io/sales-tracker/index.html?v=362
+
+
+SALES TRACKER 3.6.3 — BACKUP SEMAFORO
+
+BACKUP COMPLETO
+- Aggiunto semaforo accanto al titolo.
+- Verde: backup completo negli ultimi 3 giorni.
+- Giallo: backup completo tra 4 e 7 giorni fa.
+- Rosso: backup completo più vecchio di 7 giorni o mai eseguito.
+- Visualizzata anche la data/ora dell'ultimo backup completo.
+- Lo stato si aggiorna subito dopo la creazione del backup completo.
+
+IMPORTANTE
+- Il semaforo riguarda il backup completo con PDF.
+- Il backup automatico database resta separato.
+
+Aprire:
+https://barto1987.github.io/sales-tracker/index.html?v=363

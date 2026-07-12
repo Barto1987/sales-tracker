@@ -3,8 +3,8 @@ let PDFJS=null, catalog=[], easyRent=[];
 export async function initParser(){
   PDFJS=await import('https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.10.38/pdf.min.mjs');
   PDFJS.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.10.38/pdf.worker.min.mjs';
-  catalog=await fetch('./catalog.json?v=362').then(r=>r.json());
-  easyRent=await fetch('./easy-rent-list.json?v=362').then(r=>r.json());
+  catalog=await fetch('./catalog.json?v=363').then(r=>r.json());
+  easyRent=await fetch('./easy-rent-list.json?v=363').then(r=>r.json());
 }
 const num=s=>Number(String(s||'0').replace(/\./g,'').replace(',','.').replace(/[^\d.-]/g,''))||0;
 function norm(s){return String(s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]/g,'')}
