@@ -332,3 +332,20 @@ TEST UNIDEA MULTI
 
 Aprire:
 https://barto1987.github.io/sales-tracker/index.html?v=224
+
+
+FIX 2.2.5 — SEMAFORO EASY RENT
+
+- Normalizzazione capacità: 256 equivale a 256GB.
+- Normalizzazione nomi: Pro Max / Pro MAX e iPad Pro / iPadPro.
+- Match verde quando modello, capacità, Kasko e durata identificano una voce univoca.
+- Nessuna modifica ai valori inflow già corretti.
+
+TEST ATTESI
+- iPhone 17 Pro 256 Kasko Comfort 30m: 16,93 €, verde.
+- iPadPro 2025 13 256GB Kasko Comfort 30m: 20,04 €, verde.
+- Multi Easy Rent UNIDEA: 2 righe, totale 36,97 €, verde.
+- iPhone 17 Pro MAX 256 Kasko Comfort 30m: 19,56 €, verde.
+
+Aprire:
+https://barto1987.github.io/sales-tracker/index.html?v=225

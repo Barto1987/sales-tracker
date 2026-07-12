@@ -9,30 +9,62 @@ export async function initParser(){
 const num=s=>Number(String(s||'0').replace(/\./g,'').replace(',','.').replace(/[^\d.-]/g,''))||0;
 function norm(s){return String(s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]/g,'')}
 function tokens(s){return String(s||'').toLowerCase().match(/[a-z]+|\d+/g)||[]}
-function findER(desc){
- const nd=norm(desc);
+function erNorm(s){
+ return norm(String(s||''))
+   .replace(/(\d+)\s*gb\b/g,'$1')
+   .replace(/\bpro\s+max\b/g,'promax')
+   .replace(/\bipad\s+pro\b/g,'ipadpro')
+   .replace(/\s+/g,' ')
+   .trim();
+}
 
- const exactEqual=easyRent.find(x=>norm(x.plan)===nd);
+function findER(desc){
+ const nd=erNorm(desc);
+
+ // 1. Match esatto dopo normalizzazione commerciale:
+ // 256 = 256GB, Pro Max = Pro MAX, iPad Pro = iPadPro.
+ const exactEqual=easyRent.find(x=>erNorm(x.plan)===nd);
  if(exactEqual)return {...exactEqual,confidence:'green'};
 
+ // 2. Match contenuto, scegliendo la voce con differenza minima.
  const contained=easyRent
-   .filter(x=>nd.includes(norm(x.plan))||norm(x.plan).includes(nd))
+   .filter(x=>nd.includes(erNorm(x.plan))||erNorm(x.plan).includes(nd))
    .sort((a,b)=>{
-     const da=Math.abs(norm(a.plan).length-nd.length);
-     const db=Math.abs(norm(b.plan).length-nd.length);
+     const da=Math.abs(erNorm(a.plan).length-nd.length);
+     const db=Math.abs(erNorm(b.plan).length-nd.length);
      if(da!==db)return da-db;
-     return norm(a.plan).length-norm(b.plan).length;
+     return erNorm(a.plan).length-erNorm(b.plan).length;
    });
  if(contained.length)return {...contained[0],confidence:'green'};
 
- let ds=new Set(tokens(desc)),best=null,score=0;
+ // 3. Match strutturale: stesso modello/capacità, Kasko e durata.
+ const descTokens=new Set(tokens(erNorm(desc)));
+ let candidates=[];
  for(const x of easyRent){
-  let ps=new Set(tokens(x.plan)),common=[...ps].filter(t=>ds.has(t)).length,sc=common/Math.max(ps.size,1);
-  let k=['smart','comfort','extra'].some(v=>desc.toLowerCase().includes(v)&&x.plan.toLowerCase().includes(v));
-  let d=['24','30','36'].some(v=>desc.toLowerCase().includes(v+'m')&&x.plan.toLowerCase().includes(v+'m'));
-  if(k&&d&&sc>score){best=x;score=sc}
+   const xp=erNorm(x.plan);
+   const planTokens=new Set(tokens(xp));
+   const common=[...planTokens].filter(t=>descTokens.has(t)).length;
+   const score=common/Math.max(planTokens.size,1);
+   const sameKasko=['smart','comfort','extra'].some(v=>
+     nd.includes(v)&&xp.includes(v)
+   );
+   const sameDuration=['24','30','36'].some(v=>
+     nd.includes(v+'m')&&xp.includes(v+'m')
+   );
+   if(sameKasko&&sameDuration)candidates.push({x,score});
  }
- return best&&score>=.68?{...best,confidence:'yellow'}:null
+ candidates.sort((a,b)=>b.score-a.score);
+
+ // Se la migliore corrispondenza è chiaramente unica, il match è affidabile.
+ if(candidates.length){
+   const best=candidates[0];
+   const second=candidates[1];
+   if(best.score>=.72 && (!second || best.score-second.score>=.08)){
+     return {...best.x,confidence:'green'};
+   }
+   if(best.score>=.68)return {...best.x,confidence:'yellow'};
+ }
+ return null;
 }
 async function extract(file){
  const data=await file.arrayBuffer(),pdf=await PDFJS.getDocument({data}).promise;let pages=[];
