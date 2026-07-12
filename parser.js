@@ -10,8 +10,21 @@ const num=s=>Number(String(s||'0').replace(/\./g,'').replace(',','.').replace(/[
 function norm(s){return String(s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]/g,'')}
 function tokens(s){return String(s||'').toLowerCase().match(/[a-z]+|\d+/g)||[]}
 function findER(desc){
- const nd=norm(desc); let exact=easyRent.find(x=>nd.includes(norm(x.plan))||norm(x.plan).includes(nd));
- if(exact)return {...exact,confidence:'green'};
+ const nd=norm(desc);
+
+ const exactEqual=easyRent.find(x=>norm(x.plan)===nd);
+ if(exactEqual)return {...exactEqual,confidence:'green'};
+
+ const contained=easyRent
+   .filter(x=>nd.includes(norm(x.plan))||norm(x.plan).includes(nd))
+   .sort((a,b)=>{
+     const da=Math.abs(norm(a.plan).length-nd.length);
+     const db=Math.abs(norm(b.plan).length-nd.length);
+     if(da!==db)return da-db;
+     return norm(a.plan).length-norm(b.plan).length;
+   });
+ if(contained.length)return {...contained[0],confidence:'green'};
+
  let ds=new Set(tokens(desc)),best=null,score=0;
  for(const x of easyRent){
   let ps=new Set(tokens(x.plan)),common=[...ps].filter(t=>ds.has(t)).length,sc=common/Math.max(ps.size,1);
@@ -89,6 +102,7 @@ function catalogHints(text,rows){
 }
 export async function parsePDF(file){
  const pages=await extract(file),text=pages.join(' '),summaryText=pages.slice(0,3).join(' '),meta=common(text),warnings=[];let rows=[],detectedMnp=false;
+ const imageOnly=text.replace(/\s+/g,' ').trim().length<80;
  const blocks=summaryText.split(/(?=OFFERTA\s+)/i).filter(b=>/^OFFERTA\s+/i.test(b));
  for(const b of blocks){
   if(/Mobile Comfort - Easy Rent/i.test(b)){
@@ -240,9 +254,11 @@ export async function parsePDF(file){
    add(rows,{service,product:service,category:'Connettività',qty:1,inflowUnit:base+promo+interni+uc+sempre+discount,calc:'Canone − promo + interni − sconto grandi clienti + UC + Sempre Serviti; attivazione e device esclusi'})
   }
  }
- if(rows.length===0)catalogHints(summaryText,rows);
+ if(rows.length===0&&!imageOnly)catalogHints(summaryText,rows);
  rows=consolidateRows(rows);
- if(!rows.length)warnings.push('Nessun prodotto gestito riconosciuto.');
+ if(!rows.length)warnings.push(imageOnly
+   ?'PDF scansionato o privo di testo selezionabile: usare il PDF originale oppure inserire manualmente.'
+   :'Nessun prodotto gestito riconosciuto.');
  const confidence=rows.length===0?'red':rows.some(r=>r.confidence!=='green')?'yellow':'green';
- return {meta,rows,warnings,confidence,filename:file.name,detectedMnp}
+ return {meta,rows,warnings,confidence,filename:file.name,detectedMnp,imageOnly}
 }

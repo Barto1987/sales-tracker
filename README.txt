@@ -314,3 +314,21 @@ Totale:
 
 Aprire:
 https://barto1987.github.io/sales-tracker/index.html?v=223
+
+
+FIX 2.2.4 — EASY RENT EXACT MATCH
+
+- Priorità alla corrispondenza esatta nel listino Easy Rent.
+- Evitata l'associazione dell'iPad alla variante con suffisso "V".
+- Ogni dispositivo mantiene quantità e inflow unitario indipendenti.
+- Contatore righe aggiornato immediatamente.
+- Messaggio chiaro per PDF scansionati senza testo selezionabile.
+
+TEST UNIDEA MULTI
+- iPhone 17 Pro 256 Kasko Comfort 30m: 16,93 €
+- iPadPro 2025 13 256GB Kasko Comfort 30m: 20,04 €
+- Totale: 2 pezzi e 36,97 € di inflow
+- Affidabilità: verde
+
+Aprire:
+https://barto1987.github.io/sales-tracker/index.html?v=224
