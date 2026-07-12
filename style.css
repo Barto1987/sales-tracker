@@ -242,3 +242,10 @@ textarea{min-height:74px}
   font-size:1.2rem;
   margin-top:4px;
 }
+
+.home-backup-block{
+  margin-top:24px;
+}
+.home-backup-block > h2{
+  margin-bottom:14px;
+}

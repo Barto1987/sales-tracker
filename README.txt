@@ -714,3 +714,21 @@ FLUSSO CONSIGLIATO
 
 Aprire:
 https://barto1987.github.io/sales-tracker/index.html?v=340
+
+
+SALES TRACKER 3.4.1 — HOME BACKUP PULITA
+
+- Eliminato il vecchio riquadro duplicato “Backup e migrazione”.
+- Rimane un unico Backup Center completo sotto la sezione Clienti.
+- Un solo titolo “Backup Center”.
+- Restano disponibili:
+  * stato archivio;
+  * backup automatico;
+  * backup rapido JSON;
+  * backup completo con PDF;
+  * sincronizzazione dispositivi;
+  * ripristino completo.
+- Corrette anche le vecchie associazioni JavaScript ai pulsanti rimossi.
+
+Aprire:
+https://barto1987.github.io/sales-tracker/index.html?v=341
