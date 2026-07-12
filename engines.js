@@ -139,3 +139,58 @@ export function teamStats(store){
   },{});
   return out;
 }
+
+
+export function excellentBreakdown(store){
+  const {start,end}=store.settings.excellentPeriod;
+  const x=flatServices(store,start,end);
+
+  const mapRow=(r,metricValue,metricType='inflow')=>({
+    contractId:r.contract.id,
+    client:r.contract.client||'Cliente',
+    offer:r.contract.offer||'',
+    date:r.contract.date||'',
+    agent:r.contract.agent||'Francesco',
+    prospect:!!r.contract.prospect,
+    service:r.service||'',
+    product:r.product||r.service||'',
+    qty:Number(r.qty||0),
+    inflow:Number(r.totalInflow||0),
+    metricValue:Number(metricValue||0),
+    metricType
+  });
+
+  const totalInflow=x
+    .filter(r=>r.totalInflow>0)
+    .map(r=>mapRow(r,r.totalInflow,'inflow'));
+
+  const mobile=x
+    .filter(r=>excellentFlags(r).mobile && Number(r.qty||0)>0)
+    .map(r=>mapRow(r,Number(r.qty||0),'pieces'));
+
+  const prospectInflow=x
+    .filter(r=>{
+      if(!r.contract.prospect)return false;
+      const f=excellentFlags(r);
+      return (f.mobile||f.link) && r.totalInflow>0;
+    })
+    .map(r=>mapRow(r,r.totalInflow,'inflow'));
+
+  const linkInflow=x
+    .filter(r=>{
+      if(!excellentFlags(r).link || r.totalInflow<=0)return false;
+      const n=(r.product||'').toLowerCase();
+      return !/sempre serviti/.test(n);
+    })
+    .map(r=>mapRow(r,r.totalInflow,'inflow'));
+
+  const solutionInflow=x
+    .filter(r=>excellentFlags(r).solution && r.totalInflow>0)
+    .map(r=>mapRow(r,r.totalInflow,'inflow'));
+
+  const easyRentPieces=x
+    .filter(r=>excellentFlags(r).er && Number(r.qty||0)>0)
+    .map(r=>mapRow(r,Number(r.qty||0),'pieces'));
+
+  return {totalInflow,mobile,prospectInflow,linkInflow,solutionInflow,easyRentPieces};
+}

@@ -1,13 +1,14 @@
 
-import {loadStore,saveStore,importBackupObject} from './storage.js?v=225';
-import {TARGETS,generalStats,agencyStats,excellentStats,communityStats,teamStats,inflowOf} from './engines.js?v=225';
-import {initParser,parsePDF} from './parser.js?v=225';
+import {loadStore,saveStore,importBackupObject} from './storage.js?v=230';
+import {TARGETS,generalStats,agencyStats,excellentStats,excellentBreakdown,communityStats,teamStats,inflowOf} from './engines.js?v=230';
+import {initParser,parsePDF} from './parser.js?v=230';
 
 let store=loadStore(),parsed=null;
 const $=id=>document.getElementById(id),money=v=>new Intl.NumberFormat('it-IT',{style:'currency',currency:'EUR'}).format(v||0);
 const pct=(v,t)=>Math.min((v/t)*100,100);
-function kpi(label,v,t,euro=false){
- return `<div class="card kpi"><small>${label}</small><strong>${euro?money(v):v} / ${euro?money(t):t}</strong><div class="progress"><span style="width:${pct(v,t)}%"></span></div><small>Residuo: ${euro?money(Math.max(t-v,0)):Math.max(t-v,0)}</small></div>`
+function kpi(label,v,t,euro=false,detailKey=''){
+ const clickable=detailKey&&Number(v)>0;
+ return `<div class="card kpi${clickable?' excellent-clickable':''}"${clickable?` data-excellent-detail="${detailKey}" role="button" tabindex="0"`:''}><small>${label}</small><strong>${euro?money(v):v} / ${euro?money(t):t}</strong><div class="progress"><span style="width:${pct(v,t)}%"></span></div><small>Residuo: ${euro?money(Math.max(t-v,0)):Math.max(t-v,0)}</small></div>`
 }
 function allInflow(c){return c.services.reduce((a,s)=>a+inflowOf(s),0)}
 function renderHome(){
@@ -29,8 +30,86 @@ function renderExcellent(){
  const e=excellentStats(store),t=TARGETS.excellent;
  $('excellentSummary').innerHTML=`<div class="card hero"><div class="muted">Premio stimato trimestre</div><strong>${money(e.totalPrize)}</strong><div class="muted">Base 1.000 € + variabile ${money(e.variable)}</div></div>
  <div class="card"><h3>Status ciclo</h3><table class="table-like"><tr><td>Trimestri storici vinti</td><td>${e.historyWon} / 8</td></tr><tr><td>Obiettivo minimo</td><td>6 / 8</td></tr><tr><td>Trimestre corrente</td><td>${e.won?'🟢 Vinto':'🟡 In corso'}</td></tr><tr><td>Ancora necessari</td><td>${e.trimestersNeeded}</td></tr><tr><td>Errori residui consentiti</td><td>2</td></tr></table></div>`;
- $('excellentGrid').innerHTML=kpi('Inflow totale',e.totalInflow,t.totalInflow,true)+kpi('Mobile',e.mobile,t.mobile)+kpi('Prospect inflow',e.prospectInflow,t.prospectInflow,true)+kpi('Link inflow',e.linkInflow,t.linkInflow,true)+kpi('Solution inflow',e.solutionInflow,t.solutionInflow,true)+kpi('Noleggio operativo',e.easyRentPieces,t.easyRentPieces);
+
+ $('excellentGrid').innerHTML=
+   kpi('Inflow totale',e.totalInflow,t.totalInflow,true,'totalInflow')+
+   kpi('Mobile',e.mobile,t.mobile,false,'mobile')+
+   kpi('Prospect inflow',e.prospectInflow,t.prospectInflow,true,'prospectInflow')+
+   kpi('Link inflow',e.linkInflow,t.linkInflow,true,'linkInflow')+
+   kpi('Solution inflow',e.solutionInflow,t.solutionInflow,true,'solutionInflow')+
+   kpi('Noleggio operativo',e.easyRentPieces,t.easyRentPieces,false,'easyRentPieces');
+
+ bindExcellentDetails();
+
  $('excellentHistory').innerHTML=store.excellentHistory.map(x=>`<div class="item"><div><strong>${x.label}</strong><div class="muted">${x.payment}</div></div><div style="text-align:right"><strong>${money(x.total)}</strong><div class="badge ok">Vinto</div></div></div>`).join('')
+}
+
+
+const excellentDetailLabels={
+ totalInflow:'Pratiche incluse nell’inflow totale',
+ mobile:'Pratiche incluse nel target Mobile',
+ prospectInflow:'Pratiche incluse nell’inflow Prospect',
+ linkInflow:'Pratiche incluse nel Link inflow',
+ solutionInflow:'Pratiche incluse nel Solution inflow',
+ easyRentPieces:'Pratiche incluse nel Noleggio operativo'
+};
+
+function bindExcellentDetails(){
+ document.querySelectorAll('[data-excellent-detail]').forEach(card=>{
+   const open=()=>renderExcellentDetail(card.dataset.excellentDetail,card);
+   card.onclick=open;
+   card.onkeydown=e=>{
+     if(e.key==='Enter'||e.key===' '){
+       e.preventDefault();
+       open();
+     }
+   };
+ });
+}
+
+function renderExcellentDetail(key,card){
+ const rows=excellentBreakdown(store)[key]||[];
+ if(!rows.length)return;
+
+ document.querySelectorAll('.excellent-open').forEach(x=>x.classList.remove('excellent-open'));
+ card.classList.add('excellent-open');
+
+ const pieceMetric=rows[0]?.metricType==='pieces';
+ const total=rows.reduce((a,r)=>a+Number(r.metricValue||0),0);
+ const detail=$('excellentDetail');
+
+ detail.classList.remove('hidden');
+ detail.innerHTML=`<div class="card excellent-detail-card">
+   <div class="excellent-detail-head">
+     <div>
+       <h3>${excellentDetailLabels[key]||'Dettaglio obiettivo'}</h3>
+       <div class="muted">${rows.length} ${rows.length===1?'voce':'voci'} utilizzate nel calcolo</div>
+     </div>
+     <button id="closeExcellentDetail" class="excellent-close" aria-label="Chiudi">×</button>
+   </div>
+   ${rows.map(r=>`<div class="excellent-detail-row">
+     <div class="excellent-detail-main">
+       <div>
+         <div class="excellent-detail-client">${r.client}</div>
+         <div class="excellent-detail-product">${r.product}</div>
+       </div>
+       <div class="excellent-detail-value">${pieceMetric?`${r.metricValue} ${r.metricValue===1?'pezzo':'pezzi'}`:money(r.metricValue)}</div>
+     </div>
+     <div class="excellent-detail-meta">${r.date} · ${r.service} · quantità ${r.qty} · inflow pratica ${money(r.inflow)} · ${r.agent}${r.prospect?' · Prospect':''}</div>
+   </div>`).join('')}
+   <div class="excellent-detail-total">
+     <span>Totale attribuito</span>
+     <span>${pieceMetric?`${total} ${total===1?'pezzo':'pezzi'}`:money(total)}</span>
+   </div>
+ </div>`;
+
+ $('closeExcellentDetail').onclick=()=>{
+   detail.classList.add('hidden');
+   detail.innerHTML='';
+   document.querySelectorAll('.excellent-open').forEach(x=>x.classList.remove('excellent-open'));
+ };
+
+ detail.scrollIntoView({behavior:'smooth',block:'start'});
 }
 
 function renderTeam(){
@@ -127,7 +206,7 @@ function saveParsed(){
  const mnp=hasMobile && $('mnp').value==='Sì';
  const agent=$('agent').value||'Francesco';
  const includeAgency=$('includeAgency').value==='Sì';
- const contract={id:'C-'+Date.now(),date:$('contractDate').value,offer:parsed.meta.offer,client:parsed.meta.client||'Da verificare',vat:parsed.meta.vat,prospect,mnp,agent,includeAgency,status:'Valido',pdfRef:parsed.filename,notes:'Sales Tracker 2.2.5',services:[]};
+ const contract={id:'C-'+Date.now(),date:$('contractDate').value,offer:parsed.meta.offer,client:parsed.meta.client||'Da verificare',vat:parsed.meta.vat,prospect,mnp,agent,includeAgency,status:'Valido',pdfRef:parsed.filename,notes:'Sales Tracker 2.3.0',services:[]};
  for(const el of rows)contract.services.push({id:'S-'+Math.random().toString(36).slice(2),service:el.querySelector('.pr-service').value,product:el.querySelector('.pr-product').value,category:el.querySelector('.pr-category').value,qty:Number(el.querySelector('.pr-qty').value||1),inflowUnit:Number(el.querySelector('.pr-inflow').value||0),confidence:parsed.confidence,calc:''});
  store.contracts.push(contract);saveStore(store);$('previewBox').classList.add('hidden');$('pdfInput').value='';renderAll();go('home');alert('Contratto salvato')
 }

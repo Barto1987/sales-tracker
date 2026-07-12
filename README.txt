@@ -349,3 +349,26 @@ TEST ATTESI
 
 Aprire:
 https://barto1987.github.io/sales-tracker/index.html?v=225
+
+
+SALES TRACKER 2.3.0 — DETTAGLIO OBIETTIVI EXCELLENT
+
+- I sei riquadri Excellent sono cliccabili quando il valore è maggiore di zero.
+- I riquadri a zero restano inattivi.
+- Il dettaglio si apre sotto alla griglia Excellent.
+- Per ogni voce mostra:
+  * cliente
+  * data
+  * prodotto
+  * servizio
+  * quantità
+  * inflow della pratica
+  * agente di riferimento
+  * stato Prospect
+  * contributo attribuito allo specifico obiettivo
+- Mobile e Noleggio operativo mostrano i pezzi.
+- Gli altri quattro obiettivi mostrano l'inflow.
+- È presente il totale attribuito e il pulsante di chiusura.
+
+Aprire:
+https://barto1987.github.io/sales-tracker/index.html?v=230
