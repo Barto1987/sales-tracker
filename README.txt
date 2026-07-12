@@ -455,3 +455,26 @@ TEST NATURALMENTE DA LATTE FRIULANO
 
 Aprire:
 https://barto1987.github.io/sales-tracker/index.html?v=234
+
+
+FIX 2.3.5 — TOTALE DI SEZIONE ONENET START
+
+Problema:
+- Nei preventivi con più prodotti il parser usava il totale generale
+  dell'intera offerta invece del totale della sezione OneNet Start.
+
+Nuova regola:
+- Viene preso il primo "Totale netto complessivo" successivo a
+  "OFFERTA OneNet Start".
+- Il totale generale delle pagine successive viene ignorato.
+- Inflow = totale sezione OneNet Start - 10,00 €.
+
+TEST AREAINOX
+- Mobile Smart: 15,00 €
+- Totale sezione OneNet Start: 115,00 €
+- Inflow OneNet Start: 105,00 €
+- Totale generale offerta 130,00 € ignorato per il calcolo OneNet Start.
+- Semaforo verde.
+
+Aprire:
+https://barto1987.github.io/sales-tracker/index.html?v=235

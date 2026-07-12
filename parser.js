@@ -253,13 +253,16 @@ export async function parsePDF(file){
      })
    }
   }else if(/OFFERTA\s+OneNet\s+Start/i.test(b)){
-   let total=totalNetMonthly(b);
+   // Usa il totale della sezione OneNet Start, non il totale generale
+   // dell'intero preventivo che può comparire nella pagina successiva.
+   let total=null;
+   const sectionTotals=[...b.matchAll(
+     /Totale\s+netto\s+complessivo[\s\S]{0,80}?([0-9]{1,3}(?:\.[0-9]{3})*,\d{2}|[0-9]+[,.]\d{2})\s*€/gi
+   )];
 
-   if(total==null){
-     const totalMatch=b.match(
-       /Totale\s+Netto\s+Complessivo[\s\S]{0,120}?([0-9]{1,3}(?:\.[0-9]{3})*,\d{2}|[0-9]+[,.]\d{2})\s*€/i
-     );
-     if(totalMatch)total=num(totalMatch[1]);
+   if(sectionTotals.length){
+     // Il primo totale dopo "OFFERTA OneNet Start" è quello della sezione.
+     total=num(sectionTotals[0][1]);
    }
 
    if(total!=null){
@@ -272,7 +275,7 @@ export async function parsePDF(file){
        qty:1,
        inflowUnit:Math.round(inflow*100)/100,
        confidence:'green',
-       calc:`Totale Netto Complessivo ${total.toFixed(2)} € − attivazione ricorrente fissa 10,00 €`
+       calc:`Totale Netto Complessivo sezione OneNet Start ${total.toFixed(2)} € − attivazione ricorrente fissa 10,00 €`
      })
    }else{
      add(rows,{
@@ -282,7 +285,7 @@ export async function parsePDF(file){
        qty:1,
        inflowUnit:0,
        confidence:'red',
-       calc:'Totale Netto Complessivo non trovato: inserire inflow manualmente'
+       calc:'Totale Netto Complessivo della sezione OneNet Start non trovato: inserire inflow manualmente'
      })
    }
   }else if(/OFFERTA\s+OneNet\s+P\.IVA/i.test(b)){
