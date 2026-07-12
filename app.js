@@ -1,14 +1,16 @@
 
-import {loadStore,saveStore,importBackupObject} from './storage.js?v=300';
-import {TARGETS,generalStats,agencyStats,agencyBreakdown,excellentStats,excellentBreakdown,communityStats,communityBreakdown,teamStats,teamBreakdown,availableMonths,inflowOf} from './engines.js?v=300';
-import {savePdf,openPdf,deletePdf} from './pdf-store.js?v=300';
-import {initParser,parsePDF} from './parser.js?v=300';
+import {loadStore,saveStore,importBackupObject} from './storage.js?v=302';
+import {TARGETS,generalStats,agencyStats,agencyBreakdown,excellentStats,excellentBreakdown,communityStats,communityBreakdown,teamStats,teamBreakdown,availableMonths,inflowOf} from './engines.js?v=302';
+import {savePdf,openPdf,deletePdf} from './pdf-store.js?v=302';
+import {initParser,parsePDF} from './parser.js?v=302';
 
 let store=loadStore(),parsed=null,pendingPdf=null;
 const $=id=>document.getElementById(id),money=v=>new Intl.NumberFormat('it-IT',{style:'currency',currency:'EUR'}).format(v||0);
 const pct=(v,t)=>Math.min((v/t)*100,100);
 
 const pad=n=>String(n).padStart(2,'0');
+const APP_START_QUARTER_START='2026-07-01';
+const APP_START_QUARTER_KEY='2026-Q3';
 function monthKey(d=new Date()){return `${d.getFullYear()}-${pad(d.getMonth()+1)}`}
 function quarterInfo(d=new Date()){
  const y=d.getFullYear(),q=Math.floor(d.getMonth()/3)+1,m=(q-1)*3;
@@ -20,22 +22,50 @@ function quarterFromDate(date){
 function ensureAutomaticPeriods(){
  const mk=monthKey(),q=quarterInfo();
  store.settings=store.settings||{};
+
  if(store.settings.lastAutoMonth!==mk){
-   store.settings.currentMonth=mk;store.settings.teamMonth=mk;store.settings.communityMonth=mk;store.settings.lastAutoMonth=mk;
+   store.settings.currentMonth=mk;
+   store.settings.teamMonth=mk;
+   store.settings.communityMonth=mk;
+   store.settings.lastAutoMonth=mk;
  }
- if(store.settings.lastAutoQuarter!==q.key){
-   store.settings.agencyPeriod={start:q.start,end:q.end};store.settings.excellentPeriod={start:q.start,end:q.end};store.settings.lastAutoQuarter=q.key;
+
+ // L'app non consente periodi operativi precedenti a luglio 2026.
+ const validQuarter=q.start>=APP_START_QUARTER_START
+   ?q
+   :quarterFromDate(APP_START_QUARTER_START);
+
+ const agencyStart=store.settings.agencyPeriod?.start||'';
+ const excellentStart=store.settings.excellentPeriod?.start||'';
+
+ if(store.settings.lastAutoQuarter!==validQuarter.key || agencyStart<APP_START_QUARTER_START || excellentStart<APP_START_QUARTER_START){
+   store.settings.agencyPeriod={start:validQuarter.start,end:validQuarter.end};
+   store.settings.excellentPeriod={start:validQuarter.start,end:validQuarter.end};
+   store.settings.lastAutoQuarter=validQuarter.key;
  }
+
  saveStore(store);
 }
 function quarterOptions(){
  const map=new Map();
- for(const c of store.contracts||[]){if(c.date){const q=quarterFromDate(c.date);map.set(q.key,q)}}
- const current=quarterInfo();map.set(current.key,current);
- for(const h of store.excellentHistory||[]){
-   const m=(h.period||'').match(/(\d{4}) Q([1-4])/);
-   if(m){const y=Number(m[1]),q=Number(m[2]),d=new Date(y,(q-1)*3,1);const info=quarterInfo(d);map.set(info.key,info)}
+
+ // Lo storico operativo dell'app parte dal trimestre luglio-settembre 2026.
+ // I trimestri precedenti non sono selezionabili perché non contengono
+ // pratiche caricate nell'app.
+ for(const c of store.contracts||[]){
+   if(c.date){
+     const q=quarterFromDate(c.date);
+     if(q.start>=APP_START_QUARTER_START)map.set(q.key,q);
+   }
  }
+
+ const current=quarterInfo();
+ if(current.start>=APP_START_QUARTER_START)map.set(current.key,current);
+
+ // Garantisce sempre la presenza del trimestre iniziale dell'app.
+ const startQuarter=quarterFromDate(APP_START_QUARTER_START);
+ map.set(APP_START_QUARTER_KEY,startQuarter);
+
  return [...map.values()].sort((a,b)=>b.start.localeCompare(a.start));
 }
 function periodKey(period){return quarterFromDate(period.start).key}
@@ -90,11 +120,27 @@ function renderExcellent(){
 
  bindMetricDetails('excellent');
 
- $('excellentHistory').innerHTML=periods.map(q=>{
-   const historical=(store.excellentHistory||[]).find(h=>(h.period||'').replace(' ','-')===q.key);
-   return `<div class="item excellent-history-item" data-excellent-quarter="${q.key}"><div><strong>${q.label}</strong><div class="muted">${historical?historical.payment:(q.key===selected?'Visualizzato':'Apri riepilogo')}</div></div><div style="text-align:right">${historical?`<strong>${money(historical.total)}</strong><div class="badge ok">Vinto</div>`:'<span>›</span>'}</div></div>`;
- }).join('');
- document.querySelectorAll('[data-excellent-quarter]').forEach(x=>x.onclick=()=>{const q=periods.find(p=>p.key===x.dataset.excellentQuarter);store.settings.excellentPeriod={start:q.start,end:q.end};saveStore(store);renderExcellent();window.scrollTo(0,0)})
+ const legacyHistory=(store.excellentHistory||[])
+   .filter(h=>{
+     const m=(h.period||'').match(/(\d{4}) Q([1-4])/);
+     if(!m)return true;
+     const q=quarterInfo(new Date(Number(m[1]),(Number(m[2])-1)*3,1));
+     return q.start<APP_START_QUARTER_START;
+   })
+   .map(h=>`<div class="item legacy-history-item"><div><strong>${h.label}</strong><div class="muted">${h.payment}</div></div><div style="text-align:right"><strong>${money(h.total)}</strong><div class="badge ok">Vinto</div></div></div>`)
+   .join('');
+
+ const operationalHistory=periods.map(q=>`<div class="item excellent-history-item" data-excellent-quarter="${q.key}"><div><strong>${q.label}</strong><div class="muted">${q.key===selected?'Visualizzato':'Apri riepilogo'}</div></div><div style="text-align:right"><span>›</span></div></div>`).join('');
+
+ $('excellentHistory').innerHTML=legacyHistory+operationalHistory;
+
+ document.querySelectorAll('[data-excellent-quarter]').forEach(x=>x.onclick=()=>{
+   const q=periods.find(p=>p.key===x.dataset.excellentQuarter);
+   store.settings.excellentPeriod={start:q.start,end:q.end};
+   saveStore(store);
+   renderExcellent();
+   window.scrollTo(0,0);
+ })
 }
 
 
@@ -351,6 +397,13 @@ function renderPreview(){
  $('previewRows').innerHTML=parsed.rows.length
    ?parsed.rows.map(r=>`<div class="preview-row"><div class="row"><div><label>Servizio</label><select class="pr-service">${['SIM Voce','SIM Dati','SIM M2M','Easy Rent','Easy Deal','ADSL','One Net Ufficio','One Net Azienda','Energia','Gas','Altro'].map(x=>`<option ${x===r.service?'selected':''}>${x}</option>`).join('')}</select></div><div><label>Quantità</label><input class="pr-qty" type="number" value="${r.qty}"></div></div><label>Prodotto</label><input class="pr-product" value="${r.product}"><label>Categoria</label><input class="pr-category" value="${r.category||''}">${r.service==='SIM Voce'?`<label>MNP</label><select class="pr-mnp"><option ${r.mnp?'':'selected'}>No</option><option ${r.mnp?'selected':''}>Sì</option></select>`:''}<label>Inflow unitario €</label><input class="pr-inflow" type="number" step="0.01" value="${r.inflowUnit||0}"><div class="calc">${r.calc||''}</div></div>`).join('')
    :`<div class="note">${(parsed.warnings&&parsed.warnings[0])||'Inserimento manuale richiesto.'}</div>`;
+ const suggestedProspect=!!parsed.meta.prospectSuggested;
+ $('prospect').value=suggestedProspect?'Sì':'No';
+ const prospectHint=$('prospectHint');
+ if(prospectHint){
+   prospectHint.className='field-hint '+(suggestedProspect?'prospect-auto-yes':'prospect-auto-no');
+   prospectHint.textContent=parsed.meta.prospectReason||'Prospect modificabile manualmente';
+ }
  $('agent').value='Francesco';
  $('includeAgency').value='Sì';
 }
@@ -378,7 +431,7 @@ async function saveParsed(){
  const prospect=$('prospect').value==='Sì';
  const agent=$('agent').value||'Francesco';
  const includeAgency=$('includeAgency').value==='Sì';
- const contract={id:'C-'+Date.now(),date:$('contractDate').value,offer:parsed.meta.offer,client:parsed.meta.client||'Da verificare',vat:parsed.meta.vat,customerCode:parsed.meta.customerCode||'',prospect,agent,includeAgency,status:'Valido',pdfRef:parsed.filename,pdfStored:false,notes:'Sales Tracker 3.0.0',services:[]};
+ const contract={id:'C-'+Date.now(),date:$('contractDate').value,offer:parsed.meta.offer,client:parsed.meta.client||'Da verificare',vat:parsed.meta.vat,customerCode:parsed.meta.customerCode||'',prospect,agent,includeAgency,status:'Valido',pdfRef:parsed.filename,pdfStored:false,notes:'Sales Tracker 3.0.2',services:[]};
  for(const el of rows){
    const service=el.querySelector('.pr-service').value;
    const mnpEl=el.querySelector('.pr-mnp');

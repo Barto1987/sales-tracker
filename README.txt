@@ -567,3 +567,48 @@ PDF ORIGINALI
 
 Aprire:
 https://barto1987.github.io/sales-tracker/index.html?v=300
+
+
+SALES TRACKER 3.0.1 — PROSPECT AUTOMATICO
+
+Regola:
+- Se il PDF contiene cliente, Partita IVA e numero offerta,
+  ma non contiene Codice Cliente/Custcode, Prospect viene proposto su Sì.
+- Se il Codice Cliente è presente, Prospect viene proposto su No.
+- Il campo resta sempre modificabile manualmente prima del salvataggio.
+- Sotto al selettore compare il motivo della proposta automatica.
+
+TEST Q S EUREGION SRL
+- Numero offerta presente
+- Partita IVA presente
+- Cliente presente
+- Codice Cliente assente
+- Prospect proposto automaticamente: Sì
+
+Aprire:
+https://barto1987.github.io/sales-tracker/index.html?v=301
+
+
+SALES TRACKER 3.0.2 — STORICO OPERATIVO DA LUGLIO 2026
+
+PERIODO DI PARTENZA
+- Lo storico operativo di Gara Agenzia ed Excellent parte dal trimestre
+  luglio-settembre 2026.
+- I trimestri precedenti non compaiono nei selettori.
+- Non è possibile aprire o modificare trimestri precedenti all'avvio dell'app.
+
+EXCELLENT
+- Restano visibili i tre premi storici già vinti:
+  * ottobre-dicembre 2025: 2.250 €
+  * gennaio-marzo 2026: 2.400 €
+  * aprile-giugno 2026: 2.450 €
+- Queste tre righe sono solo informative e non cliccabili.
+- Dal trimestre luglio-settembre 2026 in avanti lo storico è calcolato
+  dalle pratiche effettivamente caricate.
+
+GARA AGENZIA
+- Nessuno storico precedente a luglio-settembre 2026.
+- Dal trimestre corrente in avanti ogni periodo resta consultabile.
+
+Aprire:
+https://barto1987.github.io/sales-tracker/index.html?v=302

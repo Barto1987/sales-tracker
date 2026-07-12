@@ -7,11 +7,11 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icon-192.png">
-<link rel="stylesheet" href="style.css?v=300">
-<title>Sales Tracker 3.0.0</title>
+<link rel="stylesheet" href="style.css?v=302">
+<title>Sales Tracker 3.0.2</title>
 </head>
 <body>
-<header><div class="title">Sales Tracker 3.0.0</div><div class="sub">Cruscotto commerciale personale</div></header>
+<header><div class="title">Sales Tracker 3.0.2</div><div class="sub">Cruscotto commerciale personale</div></header>
 <main>
 <section id="home" class="view active">
 <h2>Home</h2><div id="homeTop"></div><div id="homeCards" class="grid"></div>
@@ -23,7 +23,7 @@
 <div class="pdfbox"><h3>Carica offerta PDF</h3><input id="pdfInput" type="file" accept="application/pdf"><div id="pdfLoader" class="loader">Analisi in corso…</div><div id="pdfStatus" class="muted" style="margin-top:10px">Il PDF viene letto localmente.</div></div>
 <div id="previewBox" class="hidden">
 <div class="card"><div class="item"><h3>Anteprima</h3><span id="confidenceBadge" class="badge"></span></div><div id="previewMeta" class="muted"></div><div id="previewRows"></div>
-<div class="row"><div><label>Prospect</label><select id="prospect"><option>No</option><option>Sì</option></select></div></div>
+<div class="row"><div><label>Prospect</label><select id="prospect"><option>No</option><option>Sì</option></select><div id="prospectHint" class="field-hint"></div></div></div>
 <div class="row"><div><label>Agente di riferimento</label><select id="agent"><option>Francesco</option><option>Jacopo</option><option>Luciano</option></select></div><div><label>Valido per Gara Agenzia</label><select id="includeAgency"><option>Sì</option><option>No</option></select></div></div>
 <label>Data contratto</label><input id="contractDate" type="date">
 <button id="saveParsed" class="primary">Conferma e salva</button></div>
@@ -35,7 +35,7 @@
 <div class="card period-bar"><label>Trimestre visualizzato</label><select id="agencyPeriodSelect"></select></div>
 <div id="agencyGrid" class="grid"></div>
 <div id="agencyDetail" class="hidden"></div>
-<div class="card"><h3>Storico trimestrale</h3><div id="agencyHistory"></div></div>
+<div class="card"><h3>Storico trimestrale dall’avvio dell’app</h3><div id="agencyHistory"></div></div>
 </section>
 
 <section id="excellent" class="view">
@@ -44,7 +44,7 @@
 <div id="excellentSummary"></div>
 <div id="excellentGrid" class="grid"></div>
 <div id="excellentDetail" class="hidden"></div>
-<div class="card"><h3>Storico trimestri</h3><div id="excellentHistory"></div></div>
+<div class="card"><h3>Storico Excellent</h3><div id="excellentHistory"></div></div>
 </section>
 
 <section id="community" class="view">
@@ -75,7 +75,7 @@
 <button data-view="community">Community</button>
 <button data-view="team">Squadra</button>
 </nav>
-<script type="module" src="app.js?v=300"></script>
+<script type="module" src="app.js?v=302"></script>
 <script>
 (async()=>{
   if('serviceWorker' in navigator){

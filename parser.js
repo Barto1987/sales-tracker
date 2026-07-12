@@ -76,7 +76,20 @@ function common(text){
  const vat=(text.match(/Partita IVA\s*([0-9]{11})/i)||[])[1]||'';
  const customerCode=(text.match(/Custcode\s*([0-9.]+)/i)||text.match(/Codice\s+Cliente\s*([A-Z0-9.\-]+)/i)||[])[1]||'';
  let client=(text.match(/per\s+([A-Z0-9À-Ü&'.\- ]{3,80}?)(?:Pagina|pagina|Numero Offerta|Riepilogo|$)/i)||[])[1]||'';
- return {offer,vat,customerCode,client:client.trim().replace(/\s{2,}/g,' ')}
+ client=client.trim().replace(/\s{2,}/g,' ');
+
+ // Regola prudenziale:
+ // se il documento è una vera offerta identificata da cliente, P.IVA e numero offerta,
+ // ma non riporta alcun Codice Cliente/Custcode, proponiamo Prospect = Sì.
+ // La scelta resta sempre modificabile dall'utente.
+ const prospectSuggested=!!(offer&&vat&&client&&!customerCode);
+ const prospectReason=prospectSuggested
+   ?'Codice cliente assente nel PDF: Prospect proposto automaticamente'
+   :customerCode
+     ?'Codice cliente presente: cliente già censito proposto automaticamente'
+     :'Dati insufficienti per determinare automaticamente il Prospect';
+
+ return {offer,vat,customerCode,client,prospectSuggested,prospectReason}
 }
 function add(rows,r){rows.push({id:'S-'+Math.random().toString(36).slice(2),qty:1,confidence:'green',category:'',product:r.service,mnp:false,...r})}
 function consolidateRows(rows){
