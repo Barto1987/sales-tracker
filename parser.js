@@ -3,8 +3,8 @@ let PDFJS=null, catalog=[], easyRent=[];
 export async function initParser(){
   PDFJS=await import('https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.10.38/pdf.min.mjs');
   PDFJS.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.10.38/pdf.worker.min.mjs';
-  catalog=await fetch('./catalog.json?v=210').then(r=>r.json());
-  easyRent=await fetch('./easy-rent-list.json?v=210').then(r=>r.json());
+  catalog=await fetch('./catalog.json?v=350').then(r=>r.json());
+  easyRent=await fetch('./easy-rent-list.json?v=350').then(r=>r.json());
 }
 const num=s=>Number(String(s||'0').replace(/\./g,'').replace(',','.').replace(/[^\d.-]/g,''))||0;
 function norm(s){return String(s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]/g,'')}
@@ -146,6 +146,114 @@ function catalogHints(text,rows){
   }
  }
 }
+
+function digitalProductName(block){
+  const names=[];
+  const patterns=[
+    /Smart\s+Digital\s+Marketing\s+(Start|Expert|Pro)/ig,
+    /Movylo\s+Exclusive/ig,
+    /Lookout\s+for\s+Business/ig,
+    /Lookout\s+Mobile/ig
+  ];
+  for(const re of patterns){
+    for(const m of block.matchAll(re)){
+      let name=m[0].replace(/\s+/g,' ').trim();
+      name=name.replace(/\bstart\b/i,'Start').replace(/\bexpert\b/i,'Expert').replace(/\bpro\b/i,'Pro');
+      if(!names.some(x=>norm(x)===norm(name)))names.push(name);
+    }
+  }
+  return names;
+}
+function digitalLineValue(block,name){
+  const escaped=name.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
+  const m=block.match(new RegExp(escaped+'\\s+(?:(\\d+)\\s*x\\s*)?([0-9]{1,3}(?:\\.[0-9]{3})*,\\d{2}|[0-9]+[,.]\\d{2})\\s*€','i'));
+  return m?{qty:Number(m[1]||1),value:num(m[2])}:null;
+}
+function digitalRowsFromBlocks(blocks){
+  const digital=blocks.filter(b=>/OFFERTA\s+Soluzioni\s+Digitali/i.test(b));
+  if(!digital.length)return {rows:[],processed:new Set()};
+
+  const processed=new Set(digital);
+  const marketing=[];
+  const security=[];
+
+  for(const block of digital){
+    const names=digitalProductName(block);
+    const net=totalNetMonthly(block);
+    const containsMarketing=names.some(n=>/Smart Digital Marketing|Movylo/i.test(n));
+    const containsSecurity=names.some(n=>/Lookout/i.test(n));
+
+    if(containsMarketing){
+      marketing.push({block,names:names.filter(n=>/Smart Digital Marketing|Movylo/i.test(n)),net});
+    }
+    if(containsSecurity){
+      security.push({block,names:names.filter(n=>/Lookout/i.test(n)),net});
+    }
+  }
+
+  const rows=[];
+
+  // SDM + Movylo vengono considerati una sola Solution anche se il PDF
+  // li presenta in due blocchi distinti.
+  if(marketing.length){
+    const allNames=[];
+    let total=0, reliable=true;
+    for(const item of marketing){
+      for(const n of item.names)if(!allNames.some(x=>norm(x)===norm(n)))allNames.push(n);
+      if(item.net!=null)total+=item.net;
+      else{
+        reliable=false;
+        for(const n of item.names){
+          const x=digitalLineValue(item.block,n);
+          if(x)total+=x.qty*x.value;
+        }
+      }
+    }
+    const ordered=[
+      ...allNames.filter(n=>/Smart Digital Marketing/i.test(n)),
+      ...allNames.filter(n=>/Movylo/i.test(n))
+    ];
+    if(total>0){
+      rows.push({
+        service:'Solution',
+        product:ordered.join(' + '),
+        category:'Soluzioni Digitali',
+        qty:1,
+        inflowUnit:Math.round(total*100)/100,
+        confidence:reliable?'green':'yellow',
+        calc:reliable
+          ?'Inflow dal Totale Netto Complessivo della/e sezione/i Soluzioni Digitali, già al netto degli sconti'
+          :'Totale Netto Complessivo non disponibile per tutti i blocchi: somma delle righe economiche'
+      });
+    }
+  }
+
+  // Lookout resta separato da SDM/Movylo perché è una Solution Security.
+  for(const item of security){
+    for(const name of item.names){
+      const lineValue=digitalLineValue(item.block,name);
+      let inflow=null;
+      if(item.names.length===1 && item.net!=null)inflow=item.net;
+      else if(lineValue)inflow=lineValue.qty*lineValue.value;
+      if(inflow!=null && inflow>0){
+        rows.push({
+          service:'Solution',
+          product:name,
+          category:'Solution Security',
+          qty:1,
+          inflowUnit:Math.round(inflow*100)/100,
+          confidence:item.net!=null||lineValue?'green':'yellow',
+          calc:item.names.length===1&&item.net!=null
+            ?'Inflow dal Totale Netto Complessivo della sezione Lookout'
+            :'Inflow dalla riga economica Lookout del blocco Soluzioni Digitali'
+        });
+      }
+    }
+  }
+
+  return {rows,processed};
+}
+
 export async function parsePDF(file){
  const pages=await extract(file),text=pages.join(' '),summaryText=pages.slice(0,3).join(' '),meta=common(text),warnings=[];let rows=[],detectedMnp=false;
  const imageOnly=text.replace(/\s+/g,' ').trim().length<80;
@@ -153,7 +261,10 @@ export async function parsePDF(file){
  // In questo modo frasi come "Offerta applicata all'Indirizzo" non spezzano
  // la sezione prima del Totale Netto Complessivo.
  const blocks=summaryText.split(/(?=OFFERTA\s+)/).filter(b=>/^OFFERTA\s+/.test(b));
+ const digitalResult=digitalRowsFromBlocks(blocks);
+ for(const r of digitalResult.rows)add(rows,r);
  for(const b of blocks){
+  if(digitalResult.processed.has(b))continue;
   if(/Mobile Comfort - Easy Rent/i.test(b)){
    const base=line(b,/Mobile Comfort - Easy Rent SoHo SME/i);
    const isMnp=hasMnpLine(b)||/Promo\s+Mobile\s+Comfort\s+MNP\s*\+\s*Easy\s+Rent/i.test(b);

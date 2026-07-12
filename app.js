@@ -1,10 +1,10 @@
 
-import {loadStore,saveStore,importBackupObject} from './storage.js?v=341';
-import {TARGETS,generalStats,agencyStats,agencyBreakdown,excellentStats,excellentBreakdown,communityStats,communityBreakdown,teamStats,teamBreakdown,availableMonths,customerList,customerDashboard,customerKey,inflowOf} from './engines.js?v=341';
-import {savePdf,openPdf,deletePdf} from './pdf-store.js?v=341';
-import {initParser,parsePDF} from './parser.js?v=341';
-import {createAutoBackup,getAutoBackupMeta,getFullBackupMeta,downloadDatabaseBackup,downloadCompleteBackup,restoreCompleteBackup,getArchiveStats,formatBytes,formatDate} from './backup.js?v=341';
-import {exportSync,readSyncFile,previewMerge,applyMerge,getSyncMeta} from './sync.js?v=341';
+import {loadStore,saveStore,importBackupObject} from './storage.js?v=350';
+import {TARGETS,generalStats,agencyStats,agencyBreakdown,excellentStats,excellentBreakdown,communityStats,communityBreakdown,teamStats,teamBreakdown,availableMonths,customerList,customerDashboard,customerKey,inflowOf} from './engines.js?v=350';
+import {savePdf,openPdf,deletePdf} from './pdf-store.js?v=350';
+import {initParser,parsePDF} from './parser.js?v=350';
+import {createAutoBackup,getAutoBackupMeta,getFullBackupMeta,downloadDatabaseBackup,downloadCompleteBackup,restoreCompleteBackup,getArchiveStats,formatBytes,formatDate} from './backup.js?v=350';
+import {exportSync,readSyncFile,previewMerge,applyMerge,getSyncMeta} from './sync.js?v=350';
 
 let store=loadStore(),parsed=null,pendingPdf=null;
 function persistStore(){
@@ -235,7 +235,7 @@ function renderMetricDetail(section,key,card){
        }</div>
      </div>
      <div class="excellent-detail-meta">P.IVA ${r.vat||'—'} · Codice cliente ${r.customerCode||'—'} · Offerta ${r.offer||'—'}</div>
-     <div class="excellent-detail-meta">${r.date} · ${r.service} · quantità ${r.qty} · inflow ${money(r.inflow)} · ${r.agent}${r.prospect?' · Prospect':''}${r.mnp?' · MNP':''}</div>
+     <div class="excellent-detail-meta">${r.date} · ${r.service} · quantità ${r.qty} · inflow ${money(r.inflow)} · ${r.agent}${r.allocationShare&&r.allocationShare<1?` · quota ${Math.round(r.allocationShare*100)}%`:''}${r.prospect?' · Prospect':''}${r.mnp?' · MNP':''}</div>
      ${r.pdfStored?`<button class="secondary open-pdf" data-pdf-id="${r.contractId}">📄 Apri PDF</button>`:''}
      ${vcoinMetric?`<div class="excellent-detail-meta">Base ${Math.round((r.basePoints||r.inflow)*100)/100} · moltiplicatore ×${r.multiplier||1} · boost +${Math.round((r.boostPoints||0)*100)/100}${r.boostType?` · ${r.boostType}`:''}</div>`:''}
    </div>`).join('')}
@@ -287,7 +287,7 @@ function renderExcellentDetail(key,card){
        <div class="excellent-detail-value">${pieceMetric?`${r.metricValue} ${r.metricValue===1?'pezzo':'pezzi'}`:money(r.metricValue)}</div>
      </div>
      <div class="excellent-detail-meta">P.IVA ${r.vat||'—'} · Codice cliente ${r.customerCode||'—'} · Offerta ${r.offer||'—'}</div>
-     <div class="excellent-detail-meta">${r.date} · ${r.service} · quantità ${r.qty} · inflow pratica ${money(r.inflow)} · ${r.agent}${r.prospect?' · Prospect':''}</div>
+     <div class="excellent-detail-meta">${r.date} · ${r.service} · quantità ${r.qty} · inflow pratica ${money(r.inflow)} · ${r.agent}${r.allocationShare&&r.allocationShare<1?` · quota ${Math.round(r.allocationShare*100)}%`:''}${r.prospect?' · Prospect':''}</div>
      ${r.pdfStored?`<button class="secondary open-pdf" data-pdf-id="${r.contractId}">📄 Apri PDF</button>`:''}
    </div>`).join('')}
    <div class="excellent-detail-total">
@@ -376,7 +376,7 @@ function renderCommunity(){
  $('saveOfficial').onclick=()=>{store.officialCommunity.vcoins=Number($('officialVcoins').value||0);store.officialCommunity.updatedAt=new Date().toISOString();persistStore();renderCommunity()}
 }
 function archiveItem(c){
- return `<div class="card"><div class="item"><div><strong>${c.client}</strong><div class="muted">${c.offer||'Senza offerta'} · ${c.date}</div><div class="muted">P.IVA ${c.vat||'—'} · Codice cliente ${c.customerCode||'—'}</div><div class="muted">${c.services.map(s=>`${s.service} ×${s.qty}${s.service==='SIM Voce'&&s.mnp?' MNP':''}`).join(' · ')}</div><div class="muted">${c.agent||'Francesco'} · Gara Agenzia ${c.includeAgency===false?'No':'Sì'}</div></div><div style="text-align:right"><strong>${money(allInflow(c))}</strong><br><span class="badge ${c.status==='Valido'?'ok':'warn'}">${c.status}</span></div></div><div class="actions">${c.pdfStored?`<button class="secondary" data-open-pdf="${c.id}">📄 Apri PDF</button>`:''}<button class="secondary" data-edit="${c.id}">Modifica attributi</button><button class="danger" data-del="${c.id}">Elimina</button></div></div>`
+ return `<div class="card"><div class="item"><div><strong>${c.client}</strong><div class="muted">${c.offer||'Senza offerta'} · ${c.date}</div><div class="muted">P.IVA ${c.vat||'—'} · Codice cliente ${c.customerCode||'—'}</div><div class="muted">${c.services.map(s=>`${s.service} ×${s.qty}${s.service==='SIM Voce'&&s.mnp?' MNP':''}`).join(' · ')}</div><div class="muted">${(c.teamAllocations||[{agent:c.agent||'Francesco',share:1}]).map(a=>`${a.agent} ${Math.round(Number(a.share||0)*100)}%`).join(' + ')} · Gara Agenzia ${c.includeAgency===false?'No':'Sì'}</div></div><div style="text-align:right"><strong>${money(allInflow(c))}</strong><br><span class="badge ${c.status==='Valido'?'ok':'warn'}">${c.status}</span></div></div><div class="actions">${c.pdfStored?`<button class="secondary" data-open-pdf="${c.id}">📄 Apri PDF</button>`:''}<button class="secondary" data-edit="${c.id}">Modifica attributi</button><button class="danger" data-del="${c.id}">Elimina</button></div></div>`
 }
 
 function customerSearchText(d){
@@ -438,6 +438,10 @@ function editAttrs(id){
 }
 function renderPreview(){
  $('previewBox').classList.remove('hidden');
+ const hasDigitalSolution=(parsed.rows||[]).some(r=>r.service==='Solution'&&/soluzioni digitali|solution security/i.test(r.category||''));
+ $('digitalSplitBox').classList.toggle('hidden',!hasDigitalSolution);
+ $('teamSplit').value='none';
+
  const badge=$('confidenceBadge');badge.className='badge '+(parsed.confidence==='green'?'ok':parsed.confidence==='yellow'?'warn':'bad');badge.textContent=parsed.confidence==='green'?'🟢 Alta affidabilità':parsed.confidence==='yellow'?'🟡 Verifica richiesta':'🔴 Manuale';
  $('previewMeta').innerHTML=`<strong>${parsed.meta.client||'Cliente da verificare'}</strong><br>P.IVA ${parsed.meta.vat||'—'} · Codice cliente ${parsed.meta.customerCode||'—'} · Offerta ${parsed.meta.offer||'—'}`;
  $('previewRows').innerHTML=parsed.rows.length
@@ -452,6 +456,8 @@ function renderPreview(){
  }
  $('agent').value='Francesco';
  $('includeAgency').value='Sì';
+ $('teamSplit').value='none';
+ $('digitalSplitBox').classList.add('hidden');
 }
 async function handlePDF(file){
  pendingPdf=file;
@@ -477,8 +483,14 @@ async function saveParsed(){
  const prospect=$('prospect').value==='Sì';
  const agent=$('agent').value||'Francesco';
  const includeAgency=$('includeAgency').value==='Sì';
+ const splitMode=$('teamSplit')?.value||'none';
+ const teamAllocations=splitMode==='fj'
+   ?[{agent:'Francesco',share:.5},{agent:'Jacopo',share:.5}]
+   :splitMode==='jl'
+     ?[{agent:'Jacopo',share:.5},{agent:'Luciano',share:.5}]
+     :[{agent,share:1}];
  const nowIso=new Date().toISOString();
- const contract={id:'C-'+Date.now(),createdAt:nowIso,updatedAt:nowIso,date:$('contractDate').value,offer:parsed.meta.offer,client:parsed.meta.client||'Da verificare',vat:parsed.meta.vat,customerCode:parsed.meta.customerCode||'',prospect,agent,includeAgency,status:'Valido',pdfRef:parsed.filename,pdfStored:false,notes:'Sales Tracker 3.4.1',services:[]};
+ const contract={id:'C-'+Date.now(),createdAt:nowIso,updatedAt:nowIso,date:$('contractDate').value,offer:parsed.meta.offer,client:parsed.meta.client||'Da verificare',vat:parsed.meta.vat,customerCode:parsed.meta.customerCode||'',prospect,agent,includeAgency,teamAllocations,status:'Valido',pdfRef:parsed.filename,pdfStored:false,notes:'Sales Tracker 3.5.0',services:[]};
  for(const el of rows){
    const service=el.querySelector('.pr-service').value;
    const mnpEl=el.querySelector('.pr-mnp');

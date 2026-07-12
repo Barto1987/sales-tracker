@@ -11,6 +11,25 @@ const active=c=>c.status!=='Annullato';
 const inRange=(date,start,end)=>date>=start&&date<=end;
 export const inflowOf=s=>Number(s.inflowUnit||0)*Number(s.qty||0);
 
+function allocationsOf(c){
+  if(Array.isArray(c.teamAllocations)&&c.teamAllocations.length){
+    const valid=c.teamAllocations
+      .map(x=>({agent:x.agent,share:Number(x.share||0)}))
+      .filter(x=>x.agent&&x.share>0);
+    const sum=valid.reduce((a,x)=>a+x.share,0);
+    if(sum>0)return valid.map(x=>({...x,share:x.share/sum}));
+  }
+  return [{agent:c.agent||'Francesco',share:1}];
+}
+function allocatedServices(store,start,end,agencyOnly=false){
+  return store.contracts
+    .filter(c=>active(c)&&inRange(c.date,start,end)&&(!agencyOnly||c.includeAgency!==false))
+    .flatMap(c=>allocationsOf(c).flatMap(a=>
+      c.services.map(s=>({...s,contract:c,allocatedAgent:a.agent,allocationShare:a.share,totalInflow:inflowOf(s)*a.share,allocatedQty:Number(s.qty||0)*a.share}))
+    ));
+}
+
+
 function flatServices(store,start,end,agencyOnly=false){
   return store.contracts.filter(c=>active(c)&&inRange(c.date,start,end)&&(!agencyOnly||c.includeAgency!==false)).flatMap(c=>
     c.services.map(s=>({...s,contract:c,totalInflow:inflowOf(s)}))
@@ -27,14 +46,14 @@ export function generalStats(store){
   }
 }
 export function agencyStats(store){
-  const {start,end}=store.settings.agencyPeriod, x=flatServices(store,start,end,true);
+  const {start,end}=store.settings.agencyPeriod, x=allocatedServices(store,start,end,true);
   const core=x.filter(r=>['SIM Voce','SIM Dati','Easy Rent'].includes(r.service));
   return {
-    corePieces:core.reduce((a,r)=>a+Number(r.qty||0),0),
+    corePieces:core.reduce((a,r)=>a+Number(r.allocatedQty??r.qty||0),0),
     coreInflow:core.reduce((a,r)=>a+r.totalInflow,0),
-    adsl:x.filter(r=>r.service==='ADSL').reduce((a,r)=>a+Number(r.qty||0),0),
-    oneNet:x.filter(r=>['One Net Ufficio','One Net Azienda'].includes(r.service)).reduce((a,r)=>a+Number(r.qty||0),0),
-    energyGas:x.filter(r=>['Energia','Gas'].includes(r.service)).reduce((a,r)=>a+Number(r.qty||0),0)
+    adsl:x.filter(r=>r.service==='ADSL').reduce((a,r)=>a+Number(r.allocatedQty??r.qty||0),0),
+    oneNet:x.filter(r=>['One Net Ufficio','One Net Azienda'].includes(r.service)).reduce((a,r)=>a+Number(r.allocatedQty??r.qty||0),0),
+    energyGas:x.filter(r=>['Energia','Gas'].includes(r.service)).reduce((a,r)=>a+Number(r.allocatedQty??r.qty||0),0)
   }
 }
 function excellentFlags(r){
@@ -115,14 +134,22 @@ export function communityStats(store){
 export function teamStats(store,month=store.settings.teamMonth||store.settings.currentMonth){
   const agents=store.settings.agents||['Francesco','Jacopo','Luciano'];
   const out={};
+  const monthContracts=store.contracts.filter(c=>active(c)&&c.date.startsWith(month));
+
   for(const agent of agents){
-    const contracts=store.contracts.filter(c=>active(c)&&c.date.startsWith(month)&&(c.agent||'Francesco')===agent);
-    const services=contracts.flatMap(c=>c.services);
-    const countBy=service=>services.filter(s=>s.service===service).reduce((a,s)=>a+Number(s.qty||0),0);
+    const allocations=monthContracts.flatMap(c=>
+      allocationsOf(c)
+        .filter(a=>a.agent===agent)
+        .map(a=>({contract:c,share:a.share}))
+    );
+    const rows=allocations.flatMap(({contract,share})=>
+      contract.services.map(s=>({...s,contract,share,allocatedQty:Number(s.qty||0)*share,allocatedInflow:inflowOf(s)*share}))
+    );
+    const countBy=service=>rows.filter(s=>s.service===service).reduce((a,s)=>a+s.allocatedQty,0);
     out[agent]={
-      contracts:contracts.length,
-      inflow:services.reduce((a,s)=>a+inflowOf(s),0),
-      products:services.reduce((a,s)=>a+Number(s.qty||0),0),
+      contracts:allocations.reduce((a,x)=>a+x.share,0),
+      inflow:rows.reduce((a,s)=>a+s.allocatedInflow,0),
+      products:rows.reduce((a,s)=>a+s.allocatedQty,0),
       simVoice:countBy('SIM Voce'),
       simData:countBy('SIM Dati'),
       m2m:countBy('SIM M2M'),
@@ -152,7 +179,8 @@ export function excellentBreakdown(store){
     customerCode:r.contract.customerCode||'',
     pdfStored:!!r.contract.pdfStored,
     date:r.contract.date||'',
-    agent:r.contract.agent||'Francesco',
+    agent:r.allocatedAgent||r.contract.agent||'Francesco',
+    allocationShare:Number(r.allocationShare||1),
     prospect:!!r.contract.prospect,
     service:r.service||'',
     product:r.product||r.service||'',
@@ -223,25 +251,25 @@ function detailRow(r,metricValue,metricType='inflow',extra={}){
 
 export function agencyBreakdown(store){
   const {start,end}=store.settings.agencyPeriod;
-  const x=flatServices(store,start,end,true);
+  const x=allocatedServices(store,start,end,true);
   const core=x.filter(r=>['SIM Voce','SIM Dati','Easy Rent'].includes(r.service));
 
   return {
     corePieces:core
-      .filter(r=>Number(r.qty||0)>0)
-      .map(r=>detailRow(r,Number(r.qty||0),'pieces')),
+      .filter(r=>Number(r.allocatedQty??r.qty||0)>0)
+      .map(r=>detailRow(r,Number(r.allocatedQty??r.qty||0),'pieces')),
     coreInflow:core
       .filter(r=>r.totalInflow>0)
       .map(r=>detailRow(r,r.totalInflow,'inflow')),
     adsl:x
-      .filter(r=>r.service==='ADSL'&&Number(r.qty||0)>0)
-      .map(r=>detailRow(r,Number(r.qty||0),'pieces')),
+      .filter(r=>r.service==='ADSL'&&Number(r.allocatedQty??r.qty||0)>0)
+      .map(r=>detailRow(r,Number(r.allocatedQty??r.qty||0),'pieces')),
     oneNet:x
-      .filter(r=>['One Net Ufficio','One Net Azienda'].includes(r.service)&&Number(r.qty||0)>0)
-      .map(r=>detailRow(r,Number(r.qty||0),'pieces')),
+      .filter(r=>['One Net Ufficio','One Net Azienda'].includes(r.service)&&Number(r.allocatedQty??r.qty||0)>0)
+      .map(r=>detailRow(r,Number(r.allocatedQty??r.qty||0),'pieces')),
     energyGas:x
-      .filter(r=>['Energia','Gas'].includes(r.service)&&Number(r.qty||0)>0)
-      .map(r=>detailRow(r,Number(r.qty||0),'pieces'))
+      .filter(r=>['Energia','Gas'].includes(r.service)&&Number(r.allocatedQty??r.qty||0)>0)
+      .map(r=>detailRow(r,Number(r.allocatedQty??r.qty||0),'pieces'))
   };
 }
 
@@ -312,18 +340,26 @@ export function communityBreakdown(store){
 
 
 export function teamBreakdown(store,month,agent,key){
-  const contracts=store.contracts.filter(c=>active(c)&&c.date.startsWith(month)&&(c.agent||'Francesco')===agent);
-  const rows=contracts.flatMap(c=>c.services.map(s=>({...s,contract:c,totalInflow:inflowOf(s)})));
-  const base=r=>detailRow(r,key==='inflow'?r.totalInflow:Number(r.qty||0),key==='inflow'?'inflow':'pieces');
-  if(key==='contracts')return contracts.map(c=>({
+  const allocations=store.contracts
+    .filter(c=>active(c)&&c.date.startsWith(month))
+    .flatMap(c=>allocationsOf(c).filter(a=>a.agent===agent).map(a=>({contract:c,share:a.share})));
+
+  if(key==='contracts')return allocations.map(({contract:c,share})=>({
     contractId:c.id,client:c.client||'Cliente',offer:c.offer||'',vat:c.vat||'',customerCode:c.customerCode||'',
-    pdfStored:!!c.pdfStored,date:c.date||'',agent:c.agent||'Francesco',prospect:!!c.prospect,includeAgency:c.includeAgency!==false,
-    service:'Contratto',product:(c.services||[]).map(s=>s.product||s.service).join(' · '),qty:(c.services||[]).reduce((a,s)=>a+Number(s.qty||0),0),
-    inflow:(c.services||[]).reduce((a,s)=>a+inflowOf(s),0),metricValue:1,metricType:'contracts'
+    pdfStored:!!c.pdfStored,date:c.date||'',agent,prospect:!!c.prospect,includeAgency:c.includeAgency!==false,
+    service:'Contratto',product:(c.services||[]).map(s=>s.product||s.service).join(' · '),
+    qty:(c.services||[]).reduce((a,s)=>a+Number(s.qty||0)*share,0),
+    inflow:(c.services||[]).reduce((a,s)=>a+inflowOf(s)*share,0),
+    metricValue:share,metricType:'contracts',allocationShare:share
   }));
+
+  const rows=allocations.flatMap(({contract,share})=>
+    contract.services.map(s=>({...s,contract,allocationShare:share,allocatedAgent:agent,totalInflow:inflowOf(s)*share,allocatedQty:Number(s.qty||0)*share}))
+  );
+  const base=r=>detailRow(r,key==='inflow'?r.totalInflow:Number(r.allocatedQty||0),key==='inflow'?'inflow':'pieces');
   const filters={
     inflow:r=>r.totalInflow>0,
-    products:r=>Number(r.qty||0)>0,
+    products:r=>Number(r.allocatedQty||0)>0,
     simVoice:r=>r.service==='SIM Voce',
     simData:r=>r.service==='SIM Dati',
     m2m:r=>r.service==='SIM M2M',
@@ -334,6 +370,7 @@ export function teamBreakdown(store,month,agent,key){
   };
   return rows.filter(filters[key]||(()=>false)).map(base);
 }
+
 
 export function availableMonths(store){
   const set=new Set((store.contracts||[]).map(c=>(c.date||'').slice(0,7)).filter(Boolean));

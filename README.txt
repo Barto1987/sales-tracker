@@ -732,3 +732,34 @@ SALES TRACKER 3.4.1 — HOME BACKUP PULITA
 
 Aprire:
 https://barto1987.github.io/sales-tracker/index.html?v=341
+
+
+SALES TRACKER 3.5.0 — DIGITAL SOLUTIONS & SPLIT 50/50
+
+SOLUZIONI DIGITALI
+- Smart Digital Marketing Start, Expert e Pro.
+- Movylo Exclusive.
+- Lookout for Business.
+- Lookout Mobile.
+- Lettura del Totale Netto Complessivo già al netto degli sconti.
+- SDM + Movylo vengono uniti in una sola riga Solution.
+- Lookout viene mantenuto separato come Solution Security.
+- Compatibile con offerte che presentano uno o più blocchi “OFFERTA Soluzioni Digitali”.
+
+TARGET
+- Excellent: inflow totale al 100% e Solution Inflow al 100%.
+- Community: inflow e V-Coin al 100% attribuiti a Francesco.
+- Le Solution non entrano nel Prospect Excellent, Mobile o Link.
+- Gara Agenzia e Squadra possono usare la ripartizione interna 50/50.
+
+CONDIVISIONE
+- Nessuna condivisione.
+- 50% Francesco + 50% Jacopo.
+- 50% Jacopo + 50% Luciano.
+- Il contratto e il PDF restano unici.
+- Excellent e Community restano sempre al 100% su Francesco.
+- Squadra ripartisce inflow, pezzi e quota contratto.
+- Gara Agenzia usa le quote interne senza modificare il totale complessivo.
+
+Aprire:
+https://barto1987.github.io/sales-tracker/index.html?v=350

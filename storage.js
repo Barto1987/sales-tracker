@@ -36,6 +36,7 @@ export function loadStore(){
         ...c,
         createdAt:c.createdAt||c.date||new Date().toISOString(),
         updatedAt:c.updatedAt||c.createdAt||c.date||new Date().toISOString(),
+        teamAllocations:Array.isArray(c.teamAllocations)&&c.teamAllocations.length?c.teamAllocations:[{agent:c.agent||'Francesco',share:1}],
         services:(c.services||[]).map(s=>({
           ...s,
           mnp:s.mnp!=null?!!s.mnp:(s.service==='SIM Voce'?!!c.mnp:false)
