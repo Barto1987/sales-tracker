@@ -135,7 +135,10 @@ function catalogHints(text,rows){
 export async function parsePDF(file){
  const pages=await extract(file),text=pages.join(' '),summaryText=pages.slice(0,3).join(' '),meta=common(text),warnings=[];let rows=[],detectedMnp=false;
  const imageOnly=text.replace(/\s+/g,' ').trim().length<80;
- const blocks=summaryText.split(/(?=OFFERTA\s+)/i).filter(b=>/^OFFERTA\s+/i.test(b));
+ // Avvia un nuovo blocco soltanto sulla dicitura ufficiale "OFFERTA" in maiuscolo.
+ // In questo modo frasi come "Offerta applicata all'Indirizzo" non spezzano
+ // la sezione prima del Totale Netto Complessivo.
+ const blocks=summaryText.split(/(?=OFFERTA\s+)/).filter(b=>/^OFFERTA\s+/.test(b));
  for(const b of blocks){
   if(/Mobile Comfort - Easy Rent/i.test(b)){
    const base=line(b,/Mobile Comfort - Easy Rent SoHo SME/i),promo=line(b,/Promo Mobile Comfort \+ Easy Rent/i);

@@ -434,3 +434,24 @@ TEST NATURALMENTE DA LATTE FRIULANO
 
 Aprire:
 https://barto1987.github.io/sales-tracker/index.html?v=233
+
+
+FIX 2.3.4 — SUDDIVISIONE BLOCCHI PDF
+
+Problema corretto:
+- Il parser trattava anche "Offerta applicata all'Indirizzo" come inizio
+  di una nuova offerta.
+- Il blocco OneNet Start veniva quindi troncato prima dei totali.
+
+Nuova logica:
+- Un nuovo blocco inizia soltanto con la dicitura ufficiale "OFFERTA" maiuscola.
+- Il Totale Netto Complessivo rimane nella stessa sezione del prodotto.
+
+TEST NATURALMENTE DA LATTE FRIULANO
+- Totale Netto Complessivo: 150,00 €
+- Inflow OneNet Start: 140,00 €
+- Servizio: One Net Azienda
+- Semaforo: verde
+
+Aprire:
+https://barto1987.github.io/sales-tracker/index.html?v=234
