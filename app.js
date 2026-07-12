@@ -1,10 +1,10 @@
 
-import {loadStore,saveStore,importBackupObject} from './storage.js?v=361';
-import {TARGETS,generalStats,agencyStats,agencyBreakdown,excellentStats,excellentBreakdown,communityStats,communityBreakdown,teamStats,teamBreakdown,availableMonths,customerList,customerDashboard,customerKey,inflowOf} from './engines.js?v=361';
-import {savePdf,openPdf,deletePdf} from './pdf-store.js?v=361';
-import {initParser,parsePDF} from './parser.js?v=361';
-import {createAutoBackup,getAutoBackupMeta,getFullBackupMeta,downloadDatabaseBackup,downloadCompleteBackup,restoreCompleteBackup,getArchiveStats,formatBytes,formatDate} from './backup.js?v=361';
-import {exportSync,readSyncFile,previewMerge,applyMerge,getSyncMeta} from './sync.js?v=361';
+import {loadStore,saveStore,importBackupObject} from './storage.js?v=362';
+import {TARGETS,generalStats,agencyStats,agencyBreakdown,excellentStats,excellentBreakdown,communityStats,communityBreakdown,teamStats,teamBreakdown,availableMonths,customerList,customerDashboard,customerKey,inflowOf} from './engines.js?v=362';
+import {savePdf,openPdf,deletePdf} from './pdf-store.js?v=362';
+import {initParser,parsePDF} from './parser.js?v=362';
+import {createAutoBackup,getAutoBackupMeta,getFullBackupMeta,downloadDatabaseBackup,downloadCompleteBackup,restoreCompleteBackup,getArchiveStats,formatBytes,formatDate} from './backup.js?v=362';
+import {exportSync,readSyncFile,previewMerge,applyMerge,getSyncMeta} from './sync.js?v=362';
 
 let store=loadStore(),parsed=null,pendingPdf=null;
 function persistStore(){
@@ -328,6 +328,7 @@ function renderTeam(){
    ${teamMetricRow(agent,'One Net',x.oneNet,'oneNet')}
    ${teamMetricRow(agent,'Easy Rent',x.easyRent,'easyRent')}
    ${teamMetricRow(agent,'Easy Deal',x.easyDeal,'easyDeal')}
+   ${teamMetricRow(agent,'Digitali',x.digital||0,'digital',true)}
    </table></div>`;
  }).join('');
  $('teamHistory').innerHTML=months.map(m=>`<div class="item team-history-item" data-team-month="${m}"><div><strong>${new Date(m+'-01T12:00:00').toLocaleDateString('it-IT',{month:'long',year:'numeric'})}</strong></div><span>›</span></div>`).join('');
@@ -357,12 +358,16 @@ function communityRow(label,value,key,suffix=''){
  const clickable=Number(value)>0;
  return `<tr class="${clickable?'metric-table-row':''}"${clickable?` data-community-detail="${key}" role="button" tabindex="0"`:''}><td>${label}</td><td>${suffix}${Math.round(value*100)/100}${clickable?' ›':''}</td></tr>`;
 }
+function communityAbilityRow(label,value,key){
+ const clickable=Number(value)>0;
+ return `<tr class="${clickable?'metric-table-row':''}"${clickable?` data-community-detail="${key}" role="button" tabindex="0"`:''}><td>${label}</td><td>${money(value)}${clickable?' ›':''}</td></tr>`;
+}
 function renderCommunity(){
  const c=communityStats(store);
  $('communitySummary').innerHTML=`<div class="card hero metric-clickable" data-community-detail="totalVcoins" role="button" tabindex="0"><div class="muted">V-Coin stimati</div><strong>${Math.round(c.vcoins)}</strong><div class="muted">Tocca per vedere la composizione</div></div>
  <div class="card"><h3>Ability</h3><table class="table-like">
- ${communityRow('Inflow minimo 800 €',c.inflow,'inflow',money(c.inflow)+' · ')}
- ${communityRow('Link minimo 350 €',c.link,'link',money(c.link)+' · ')}
+ ${communityAbilityRow('Inflow minimo 800 €',c.inflow,'inflow')}
+ ${communityAbilityRow('Link minimo 350 €',c.link,'link')}
  </table></div>`;
  $('communityBoosts').innerHTML=`<div class="card"><h3>V-Coin e boost</h3><table class="table-like">
  ${communityRow('V-Coin base',c.inflow,'baseVcoins')}
@@ -495,7 +500,7 @@ async function saveParsed(){
      ?[{agent:'Jacopo',share:.5},{agent:'Luciano',share:.5}]
      :[{agent,share:1}];
  const nowIso=new Date().toISOString();
- const contract={id:'C-'+Date.now(),createdAt:nowIso,updatedAt:nowIso,date:$('contractDate').value,offer:parsed.meta.offer,client:parsed.meta.client||'Da verificare',vat:parsed.meta.vat,customerCode:parsed.meta.customerCode||'',prospect,agent,includeAgency,teamAllocations,status:'Valido',pdfRef:parsed.filename,pdfStored:false,notes:'Sales Tracker 3.6.1',services:[]};
+ const contract={id:'C-'+Date.now(),createdAt:nowIso,updatedAt:nowIso,date:$('contractDate').value,offer:parsed.meta.offer,client:parsed.meta.client||'Da verificare',vat:parsed.meta.vat,customerCode:parsed.meta.customerCode||'',prospect,agent,includeAgency,teamAllocations,status:'Valido',pdfRef:parsed.filename,pdfStored:false,notes:'Sales Tracker 3.6.2',services:[]};
  for(const el of rows){
    const service=el.querySelector('.pr-service').value;
    const mnpEl=el.querySelector('.pr-mnp');

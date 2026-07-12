@@ -850,3 +850,22 @@ SQUADRA
 
 Aprire:
 https://barto1987.github.io/sales-tracker/index.html?v=361
+
+
+SALES TRACKER 3.6.2 — COMMUNITY & TEAM FIX
+
+COMMUNITY
+- Nelle righe Ability ora compare solo il valore inflow in euro.
+- Eliminato il valore numerico duplicato dopo il pallino.
+- Le righe restano cliccabili.
+
+SQUADRA
+- Aggiunta la voce Digitali in fondo a ogni agente.
+- Digitali mostra l'inflow attribuito all'agente.
+- Comprende SDM, Movylo, Lookout e tutte le righe Solution.
+- La voce è cliccabile e apre il dettaglio.
+- Le quote 50/50 restano applicate a Squadra e Gara Agenzia.
+- Excellent e Community restano al 100% su Francesco.
+
+Aprire:
+https://barto1987.github.io/sales-tracker/index.html?v=362
