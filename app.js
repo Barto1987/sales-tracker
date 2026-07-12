@@ -1,14 +1,14 @@
 
-import {loadStore,saveStore,importBackupObject} from './storage.js?v=240';
-import {TARGETS,generalStats,agencyStats,excellentStats,excellentBreakdown,communityStats,teamStats,inflowOf} from './engines.js?v=240';
-import {initParser,parsePDF} from './parser.js?v=240';
+import {loadStore,saveStore,importBackupObject} from './storage.js?v=250';
+import {TARGETS,generalStats,agencyStats,agencyBreakdown,excellentStats,excellentBreakdown,communityStats,communityBreakdown,teamStats,inflowOf} from './engines.js?v=250';
+import {initParser,parsePDF} from './parser.js?v=250';
 
 let store=loadStore(),parsed=null;
 const $=id=>document.getElementById(id),money=v=>new Intl.NumberFormat('it-IT',{style:'currency',currency:'EUR'}).format(v||0);
 const pct=(v,t)=>Math.min((v/t)*100,100);
-function kpi(label,v,t,euro=false,detailKey=''){
+function kpi(label,v,t,euro=false,detailKey='',section='excellent'){
  const clickable=detailKey&&Number(v)>0;
- return `<div class="card kpi${clickable?' excellent-clickable':''}"${clickable?` data-excellent-detail="${detailKey}" role="button" tabindex="0"`:''}><small>${label}</small><strong>${euro?money(v):v} / ${euro?money(t):t}</strong><div class="progress"><span style="width:${pct(v,t)}%"></span></div><small>Residuo: ${euro?money(Math.max(t-v,0)):Math.max(t-v,0)}</small></div>`
+ return `<div class="card kpi${clickable?' metric-clickable':''}"${clickable?` data-${section}-detail="${detailKey}" role="button" tabindex="0"`:''}><small>${label}</small><strong>${euro?money(v):v} / ${euro?money(t):t}</strong><div class="progress"><span style="width:${pct(v,t)}%"></span></div><small>Residuo: ${euro?money(Math.max(t-v,0)):Math.max(t-v,0)}</small></div>`
 }
 function allInflow(c){return c.services.reduce((a,s)=>a+inflowOf(s),0)}
 function renderHome(){
@@ -24,7 +24,13 @@ function renderHome(){
 }
 function renderAgency(){
  const a=agencyStats(store);
- $('agencyGrid').innerHTML=kpi('SIM + Dati + Easy Rent',a.corePieces,TARGETS.agency.corePieces)+kpi('Inflow Core',a.coreInflow,TARGETS.agency.coreInflow,true)+kpi('ADSL',a.adsl,TARGETS.agency.adsl)+kpi('One Net',a.oneNet,TARGETS.agency.oneNet)+kpi('Energia + Gas',a.energyGas,TARGETS.agency.energyGas)
+ $('agencyGrid').innerHTML=
+   kpi('SIM + Dati + Easy Rent',a.corePieces,TARGETS.agency.corePieces,false,'corePieces','agency')+
+   kpi('Inflow Core',a.coreInflow,TARGETS.agency.coreInflow,true,'coreInflow','agency')+
+   kpi('ADSL',a.adsl,TARGETS.agency.adsl,false,'adsl','agency')+
+   kpi('One Net',a.oneNet,TARGETS.agency.oneNet,false,'oneNet','agency')+
+   kpi('Energia + Gas',a.energyGas,TARGETS.agency.energyGas,false,'energyGas','agency');
+ bindMetricDetails('agency');
 }
 function renderExcellent(){
  const e=excellentStats(store),t=TARGETS.excellent;
@@ -32,14 +38,14 @@ function renderExcellent(){
  <div class="card"><h3>Status ciclo</h3><table class="table-like"><tr><td>Trimestri storici vinti</td><td>${e.historyWon} / 8</td></tr><tr><td>Obiettivo minimo</td><td>6 / 8</td></tr><tr><td>Trimestre corrente</td><td>${e.won?'🟢 Vinto':'🟡 In corso'}</td></tr><tr><td>Ancora necessari</td><td>${e.trimestersNeeded}</td></tr><tr><td>Errori residui consentiti</td><td>2</td></tr></table></div>`;
 
  $('excellentGrid').innerHTML=
-   kpi('Inflow totale',e.totalInflow,t.totalInflow,true,'totalInflow')+
-   kpi('Mobile',e.mobile,t.mobile,false,'mobile')+
-   kpi('Prospect inflow',e.prospectInflow,t.prospectInflow,true,'prospectInflow')+
-   kpi('Link inflow',e.linkInflow,t.linkInflow,true,'linkInflow')+
-   kpi('Solution inflow',e.solutionInflow,t.solutionInflow,true,'solutionInflow')+
-   kpi('Noleggio operativo',e.easyRentPieces,t.easyRentPieces,false,'easyRentPieces');
+   kpi('Inflow totale',e.totalInflow,t.totalInflow,true,'totalInflow','excellent')+
+   kpi('Mobile',e.mobile,t.mobile,false,'mobile','excellent')+
+   kpi('Prospect inflow',e.prospectInflow,t.prospectInflow,true,'prospectInflow','excellent')+
+   kpi('Link inflow',e.linkInflow,t.linkInflow,true,'linkInflow','excellent')+
+   kpi('Solution inflow',e.solutionInflow,t.solutionInflow,true,'solutionInflow','excellent')+
+   kpi('Noleggio operativo',e.easyRentPieces,t.easyRentPieces,false,'easyRentPieces','excellent');
 
- bindExcellentDetails();
+ bindMetricDetails('excellent');
 
  $('excellentHistory').innerHTML=store.excellentHistory.map(x=>`<div class="item"><div><strong>${x.label}</strong><div class="muted">${x.payment}</div></div><div style="text-align:right"><strong>${money(x.total)}</strong><div class="badge ok">Vinto</div></div></div>`).join('')
 }
@@ -54,9 +60,9 @@ const excellentDetailLabels={
  easyRentPieces:'Pratiche incluse nel Noleggio operativo'
 };
 
-function bindExcellentDetails(){
- document.querySelectorAll('[data-excellent-detail]').forEach(card=>{
-   const open=()=>renderExcellentDetail(card.dataset.excellentDetail,card);
+function bindMetricDetails(section){
+ document.querySelectorAll(`[data-${section}-detail]`).forEach(card=>{
+   const open=()=>renderMetricDetail(section,card.dataset[`${section}Detail`],card);
    card.onclick=open;
    card.onkeydown=e=>{
      if(e.key==='Enter'||e.key===' '){
@@ -67,12 +73,90 @@ function bindExcellentDetails(){
  });
 }
 
+
+const agencyDetailLabels={
+ corePieces:'Pratiche incluse in SIM + Dati + Easy Rent',
+ coreInflow:'Pratiche incluse nell’Inflow Core',
+ adsl:'Pratiche incluse nel target ADSL',
+ oneNet:'Pratiche incluse nel target One Net',
+ energyGas:'Pratiche incluse nel target Energia + Gas'
+};
+
+const communityDetailLabels={
+ totalVcoins:'Composizione dei V-Coin stimati',
+ baseVcoins:'V-Coin base derivanti dall’inflow',
+ inflow:'Pratiche incluse nell’inflow Community',
+ link:'Pratiche incluse nell’inflow Link',
+ mnp:'Boost V-Coin MNP',
+ prospect:'Boost V-Coin Prospect',
+ easyRent:'Boost V-Coin Easy Rent',
+ other:'Altri boost V-Coin'
+};
+
+function renderMetricDetail(section,key,card){
+ if(section==='excellent')return renderExcellentDetail(key,card);
+
+ const source=section==='agency'?agencyBreakdown(store):communityBreakdown(store);
+ const rows=source[key]||[];
+ if(!rows.length)return;
+
+ document.querySelectorAll('.metric-open').forEach(x=>x.classList.remove('metric-open'));
+ card.classList.add('metric-open');
+
+ const detail=$(section==='agency'?'agencyDetail':'communityDetail');
+ const labels=section==='agency'?agencyDetailLabels:communityDetailLabels;
+ const pieceMetric=rows[0]?.metricType==='pieces';
+ const vcoinMetric=rows[0]?.metricType==='vcoins';
+ const total=rows.reduce((a,r)=>a+Number(r.metricValue||0),0);
+
+ detail.classList.remove('hidden');
+ detail.innerHTML=`<div class="card excellent-detail-card">
+   <div class="excellent-detail-head">
+     <div>
+       <h3>${labels[key]||'Dettaglio'}</h3>
+       <div class="muted">${rows.length} ${rows.length===1?'voce':'voci'} utilizzate nel calcolo</div>
+     </div>
+     <button class="excellent-close metric-close" aria-label="Chiudi">×</button>
+   </div>
+   ${rows.map(r=>`<div class="excellent-detail-row">
+     <div class="excellent-detail-main">
+       <div>
+         <div class="excellent-detail-client">${r.client}</div>
+         <div class="excellent-detail-product">${r.product}</div>
+       </div>
+       <div class="excellent-detail-value">${
+         pieceMetric?`${r.metricValue} ${r.metricValue===1?'pezzo':'pezzi'}`:
+         vcoinMetric?`${Math.round(r.metricValue*100)/100} V-Coin`:
+         money(r.metricValue)
+       }</div>
+     </div>
+     <div class="excellent-detail-meta">${r.date} · ${r.service} · quantità ${r.qty} · inflow ${money(r.inflow)} · ${r.agent}${r.prospect?' · Prospect':''}${r.mnp?' · MNP':''}</div>
+     ${vcoinMetric?`<div class="excellent-detail-meta">Base ${Math.round((r.basePoints||r.inflow)*100)/100} · moltiplicatore ×${r.multiplier||1} · boost +${Math.round((r.boostPoints||0)*100)/100}${r.boostType?` · ${r.boostType}`:''}</div>`:''}
+   </div>`).join('')}
+   <div class="excellent-detail-total">
+     <span>Totale attribuito</span>
+     <span>${
+       pieceMetric?`${total} ${total===1?'pezzo':'pezzi'}`:
+       vcoinMetric?`${Math.round(total*100)/100} V-Coin`:
+       money(total)
+     }</span>
+   </div>
+ </div>`;
+
+ detail.querySelector('.metric-close').onclick=()=>{
+   detail.classList.add('hidden');
+   detail.innerHTML='';
+   document.querySelectorAll('.metric-open').forEach(x=>x.classList.remove('metric-open'));
+ };
+ detail.scrollIntoView({behavior:'smooth',block:'start'});
+}
+
 function renderExcellentDetail(key,card){
  const rows=excellentBreakdown(store)[key]||[];
  if(!rows.length)return;
 
- document.querySelectorAll('.excellent-open').forEach(x=>x.classList.remove('excellent-open'));
- card.classList.add('excellent-open');
+ document.querySelectorAll('.metric-open').forEach(x=>x.classList.remove('metric-open'));
+ card.classList.add('metric-open');
 
  const pieceMetric=rows[0]?.metricType==='pieces';
  const total=rows.reduce((a,r)=>a+Number(r.metricValue||0),0);
@@ -106,7 +190,7 @@ function renderExcellentDetail(key,card){
  $('closeExcellentDetail').onclick=()=>{
    detail.classList.add('hidden');
    detail.innerHTML='';
-   document.querySelectorAll('.excellent-open').forEach(x=>x.classList.remove('excellent-open'));
+   document.querySelectorAll('.metric-open').forEach(x=>x.classList.remove('metric-open'));
  };
 
  detail.scrollIntoView({behavior:'smooth',block:'start'});
@@ -132,12 +216,26 @@ function renderTeam(){
  }).join('');
 }
 
+function communityRow(label,value,key,suffix=''){
+ const clickable=Number(value)>0;
+ return `<tr class="${clickable?'metric-table-row':''}"${clickable?` data-community-detail="${key}" role="button" tabindex="0"`:''}><td>${label}</td><td>${suffix}${Math.round(value*100)/100}${clickable?' ›':''}</td></tr>`;
+}
 function renderCommunity(){
  const c=communityStats(store);
- $('communitySummary').innerHTML=`<div class="card hero"><div class="muted">V-Coin stimati</div><strong>${Math.round(c.vcoins)}</strong><div class="muted">Inflow ${money(c.inflow)} · Link ${money(c.link)}</div></div>
- <div class="card"><h3>Ability</h3><table class="table-like"><tr><td>Inflow minimo 800 €</td><td>${c.inflow>=800?'🟢':'🔴'}</td></tr><tr><td>Link minimo 350 €</td><td>${c.link>=350?'🟢':'🔴'}</td></tr></table></div>`;
- $('communityBoosts').innerHTML=`<div class="card"><h3>Boost maturati</h3><table class="table-like"><tr><td>MNP</td><td>+${Math.round(c.boosts.mnp)}</td></tr><tr><td>Prospect</td><td>+${Math.round(c.boosts.prospect)}</td></tr><tr><td>Easy Rent</td><td>+${Math.round(c.boosts.easyRent)}</td></tr><tr><td>Altri boost</td><td>+${Math.round(c.boosts.other)}</td></tr></table></div>`;
+ $('communitySummary').innerHTML=`<div class="card hero metric-clickable" data-community-detail="totalVcoins" role="button" tabindex="0"><div class="muted">V-Coin stimati</div><strong>${Math.round(c.vcoins)}</strong><div class="muted">Tocca per vedere la composizione</div></div>
+ <div class="card"><h3>Ability</h3><table class="table-like">
+ ${communityRow('Inflow minimo 800 €',c.inflow,'inflow',money(c.inflow)+' · ')}
+ ${communityRow('Link minimo 350 €',c.link,'link',money(c.link)+' · ')}
+ </table></div>`;
+ $('communityBoosts').innerHTML=`<div class="card"><h3>V-Coin e boost</h3><table class="table-like">
+ ${communityRow('V-Coin base',c.inflow,'baseVcoins')}
+ ${communityRow('Boost MNP',c.boosts.mnp,'mnp','+')}
+ ${communityRow('Boost Prospect',c.boosts.prospect,'prospect','+')}
+ ${communityRow('Boost Easy Rent',c.boosts.easyRent,'easyRent','+')}
+ ${communityRow('Altri boost',c.boosts.other,'other','+')}
+ </table></div>`;
  $('communityCompare').innerHTML=`<div class="card"><h3>Confronto portale</h3><label>V-Coin ufficiali dichiarati</label><input id="officialVcoins" type="number" value="${store.officialCommunity.vcoins??''}" placeholder="Inserisci dato portale"><button id="saveOfficial" class="secondary" style="margin-top:10px">Salva confronto</button>${c.difference==null?'':`<div class="note" style="margin-top:10px">Differenza portale − app: <strong>${Math.round(c.difference)}</strong> V-Coin</div>`}</div>`;
+ bindMetricDetails('community');
  $('saveOfficial').onclick=()=>{store.officialCommunity.vcoins=Number($('officialVcoins').value||0);store.officialCommunity.updatedAt=new Date().toISOString();saveStore(store);renderCommunity()}
 }
 function archiveItem(c){
@@ -198,7 +296,7 @@ function saveParsed(){
  const prospect=$('prospect').value==='Sì';
  const agent=$('agent').value||'Francesco';
  const includeAgency=$('includeAgency').value==='Sì';
- const contract={id:'C-'+Date.now(),date:$('contractDate').value,offer:parsed.meta.offer,client:parsed.meta.client||'Da verificare',vat:parsed.meta.vat,prospect,agent,includeAgency,status:'Valido',pdfRef:parsed.filename,notes:'Sales Tracker 2.4.0',services:[]};
+ const contract={id:'C-'+Date.now(),date:$('contractDate').value,offer:parsed.meta.offer,client:parsed.meta.client||'Da verificare',vat:parsed.meta.vat,prospect,agent,includeAgency,status:'Valido',pdfRef:parsed.filename,notes:'Sales Tracker 2.5.0',services:[]};
  for(const el of rows){
    const service=el.querySelector('.pr-service').value;
    const mnpEl=el.querySelector('.pr-mnp');

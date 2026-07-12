@@ -42,15 +42,15 @@ textarea{min-height:74px}
 @media(min-width:760px){.grid{grid-template-columns:repeat(3,1fr)}}
 
 
-.kpi.excellent-clickable{
+.metric-clickable{
   cursor:pointer;
   position:relative;
   transition:transform .12s ease, box-shadow .12s ease;
 }
-.kpi.excellent-clickable:active{
+.metric-clickable:active{
   transform:scale(.985);
 }
-.kpi.excellent-clickable::after{
+.kpi.metric-clickable::after{
   content:'›';
   position:absolute;
   right:16px;
@@ -59,7 +59,7 @@ textarea{min-height:74px}
   font-weight:800;
   color:#6b7280;
 }
-.kpi.excellent-open{
+.metric-open{
   outline:3px solid rgba(230,0,0,.16);
 }
 .excellent-detail-card{
@@ -130,3 +130,9 @@ textarea{min-height:74px}
 }
 
 .preview-row .pr-mnp{margin-bottom:14px}
+
+.metric-table-row{cursor:pointer}
+.metric-table-row:active{background:#f3f4f6}
+.metric-table-row td:last-child{font-weight:800;text-align:right}
+.hero.metric-clickable{position:relative;cursor:pointer}
+.hero.metric-clickable::after{content:'›';position:absolute;right:20px;top:50%;transform:translateY(-50%);font-size:32px;font-weight:900}

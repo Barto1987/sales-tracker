@@ -505,3 +505,39 @@ TEST Q S EUREGION SRL
 
 Aprire:
 https://barto1987.github.io/sales-tracker/index.html?v=240
+
+
+SALES TRACKER 2.5.0 — DETTAGLI AGENZIA E COMMUNITY
+
+GARA AGENZIA
+- Tutti gli obiettivi con valore maggiore di zero sono cliccabili.
+- Dettaglio disponibile per:
+  * SIM + Dati + Easy Rent
+  * Inflow Core
+  * ADSL
+  * One Net
+  * Energia + Gas
+- Mostra cliente, data, prodotto, quantità, inflow, agente, Prospect e MNP.
+- I valori a zero restano inattivi.
+- Sono incluse solo le pratiche valide per Gara Agenzia.
+
+COMMUNITY
+- Il riquadro V-Coin stimati è cliccabile e mostra la composizione completa.
+- Sono cliccabili:
+  * inflow Ability
+  * link Ability
+  * V-Coin base
+  * boost MNP
+  * boost Prospect
+  * boost Easy Rent
+  * altri boost
+- Ogni riga mostra:
+  * inflow base
+  * moltiplicatore applicato
+  * V-Coin aggiuntivi
+  * V-Coin totali
+  * tipo di boost
+- I valori a zero restano inattivi.
+
+Aprire:
+https://barto1987.github.io/sales-tracker/index.html?v=250

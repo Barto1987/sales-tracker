@@ -194,3 +194,112 @@ export function excellentBreakdown(store){
 
   return {totalInflow,mobile,prospectInflow,linkInflow,solutionInflow,easyRentPieces};
 }
+
+
+function detailRow(r,metricValue,metricType='inflow',extra={}){
+  return {
+    contractId:r.contract.id,
+    client:r.contract.client||'Cliente',
+    offer:r.contract.offer||'',
+    date:r.contract.date||'',
+    agent:r.contract.agent||'Francesco',
+    prospect:!!r.contract.prospect,
+    service:r.service||'',
+    product:r.product||r.service||'',
+    qty:Number(r.qty||0),
+    inflow:Number(r.totalInflow||0),
+    mnp:!!r.mnp,
+    metricValue:Number(metricValue||0),
+    metricType,
+    ...extra
+  };
+}
+
+export function agencyBreakdown(store){
+  const {start,end}=store.settings.agencyPeriod;
+  const x=flatServices(store,start,end,true);
+  const core=x.filter(r=>['SIM Voce','SIM Dati','Easy Rent'].includes(r.service));
+
+  return {
+    corePieces:core
+      .filter(r=>Number(r.qty||0)>0)
+      .map(r=>detailRow(r,Number(r.qty||0),'pieces')),
+    coreInflow:core
+      .filter(r=>r.totalInflow>0)
+      .map(r=>detailRow(r,r.totalInflow,'inflow')),
+    adsl:x
+      .filter(r=>r.service==='ADSL'&&Number(r.qty||0)>0)
+      .map(r=>detailRow(r,Number(r.qty||0),'pieces')),
+    oneNet:x
+      .filter(r=>['One Net Ufficio','One Net Azienda'].includes(r.service)&&Number(r.qty||0)>0)
+      .map(r=>detailRow(r,Number(r.qty||0),'pieces')),
+    energyGas:x
+      .filter(r=>['Energia','Gas'].includes(r.service)&&Number(r.qty||0)>0)
+      .map(r=>detailRow(r,Number(r.qty||0),'pieces'))
+  };
+}
+
+export function communityBreakdown(store){
+  const month=store.settings.communityMonth;
+  const start=month+'-01',end=month+'-31';
+  const x=flatServices(store,start,end);
+
+  const totalVcoins=[];
+  const baseVcoins=[];
+  const inflow=[];
+  const link=[];
+  const mnp=[];
+  const prospect=[];
+  const easyRent=[];
+  const other=[];
+
+  for(const r of x){
+    const multiplier=communityMultiplier(r);
+    const points=r.totalInflow*multiplier;
+    const extra=Math.max(points-r.totalInflow,0);
+
+    if(r.totalInflow>0){
+      inflow.push(detailRow(r,r.totalInflow,'inflow'));
+      baseVcoins.push(detailRow(r,r.totalInflow,'vcoins',{
+        multiplier:1,
+        basePoints:r.totalInflow,
+        boostPoints:0,
+        totalPoints:r.totalInflow,
+        boostType:'Base'
+      }));
+      totalVcoins.push(detailRow(r,points,'vcoins',{
+        multiplier,
+        basePoints:r.totalInflow,
+        boostPoints:extra,
+        totalPoints:points,
+        boostType:
+          extra<=0?'Nessun boost':
+          r.service==='SIM Voce'&&r.mnp?'MNP':
+          r.contract.prospect?'Prospect':
+          r.service==='Easy Rent'?'Easy Rent':
+          /miia/i.test(r.product||'')?'MIIA':
+          /7layers|7 layers/i.test(r.product||'')?'7Layers':
+          /fast cloud/i.test(r.product||'')?'Fast Cloud':'Altro'
+      }));
+    }
+
+    if(excellentFlags(r).link&&r.totalInflow>0){
+      link.push(detailRow(r,r.totalInflow,'inflow'));
+    }
+
+    if(extra>0){
+      const row=detailRow(r,extra,'vcoins',{
+        multiplier,
+        basePoints:r.totalInflow,
+        boostPoints:extra,
+        totalPoints:points
+      });
+      if(r.service==='SIM Voce'&&r.mnp)mnp.push({...row,boostType:'MNP'});
+      else if(r.contract.prospect)prospect.push({...row,boostType:'Prospect'});
+      else if(r.service==='Easy Rent')easyRent.push({...row,boostType:'Easy Rent'});
+      else other.push({...row,boostType:'Altro'});
+    }
+  }
+
+  return {totalVcoins,baseVcoins,inflow,link,mnp,prospect,easyRent,other};
+}

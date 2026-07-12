@@ -7,11 +7,11 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icon-192.png">
-<link rel="stylesheet" href="style.css?v=240">
-<title>Sales Tracker 2.4.0</title>
+<link rel="stylesheet" href="style.css?v=250">
+<title>Sales Tracker 2.5.0</title>
 </head>
 <body>
-<header><div class="title">Sales Tracker 2.4.0</div><div class="sub">Cruscotto commerciale personale</div></header>
+<header><div class="title">Sales Tracker 2.5.0</div><div class="sub">Cruscotto commerciale personale</div></header>
 <main>
 <section id="home" class="view active">
 <h2>Home</h2><div id="homeTop"></div><div id="homeCards" class="grid"></div>
@@ -30,7 +30,11 @@
 </div>
 </section>
 
-<section id="agency" class="view"><h2>Gara Agenzia</h2><div id="agencyGrid" class="grid"></div></section>
+<section id="agency" class="view">
+<h2>Gara Agenzia</h2>
+<div id="agencyGrid" class="grid"></div>
+<div id="agencyDetail" class="hidden"></div>
+</section>
 
 <section id="excellent" class="view">
 <h2>Excellent</h2>
@@ -40,7 +44,13 @@
 <div class="card"><h3>Storico trimestri</h3><div id="excellentHistory"></div></div>
 </section>
 
-<section id="community" class="view"><h2>Community</h2><div id="communitySummary"></div><div id="communityBoosts"></div><div id="communityCompare"></div></section>
+<section id="community" class="view">
+<h2>Community</h2>
+<div id="communitySummary"></div>
+<div id="communityBoosts"></div>
+<div id="communityDetail" class="hidden"></div>
+<div id="communityCompare"></div>
+</section>
 
 
 <section id="team" class="view">
@@ -59,7 +69,7 @@
 <button data-view="community">Community</button>
 <button data-view="team">Squadra</button>
 </nav>
-<script type="module" src="app.js?v=240"></script>
+<script type="module" src="app.js?v=250"></script>
 <script>
 (async()=>{
   if('serviceWorker' in navigator){
