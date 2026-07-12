@@ -763,3 +763,20 @@ CONDIVISIONE
 
 Aprire:
 https://barto1987.github.io/sales-tracker/index.html?v=350
+
+
+SALES TRACKER 3.5.1 — RUNTIME FIX
+
+- Corretto errore JavaScript nel calcolo delle quantità allocate 50/50.
+- Ripristinato caricamento completo della Home.
+- Ripristinata navigazione dei menu inferiori.
+- Restano attive tutte le novità della 3.5.0:
+  * SDM Start, Expert e Pro;
+  * Movylo Exclusive;
+  * Lookout;
+  * Totale Netto Complessivo;
+  * condivisione Squadra/Gara Agenzia 50/50;
+  * Excellent e Community sempre al 100% su Francesco.
+
+Aprire:
+https://barto1987.github.io/sales-tracker/index.html?v=351

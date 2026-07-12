@@ -49,11 +49,11 @@ export function agencyStats(store){
   const {start,end}=store.settings.agencyPeriod, x=allocatedServices(store,start,end,true);
   const core=x.filter(r=>['SIM Voce','SIM Dati','Easy Rent'].includes(r.service));
   return {
-    corePieces:core.reduce((a,r)=>a+Number(r.allocatedQty??r.qty||0),0),
+    corePieces:core.reduce((a,r)=>a+Number((r.allocatedQty ?? r.qty) || 0),0),
     coreInflow:core.reduce((a,r)=>a+r.totalInflow,0),
-    adsl:x.filter(r=>r.service==='ADSL').reduce((a,r)=>a+Number(r.allocatedQty??r.qty||0),0),
-    oneNet:x.filter(r=>['One Net Ufficio','One Net Azienda'].includes(r.service)).reduce((a,r)=>a+Number(r.allocatedQty??r.qty||0),0),
-    energyGas:x.filter(r=>['Energia','Gas'].includes(r.service)).reduce((a,r)=>a+Number(r.allocatedQty??r.qty||0),0)
+    adsl:x.filter(r=>r.service==='ADSL').reduce((a,r)=>a+Number((r.allocatedQty ?? r.qty) || 0),0),
+    oneNet:x.filter(r=>['One Net Ufficio','One Net Azienda'].includes(r.service)).reduce((a,r)=>a+Number((r.allocatedQty ?? r.qty) || 0),0),
+    energyGas:x.filter(r=>['Energia','Gas'].includes(r.service)).reduce((a,r)=>a+Number((r.allocatedQty ?? r.qty) || 0),0)
   }
 }
 function excellentFlags(r){
@@ -256,20 +256,20 @@ export function agencyBreakdown(store){
 
   return {
     corePieces:core
-      .filter(r=>Number(r.allocatedQty??r.qty||0)>0)
-      .map(r=>detailRow(r,Number(r.allocatedQty??r.qty||0),'pieces')),
+      .filter(r=>Number((r.allocatedQty ?? r.qty) || 0)>0)
+      .map(r=>detailRow(r,Number((r.allocatedQty ?? r.qty) || 0),'pieces')),
     coreInflow:core
       .filter(r=>r.totalInflow>0)
       .map(r=>detailRow(r,r.totalInflow,'inflow')),
     adsl:x
-      .filter(r=>r.service==='ADSL'&&Number(r.allocatedQty??r.qty||0)>0)
-      .map(r=>detailRow(r,Number(r.allocatedQty??r.qty||0),'pieces')),
+      .filter(r=>r.service==='ADSL'&&Number((r.allocatedQty ?? r.qty) || 0)>0)
+      .map(r=>detailRow(r,Number((r.allocatedQty ?? r.qty) || 0),'pieces')),
     oneNet:x
-      .filter(r=>['One Net Ufficio','One Net Azienda'].includes(r.service)&&Number(r.allocatedQty??r.qty||0)>0)
-      .map(r=>detailRow(r,Number(r.allocatedQty??r.qty||0),'pieces')),
+      .filter(r=>['One Net Ufficio','One Net Azienda'].includes(r.service)&&Number((r.allocatedQty ?? r.qty) || 0)>0)
+      .map(r=>detailRow(r,Number((r.allocatedQty ?? r.qty) || 0),'pieces')),
     energyGas:x
-      .filter(r=>['Energia','Gas'].includes(r.service)&&Number(r.allocatedQty??r.qty||0)>0)
-      .map(r=>detailRow(r,Number(r.allocatedQty??r.qty||0),'pieces'))
+      .filter(r=>['Energia','Gas'].includes(r.service)&&Number((r.allocatedQty ?? r.qty) || 0)>0)
+      .map(r=>detailRow(r,Number((r.allocatedQty ?? r.qty) || 0),'pieces'))
   };
 }
 

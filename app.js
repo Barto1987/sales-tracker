@@ -1,10 +1,10 @@
 
-import {loadStore,saveStore,importBackupObject} from './storage.js?v=350';
-import {TARGETS,generalStats,agencyStats,agencyBreakdown,excellentStats,excellentBreakdown,communityStats,communityBreakdown,teamStats,teamBreakdown,availableMonths,customerList,customerDashboard,customerKey,inflowOf} from './engines.js?v=350';
-import {savePdf,openPdf,deletePdf} from './pdf-store.js?v=350';
-import {initParser,parsePDF} from './parser.js?v=350';
-import {createAutoBackup,getAutoBackupMeta,getFullBackupMeta,downloadDatabaseBackup,downloadCompleteBackup,restoreCompleteBackup,getArchiveStats,formatBytes,formatDate} from './backup.js?v=350';
-import {exportSync,readSyncFile,previewMerge,applyMerge,getSyncMeta} from './sync.js?v=350';
+import {loadStore,saveStore,importBackupObject} from './storage.js?v=351';
+import {TARGETS,generalStats,agencyStats,agencyBreakdown,excellentStats,excellentBreakdown,communityStats,communityBreakdown,teamStats,teamBreakdown,availableMonths,customerList,customerDashboard,customerKey,inflowOf} from './engines.js?v=351';
+import {savePdf,openPdf,deletePdf} from './pdf-store.js?v=351';
+import {initParser,parsePDF} from './parser.js?v=351';
+import {createAutoBackup,getAutoBackupMeta,getFullBackupMeta,downloadDatabaseBackup,downloadCompleteBackup,restoreCompleteBackup,getArchiveStats,formatBytes,formatDate} from './backup.js?v=351';
+import {exportSync,readSyncFile,previewMerge,applyMerge,getSyncMeta} from './sync.js?v=351';
 
 let store=loadStore(),parsed=null,pendingPdf=null;
 function persistStore(){
@@ -490,7 +490,7 @@ async function saveParsed(){
      ?[{agent:'Jacopo',share:.5},{agent:'Luciano',share:.5}]
      :[{agent,share:1}];
  const nowIso=new Date().toISOString();
- const contract={id:'C-'+Date.now(),createdAt:nowIso,updatedAt:nowIso,date:$('contractDate').value,offer:parsed.meta.offer,client:parsed.meta.client||'Da verificare',vat:parsed.meta.vat,customerCode:parsed.meta.customerCode||'',prospect,agent,includeAgency,teamAllocations,status:'Valido',pdfRef:parsed.filename,pdfStored:false,notes:'Sales Tracker 3.5.0',services:[]};
+ const contract={id:'C-'+Date.now(),createdAt:nowIso,updatedAt:nowIso,date:$('contractDate').value,offer:parsed.meta.offer,client:parsed.meta.client||'Da verificare',vat:parsed.meta.vat,customerCode:parsed.meta.customerCode||'',prospect,agent,includeAgency,teamAllocations,status:'Valido',pdfRef:parsed.filename,pdfStored:false,notes:'Sales Tracker 3.5.1',services:[]};
  for(const el of rows){
    const service=el.querySelector('.pr-service').value;
    const mnpEl=el.querySelector('.pr-mnp');
