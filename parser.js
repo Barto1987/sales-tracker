@@ -249,6 +249,35 @@ export async function parsePDF(file){
        calc:`Totale Netto Complessivo ${net.toFixed(2)} € + quota IP ${ipMonthly.toFixed(2)} € (una tantum ÷ 36). Attivazione generale esclusa`
      })
    }
+  }else if(/OFFERTA\s+OneNet\s+Start/i.test(b)){
+   const total=totalNetMonthly(b);
+   const activation=recurringActivationNet(b);
+   const baseLine=b.match(/\bOneNet\s+Start\s+([0-9]{1,3}(?:\.[0-9]{3})*,\d{2}|[0-9]+[,.]\d{2})\s*€/i);
+   const promoLine=b.match(/Promo\s+OneNet\s+Start[^€\n]{0,120}?(-[0-9]{1,3}(?:\.[0-9]{3})*,\d{2}|-[0-9]+[,.]\d{2})\s*€/i);
+   const sempreLine=b.match(/Sempre\s+Serviti\s+([0-9]{1,3}(?:\.[0-9]{3})*,\d{2}|[0-9]+[,.]\d{2})\s*€/i);
+
+   const base=baseLine?num(baseLine[1]):0;
+   const promo=promoLine?num(promoLine[1]):0;
+   const sempre=sempreLine?num(sempreLine[1]):0;
+
+   let inflow=0,calc='';
+   if(total!=null){
+     inflow=Math.max(total-activation,0);
+     calc=`Totale Netto Complessivo ${total.toFixed(2)} € − attivazione ricorrente ${activation.toFixed(2)} €`;
+   }else{
+     inflow=Math.max(base+promo+sempre,0);
+     calc=`Canone ${base.toFixed(2)} € ${promo<0?'−':'+'} ${Math.abs(promo).toFixed(2)} € promo + Sempre Serviti ${sempre.toFixed(2)} €`;
+   }
+
+   add(rows,{
+     service:'One Net Azienda',
+     product:'OneNet Start',
+     category:'Connettività',
+     qty:1,
+     inflowUnit:Math.round(inflow*100)/100,
+     confidence:'green',
+     calc
+   })
   }else if(/OFFERTA\s+OneNet\s+P\.IVA/i.test(b)){
    const header=b.match(/OFFERTA\s+(OneNet\s+P\.IVA(?:\s+[A-Za-z0-9._-]+){0,4})/i);
    const priceLine=b.match(/(OneNet\s+P\.IVA(?:\s+[A-Za-z0-9._-]+){0,4})\s+([0-9]{1,3}(?:\.[0-9]{3})*,\d{2}|[0-9]+[,.]\d{2})\s*€/i);

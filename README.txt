@@ -372,3 +372,27 @@ SALES TRACKER 2.3.0 — DETTAGLIO OBIETTIVI EXCELLENT
 
 Aprire:
 https://barto1987.github.io/sales-tracker/index.html?v=230
+
+
+FIX 2.3.1 — ONENET START
+
+- Riconoscimento dedicato delle offerte OFFERTA OneNet Start.
+- Classificazione come One Net Azienda.
+- Se presente il Totale Netto Complessivo:
+  inflow = Totale Netto Complessivo - contributo di attivazione ricorrente.
+- Se il totale manca:
+  inflow = canone base + promo + Sempre Serviti valorizzati.
+- Sempre Serviti a 0 € non genera righe aggiuntive né richiesta manuale.
+- Nessun fallback al catalogo.
+
+TEST CLIRE SRL
+- Servizio: One Net Azienda
+- Prodotto: OneNet Start
+- Quantità: 1
+- Totale netto: 97,50 €
+- Attivazione ricorrente: 10,00 €
+- Inflow corretto: 87,50 €
+- Affidabilità: verde
+
+Aprire:
+https://barto1987.github.io/sales-tracker/index.html?v=231
