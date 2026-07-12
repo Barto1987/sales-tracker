@@ -309,3 +309,64 @@ textarea{min-height:74px}
     flex-direction:column;
   }
 }
+
+.regulation-group{
+  margin-bottom:20px;
+}
+.regulation-card{
+  cursor:pointer;
+}
+.regulation-card + .regulation-card{
+  margin-top:12px;
+}
+.regulation-head{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  gap:12px;
+}
+.regulation-type{
+  font-size:.82rem;
+  font-weight:900;
+  text-transform:uppercase;
+  color:#6b7280;
+}
+.regulation-status{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  padding:6px 9px;
+  border-radius:999px;
+  background:#e7f8ec;
+  color:#237a3d;
+  font-size:.78rem;
+  font-weight:900;
+}
+.regulation-status::before{
+  content:'';
+  width:9px;
+  height:9px;
+  border-radius:50%;
+  background:#34c759;
+}
+.regulation-target-table td:nth-child(2),
+.regulation-target-table td:nth-child(3){
+  text-align:right;
+  white-space:nowrap;
+}
+.regulation-section{
+  border-top:1px solid #e5e7eb;
+  padding-top:15px;
+  margin-top:15px;
+}
+.regulation-section ul{
+  margin:8px 0 0;
+  padding-left:20px;
+}
+.regulation-section li{
+  margin:8px 0;
+  line-height:1.35;
+}
+.regulations-intro{
+  background:#f7f8fa;
+}

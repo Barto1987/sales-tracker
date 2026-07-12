@@ -903,3 +903,37 @@ SALES TRACKER 3.6.4 — FULL BACKUP FIX
 
 Aprire:
 https://barto1987.github.io/sales-tracker/index.html?v=364
+
+
+SALES TRACKER 3.7.0 — CENTRO REGOLAMENTI
+
+CENTRO REGOLAMENTI
+- Nuova sezione accessibile dalla Home.
+- Storico iniziale:
+  * Community luglio 2026;
+  * Excellent Q3 2026;
+  * Gara Agenzia Q3 2026.
+- Schede complete con periodo, target, premi, boost, prodotti ed eccezioni.
+- Struttura predisposta per aggiungere i nuovi mesi/trimestri senza sovrascrivere lo storico.
+
+EXCELLENT — LINK INFLOW
+- Non si contano i pezzi.
+- Si conteggiano solo:
+  * canone link al netto degli sconti;
+  * interni al netto degli sconti;
+  * sconto grandi clienti sottratto.
+- Esclusi dal target Link:
+  * Sempre Serviti Core, Critical, FWA 5G e analoghi;
+  * UC Phone / UC Phone Pro;
+  * device;
+  * attivazioni.
+- Questi servizi possono comunque concorrere all'inflow totale Excellent.
+- I nuovi contratti One Net salvano separatamente inflow totale e inflow valido per il target Link.
+
+COMMUNITY
+- Easy Rent = valore Kasko.
+- Ability luglio: Inflow 800 €, Link 350 €, corsi COPPA.
+- Boost luglio inclusi nella scheda regolamento.
+
+Aprire:
+https://barto1987.github.io/sales-tracker/index.html?v=370

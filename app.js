@@ -1,10 +1,11 @@
 
-import {loadStore,saveStore,importBackupObject} from './storage.js?v=364';
-import {TARGETS,generalStats,agencyStats,agencyBreakdown,excellentStats,excellentBreakdown,communityStats,communityBreakdown,teamStats,teamBreakdown,availableMonths,customerList,customerDashboard,customerKey,inflowOf} from './engines.js?v=364';
-import {savePdf,openPdf,deletePdf} from './pdf-store.js?v=364';
-import {initParser,parsePDF} from './parser.js?v=364';
-import {createAutoBackup,getAutoBackupMeta,getFullBackupMeta,downloadDatabaseBackup,downloadCompleteBackup,restoreCompleteBackup,getArchiveStats,formatBytes,formatDate} from './backup.js?v=364';
-import {exportSync,readSyncFile,previewMerge,applyMerge,getSyncMeta} from './sync.js?v=364';
+import {loadStore,saveStore,importBackupObject} from './storage.js?v=370';
+import {TARGETS,generalStats,agencyStats,agencyBreakdown,excellentStats,excellentBreakdown,communityStats,communityBreakdown,teamStats,teamBreakdown,availableMonths,customerList,customerDashboard,customerKey,inflowOf} from './engines.js?v=370';
+import {savePdf,openPdf,deletePdf} from './pdf-store.js?v=370';
+import {initParser,parsePDF} from './parser.js?v=370';
+import {createAutoBackup,getAutoBackupMeta,getFullBackupMeta,downloadDatabaseBackup,downloadCompleteBackup,restoreCompleteBackup,getArchiveStats,formatBytes,formatDate} from './backup.js?v=370';
+import {exportSync,readSyncFile,previewMerge,applyMerge,getSyncMeta} from './sync.js?v=370';
+import {regulationGroups} from './regulations.js?v=370';
 
 let store=loadStore(),parsed=null,pendingPdf=null;
 function persistStore(){
@@ -93,7 +94,8 @@ function renderHome(){
  <div class="card section-link" data-go="excellent"><div><small>Excellent</small><strong>${money(e.variable)} extra</strong><div class="muted">${e.won?'Trimestre vinto':'Mancano '+money(Math.max(1000-e.variable,0))}</div></div><span>›</span></div>
  <div class="card section-link" data-go="community"><div><small>Community</small><strong>${Math.round(c.vcoins)} V-Coin</strong><div class="muted">${c.ability?'Ability OK':'Ability da completare'}</div></div><span>›</span></div>
  <div class="card section-link" data-go="team"><div><small>Squadra</small><strong>${money(teamStats(store).Totale.inflow)}</strong><div class="muted">inflow mese</div></div><span>›</span></div>
- <div class="card section-link" data-go="archive"><div><small>Archivio</small><strong>${store.contracts.length}</strong><div class="muted">contratti totali</div></div><span>›</span></div>`;
+ <div class="card section-link" data-go="archive"><div><small>Archivio</small><strong>${store.contracts.length}</strong><div class="muted">contratti totali</div></div><span>›</span></div>
+ <div class="card section-link" data-go="regulations"><div><small>Regolamenti</small><strong>3</strong><div class="muted">campagne attive</div></div><span>›</span></div>`;
  document.querySelectorAll('[data-go]').forEach(x=>x.onclick=()=>go(x.dataset.go))
  const hc=$('homeCustomerCount');if(hc)hc.textContent=customerCount;
 
@@ -500,7 +502,7 @@ async function saveParsed(){
      ?[{agent:'Jacopo',share:.5},{agent:'Luciano',share:.5}]
      :[{agent,share:1}];
  const nowIso=new Date().toISOString();
- const contract={id:'C-'+Date.now(),createdAt:nowIso,updatedAt:nowIso,date:$('contractDate').value,offer:parsed.meta.offer,client:parsed.meta.client||'Da verificare',vat:parsed.meta.vat,customerCode:parsed.meta.customerCode||'',prospect,agent,includeAgency,teamAllocations,status:'Valido',pdfRef:parsed.filename,pdfStored:false,notes:'Sales Tracker 3.6.4',services:[]};
+ const contract={id:'C-'+Date.now(),createdAt:nowIso,updatedAt:nowIso,date:$('contractDate').value,offer:parsed.meta.offer,client:parsed.meta.client||'Da verificare',vat:parsed.meta.vat,customerCode:parsed.meta.customerCode||'',prospect,agent,includeAgency,teamAllocations,status:'Valido',pdfRef:parsed.filename,pdfStored:false,notes:'Sales Tracker 3.7.0',services:[]};
  for(const el of rows){
    const service=el.querySelector('.pr-service').value;
    const mnpEl=el.querySelector('.pr-mnp');
@@ -689,7 +691,78 @@ async function renderBackup(){
  };
 }
 
-function renderAll(){renderHome();renderAgency();renderExcellent();renderCommunity();renderTeam();renderCustomers();renderArchive();renderBackup()}
+
+function renderRegulations(){
+ const list=$('regulationsList'),detail=$('regulationDetail');
+ if(!list||!detail)return;
+
+ const groups=regulationGroups();
+ list.classList.remove('hidden');
+ detail.classList.add('hidden');
+
+ list.innerHTML=groups.map(group=>`<div class="regulation-group">
+   <h3>${group.type}</h3>
+   ${group.items.map(r=>`<div class="card regulation-card" data-regulation-id="${r.id}">
+     <div class="regulation-head">
+       <div>
+         <div class="regulation-type">${r.cadence}</div>
+         <strong>${r.title}</strong>
+         <div class="muted">${r.periodLabel}</div>
+       </div>
+       <div class="regulation-status">Attivo</div>
+     </div>
+     <div class="muted" style="margin-top:10px">${r.summary}</div>
+   </div>`).join('')}
+ </div>`).join('');
+
+ document.querySelectorAll('[data-regulation-id]').forEach(card=>{
+   card.onclick=()=>openRegulation(card.dataset.regulationId);
+ });
+}
+
+function openRegulation(id){
+ const all=regulationGroups().flatMap(g=>g.items);
+ const r=all.find(x=>x.id===id);
+ if(!r)return;
+
+ const list=$('regulationsList'),detail=$('regulationDetail');
+ list.classList.add('hidden');
+ detail.classList.remove('hidden');
+
+ detail.innerHTML=`<button class="secondary regulation-back">← Torna ai regolamenti</button>
+ <div class="card">
+   <div class="regulation-head">
+     <div>
+       <div class="regulation-type">${r.type} · ${r.cadence}</div>
+       <h3 style="margin:5px 0">${r.title}</h3>
+       <div class="muted">${r.periodLabel}</div>
+     </div>
+     <div class="regulation-status">Attivo</div>
+   </div>
+   <p>${r.summary}</p>
+ </div>
+ ${r.targets?.length?`<div class="card">
+   <h3>Target e premi</h3>
+   <table class="table-like regulation-target-table">
+     <tr><td><strong>Obiettivo</strong></td><td><strong>Target</strong></td><td><strong>Premio / nota</strong></td></tr>
+     ${r.targets.map(t=>`<tr><td>${t.label}</td><td>${t.target}</td><td>${t.prize}</td></tr>`).join('')}
+   </table>
+ </div>`:''}
+ <div class="card">
+   ${r.sections.map(s=>`<div class="regulation-section">
+     <h3>${s.title}</h3>
+     <ul>${s.items.map(i=>`<li>${i}</li>`).join('')}</ul>
+   </div>`).join('')}
+ </div>`;
+
+ detail.querySelector('.regulation-back').onclick=()=>{
+   detail.classList.add('hidden');
+   list.classList.remove('hidden');
+ };
+ detail.scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+function renderAll(){renderHome();renderAgency();renderExcellent();renderCommunity();renderTeam();renderCustomers();renderRegulations();renderArchive();renderBackup()}
 document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>go(b.dataset.view));
 $('archiveSearch').oninput=renderArchive;
 $('pdfInput').onchange=e=>e.target.files[0]&&handlePDF(e.target.files[0]);

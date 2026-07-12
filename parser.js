@@ -3,8 +3,8 @@ let PDFJS=null, catalog=[], easyRent=[];
 export async function initParser(){
   PDFJS=await import('https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.10.38/pdf.min.mjs');
   PDFJS.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.10.38/pdf.worker.min.mjs';
-  catalog=await fetch('./catalog.json?v=364').then(r=>r.json());
-  easyRent=await fetch('./easy-rent-list.json?v=364').then(r=>r.json());
+  catalog=await fetch('./catalog.json?v=370').then(r=>r.json());
+  easyRent=await fetch('./easy-rent-list.json?v=370').then(r=>r.json());
 }
 const num=s=>Number(String(s||'0').replace(/\./g,'').replace(',','.').replace(/[^\d.-]/g,''))||0;
 function norm(s){return String(s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]/g,'')}
@@ -359,6 +359,7 @@ export async function parsePDF(file){
       category:'Connettività',
       qty:1,
       inflowUnit:inflow,
+      excellentLinkUnit:inflow,
       confidence:'green',
       calc:net!=null
         ?`Totale netto del singolo blocco ${net.toFixed(2)} € − attivazione ricorrente netta ${activationNet.toFixed(2)} €`
@@ -403,6 +404,7 @@ export async function parsePDF(file){
        category:'Connettività',
        qty:1,
        inflowUnit:Math.round(inflow*100)/100,
+       excellentLinkUnit:Math.round(inflow*100)/100,
        confidence:'green',
        calc:`Totale Netto Complessivo sezione OneNet Start ${total.toFixed(2)} € − attivazione ricorrente fissa 10,00 €`
      })
@@ -451,7 +453,17 @@ export async function parsePDF(file){
      if(value>0)sempre+=value;
    }
    const d=text.match(/Sconto grandi clienti\s+(-[0-9]+[,.]\d{2})\s*€/i);if(d)discount=num(d[1]);
-   add(rows,{service,product:service,category:'Connettività',qty:1,inflowUnit:base+promo+interni+uc+sempre+discount,calc:'Canone − promo + interni − sconto grandi clienti + UC + Sempre Serviti; attivazione e device esclusi'})
+   const totalInflow=base+promo+interni+uc+sempre+discount;
+   const linkOnlyInflow=base+promo+interni+discount;
+   add(rows,{
+     service,
+     product:service,
+     category:'Connettività',
+     qty:1,
+     inflowUnit:Math.round(totalInflow*100)/100,
+     excellentLinkUnit:Math.round(linkOnlyInflow*100)/100,
+     calc:'Inflow totale: canone − promo + interni − sconto grandi clienti + UC + Sempre Serviti. Link Excellent: solo canone netto + interni netti; UC, Sempre Serviti, attivazioni e device esclusi'
+   })
   }
  }
  if(rows.length===0&&!imageOnly)catalogHints(summaryText,rows);

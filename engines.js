@@ -71,6 +71,24 @@ function excellentFlags(r){
   );
   return {mobile,er:r.service==='Easy Rent',link,solution,easyDeal,m2m}
 }
+
+function excellentLinkValue(r){
+  if(!excellentFlags(r).link)return 0;
+
+  const name=((r.product||'')+' '+(r.category||'')).toLowerCase();
+
+  // Explicit components excluded from the Excellent Link target.
+  if(/sempre serviti|core pack|critical pack|uc phone|device|attivazione/.test(name))return 0;
+
+  // New parser versions save the exact eligible component.
+  if(r.excellentLinkUnit!=null){
+    return Number(r.excellentLinkUnit||0)*Number(r.qty||0);
+  }
+
+  // Backward compatibility for older saved contracts.
+  return Number(r.totalInflow||0);
+}
+
 export function excellentStats(store){
   const {start,end}=store.settings.excellentPeriod, x=flatServices(store,start,end);
   const totalInflow=x.reduce((a,r)=>a+r.totalInflow,0);
@@ -80,11 +98,7 @@ export function excellentStats(store){
     const f=excellentFlags(r);
     return f.mobile||f.link;
   }).reduce((a,r)=>a+r.totalInflow,0);
-  const linkInflow=x.filter(r=>excellentFlags(r).link).reduce((a,r)=>{
-    const n=(r.product||'').toLowerCase();
-    if(/sempre serviti/.test(n)) return a;
-    return a+r.totalInflow;
-  },0);
+  const linkInflow=x.reduce((a,r)=>a+excellentLinkValue(r),0);
   const solutionInflow=x.filter(r=>excellentFlags(r).solution).reduce((a,r)=>a+r.totalInflow,0);
   const easyRentPieces=x.filter(r=>excellentFlags(r).er).reduce((a,r)=>a+Number(r.qty||0),0);
   const vals={totalInflow,mobile,prospectInflow,linkInflow,solutionInflow,easyRentPieces};
@@ -212,12 +226,9 @@ export function excellentBreakdown(store){
     .map(r=>mapRow(r,r.totalInflow,'inflow'));
 
   const linkInflow=x
-    .filter(r=>{
-      if(!excellentFlags(r).link || r.totalInflow<=0)return false;
-      const n=(r.product||'').toLowerCase();
-      return !/sempre serviti/.test(n);
-    })
-    .map(r=>mapRow(r,r.totalInflow,'inflow'));
+    .map(r=>({r,value:excellentLinkValue(r)}))
+    .filter(x=>x.value>0)
+    .map(x=>mapRow(x.r,x.value,'inflow'));
 
   const solutionInflow=x
     .filter(r=>excellentFlags(r).solution && r.totalInflow>0)
