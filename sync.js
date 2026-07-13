@@ -2,7 +2,9 @@
 const SYNC_META_KEY='salesTrackerSyncMetaV1';
 
 function stamp(){
-  return new Date().toISOString().replace(/[:.]/g,'-');
+  const d=new Date();
+  const pad=n=>String(n).padStart(2,'0');
+  return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}_${pad(d.getHours())}-${pad(d.getMinutes())}`;
 }
 function downloadBlob(blob,filename){
   const url=URL.createObjectURL(blob);
@@ -78,7 +80,7 @@ export function exportSync(store,deviceName='Dispositivo'){
 
   downloadBlob(
     new Blob([JSON.stringify(payload,null,2)],{type:'application/json'}),
-    `SalesTracker_Sync_${stamp()}.json`
+    `SmartTrackerSync_${stamp()}.json`
   );
 
   localStorage.setItem(SYNC_META_KEY,JSON.stringify({

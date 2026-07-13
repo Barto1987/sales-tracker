@@ -7,11 +7,11 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icon-192.png">
-<link rel="stylesheet" href="style.css?v=371">
-<title>Sales Tracker 3.7.1</title>
+<link rel="stylesheet" href="style.css?v=372">
+<title>Sales Tracker 3.7.2</title>
 </head>
 <body>
-<header><div class="title">Sales Tracker 3.7.1</div><div class="sub">Cruscotto commerciale personale</div></header>
+<header><div class="title">Sales Tracker 3.7.2</div><div class="sub">Cruscotto commerciale personale</div></header>
 <main>
 <section id="home" class="view active">
 <h2>Home</h2><div id="homeTop"></div><div id="homeCards" class="grid"></div>
@@ -33,7 +33,7 @@
   <div id="backupHealth"></div>
 
   <div class="card">
-    <h3>Backup automatico database</h3>
+    <h3>SmartTrackerLocal</h3>
     <p class="muted">Creato all’apertura dell’app e dopo ogni salvataggio o modifica. Non include i PDF e non protegge dalla cancellazione dei dati del sito.</p>
     <div id="autoBackupInfo"></div>
   </div>
@@ -41,35 +41,35 @@
   <div class="card">
     <h3>Backup rapido</h3>
     <p class="muted">Scarica database, contratti, storico e impostazioni. Non include i PDF.</p>
-    <button id="downloadDbBackup">Scarica backup JSON</button>
+    <button id="downloadDbBackup">Scarica SmartTrackerLocal</button>
   </div>
 
   <div class="card">
     <div class="backup-title-row">
-      <h3>Backup completo</h3>
+      <h3>SmartTrackerBkpCompleto</h3>
       <div id="fullBackupBadge" class="backup-status backup-status-red">
         <span class="backup-status-dot"></span>
         <span id="fullBackupStatusText">Backup necessario</span>
       </div>
     </div>
     <p class="muted">Scarica un file ZIP con database e tutti i PDF conservati nell’app.</p>
-    <button id="downloadFullBackup">Scarica backup completo</button>
+    <button id="downloadFullBackup">Scarica SmartTrackerBkpCompleto</button>
     <div id="fullBackupInfo" class="field-hint prospect-auto-no"></div>
     <div id="fullBackupAgeInfo" class="backup-age-info"></div>
   </div>
 
   
 <div class="card">
-  <h3>Sincronizzazione dispositivi</h3>
+  <h3>SmartTrackerSync</h3>
   <p class="muted">Usa un file Sync su iCloud Drive per allineare iPhone, iPad e iMac. Il file Sync contiene i dati, ma non i PDF.</p>
 
   <label>Nome dispositivo</label>
   <input id="syncDeviceName" placeholder="Es. iPhone Francesco">
 
   <div class="actions sync-actions">
-    <button id="exportSync">Esporta Sync</button>
+    <button id="exportSync">Esporta SmartTrackerSync</button>
     <label class="file-button secondary">
-      Importa Sync
+      Importa SmartTrackerSync
       <input id="importSyncInput" type="file" accept=".json,application/json" hidden>
     </label>
   </div>
@@ -188,8 +188,8 @@
 <button data-view="community">Community</button>
 <button data-view="team">Squadra</button>
 </nav>
-<script src="jszip.min.js?v=371"></script>
-<script type="module" src="app.js?v=371"></script>
+<script src="jszip.min.js?v=372"></script>
+<script type="module" src="app.js?v=372"></script>
 <script>
 (async()=>{
   if('serviceWorker' in navigator){

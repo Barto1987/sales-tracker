@@ -1,12 +1,14 @@
 
-import {listPdfs,restorePdf} from './pdf-store.js?v=371';
+import {listPdfs,restorePdf} from './pdf-store.js?v=372';
 
 const AUTO_KEY='salesTrackerAutoBackupV1';
 const AUTO_META_KEY='salesTrackerAutoBackupMetaV1';
 const FULL_META_KEY='salesTrackerFullBackupMetaV1';
 
 function stamp(){
-  return new Date().toISOString().replace(/[:.]/g,'-');
+  const d=new Date();
+  const pad=n=>String(n).padStart(2,'0');
+  return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}_${pad(d.getHours())}-${pad(d.getMinutes())}`;
 }
 
 function downloadBlob(blob,filename){
@@ -26,6 +28,7 @@ export function createAutoBackup(store){
     const raw=JSON.stringify(payload);
     localStorage.setItem(AUTO_KEY,raw);
     localStorage.setItem(AUTO_META_KEY,JSON.stringify({
+      name:'SmartTrackerLocal',
       createdAt:payload.createdAt,
       contracts:(store.contracts||[]).length,
       bytes:new Blob([raw]).size
@@ -49,7 +52,7 @@ export function downloadDatabaseBackup(store){
   const payload={type:'sales-tracker-database',version:1,createdAt:new Date().toISOString(),store};
   downloadBlob(
     new Blob([JSON.stringify(payload,null,2)],{type:'application/json'}),
-    `SalesTracker_Database_${stamp()}.json`
+    `SmartTrackerLocal_${stamp()}.json`
   );
   return payload.createdAt;
 }
@@ -88,7 +91,7 @@ export async function downloadCompleteBackup(store){
     compression:'DEFLATE',
     compressionOptions:{level:4}
   });
-  downloadBlob(blob,`SalesTracker_Completo_${stamp()}.zip`);
+  downloadBlob(blob,`SmartTrackerBkpCompleto_${stamp()}.zip`);
   const meta={createdAt:manifest.createdAt,pdfs:pdfs.length,bytes:blob.size};
   localStorage.setItem(FULL_META_KEY,JSON.stringify(meta));
   return meta;

@@ -1,7 +1,7 @@
 {
-  "name": "Sales Tracker 3.7.1",
-  "short_name": "Sales Tracker 3.7.1",
-  "start_url": "./index.html?v=371",
+  "name": "Sales Tracker 3.7.2",
+  "short_name": "Sales Tracker 3.7.2",
+  "start_url": "./index.html?v=372",
   "display": "standalone",
   "background_color": "#f4f5f7",
   "theme_color": "#e60000",

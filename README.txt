@@ -949,3 +949,14 @@ SALES TRACKER 3.7.1 — COMMUNITY EXTRA MANUALI
 
 Aprire:
 https://barto1987.github.io/sales-tracker/index.html?v=371
+
+
+SALES TRACKER 3.7.2 — BACKUP NAMING
+
+- SmartTrackerBkpCompleto_YYYY-MM-DD_HH-mm.zip
+- SmartTrackerSync_YYYY-MM-DD_HH-mm.json
+- SmartTrackerLocal_YYYY-MM-DD_HH-mm.json
+- Il backup automatico interno è mostrato come SmartTrackerLocal con data/ora, contratti e dimensione.
+
+Aprire:
+https://barto1987.github.io/sales-tracker/index.html?v=372
