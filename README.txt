@@ -960,3 +960,22 @@ SALES TRACKER 3.7.2 — BACKUP NAMING
 
 Aprire:
 https://barto1987.github.io/sales-tracker/index.html?v=372
+
+
+SALES TRACKER 3.7.3 — SAFFRON THEME
+
+- Nuovo colore principale ispirato a Pantone 14-1064 TCX Saffron.
+- Equivalente web utilizzato: #FFA500.
+- Aggiornati:
+  * intestazione;
+  * card hero;
+  * gradienti;
+  * pulsanti principali;
+  * barre di avanzamento;
+  * menu attivi;
+  * focus dei campi;
+  * colore tema Safari/PWA.
+- I colori funzionali dei semafori restano invariati.
+
+Aprire:
+https://barto1987.github.io/sales-tracker/index.html?v=373
