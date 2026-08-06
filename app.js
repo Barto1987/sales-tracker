@@ -1,13 +1,15 @@
 
-import {loadStore,saveStore,importBackupObject} from './storage.js?v=373';
-import {TARGETS,generalStats,agencyStats,agencyBreakdown,excellentStats,excellentBreakdown,communityStats,communityBreakdown,teamStats,teamBreakdown,availableMonths,customerList,customerDashboard,customerKey,inflowOf} from './engines.js?v=373';
-import {savePdf,openPdf,deletePdf} from './pdf-store.js?v=373';
-import {initParser,parsePDF} from './parser.js?v=373';
-import {createAutoBackup,getAutoBackupMeta,getFullBackupMeta,downloadDatabaseBackup,downloadCompleteBackup,restoreCompleteBackup,getArchiveStats,formatBytes,formatDate} from './backup.js?v=373';
-import {exportSync,readSyncFile,previewMerge,applyMerge,getSyncMeta} from './sync.js?v=373';
-import {regulationGroups} from './regulations.js?v=373';
+import {loadStore,saveStore,importBackupObject} from './storage.js?v=380';
+import {TARGETS,generalStats,agencyStats,agencyBreakdown,excellentStats,excellentBreakdown,communityStats,communityBreakdown,teamStats,teamBreakdown,availableMonths,customerList,customerDashboard,customerKey,inflowOf} from './engines.js?v=380';
+import {savePdf,openPdf,deletePdf} from './pdf-store.js?v=380';
+import {initParser,parsePDF} from './parser.js?v=380';
+import {createAutoBackup,getAutoBackupMeta,getFullBackupMeta,downloadDatabaseBackup,downloadCompleteBackup,restoreCompleteBackup,getArchiveStats,formatBytes,formatDate} from './backup.js?v=380';
+import {exportSync,readSyncFile,previewMerge,applyMerge,getSyncMeta} from './sync.js?v=380';
+import {regulationGroups} from './regulations.js?v=380';
+import {currentMonthKey,monthLabel,quarterFromMonth,availablePeriodMonths,ensurePeriodState,periodStatusLabel,periodStatusIcon,applyGlobalMonth} from './periods.js?v=380';
 
 let store=loadStore(),parsed=null,pendingPdf=null;
+applyGlobalMonth(store,store.settings.activeMonth||store.settings.currentMonth||currentMonthKey());
 function persistStore(){
   saveStore(store);
   createAutoBackup(store);
@@ -536,7 +538,7 @@ async function saveParsed(){
      ?[{agent:'Jacopo',share:.5},{agent:'Luciano',share:.5}]
      :[{agent,share:1}];
  const nowIso=new Date().toISOString();
- const contract={id:'C-'+Date.now(),createdAt:nowIso,updatedAt:nowIso,date:$('contractDate').value,offer:parsed.meta.offer,client:parsed.meta.client||'Da verificare',vat:parsed.meta.vat,customerCode:parsed.meta.customerCode||'',prospect,agent,includeAgency,teamAllocations,status:'Valido',pdfRef:parsed.filename,pdfStored:false,notes:'Sales Tracker 3.7.3',services:[]};
+ const contract={id:'C-'+Date.now(),createdAt:nowIso,updatedAt:nowIso,date:$('contractDate').value,offer:parsed.meta.offer,client:parsed.meta.client||'Da verificare',vat:parsed.meta.vat,customerCode:parsed.meta.customerCode||'',prospect,agent,includeAgency,teamAllocations,status:'Valido',pdfRef:parsed.filename,pdfStored:false,notes:'Sales Tracker 3.8.0',services:[]};
  for(const el of rows){
    const service=el.querySelector('.pr-service').value;
    const mnpEl=el.querySelector('.pr-mnp');
@@ -796,7 +798,24 @@ function openRegulation(id){
  detail.scrollIntoView({behavior:'smooth',block:'start'});
 }
 
-function renderAll(){renderHome();renderAgency();renderExcellent();renderCommunity();renderTeam();renderCustomers();renderRegulations();renderArchive();renderBackup()}
+
+function renderPeriodManager(){
+ const select=$('globalMonthSelect');if(!select)return;
+ const active=store.settings.activeMonth||store.settings.currentMonth||currentMonthKey();
+ const months=availablePeriodMonths(store);if(!months.includes(active))months.unshift(active);
+ select.innerHTML=months.map(m=>`<option value="${m}"${m===active?' selected':''}>${monthLabel(m)}</option>`).join('');
+ const state=ensurePeriodState(store,active),q=quarterFromMonth(active);
+ $('activePeriodLabel').textContent=monthLabel(active);
+ const badge=$('activePeriodStatus');badge.className=`period-status period-status-${state.status}`;badge.textContent=`${periodStatusIcon(state.status)} ${periodStatusLabel(state.status)}`;
+ $('activeQuarterInfo').textContent=`Excellent e Gara Agenzia: ${q.label} · ${q.start} → ${q.end}`;
+ $('markPeriodWorking').disabled=state.status==='working';$('markPeriodVerified').disabled=state.status==='verified';$('togglePeriodClosed').textContent=state.status==='closed'?'Riapri mese':'Chiudi mese';
+ select.onchange=()=>{applyGlobalMonth(store,select.value);persistStore();renderAll()};
+ $('markPeriodWorking').onclick=()=>{const x=ensurePeriodState(store,active);x.status='working';x.updatedAt=new Date().toISOString();persistStore();renderAll()};
+ $('markPeriodVerified').onclick=()=>{const x=ensurePeriodState(store,active);x.status='verified';x.updatedAt=new Date().toISOString();persistStore();renderAll()};
+ $('togglePeriodClosed').onclick=()=>{const x=ensurePeriodState(store,active);x.status=x.status==='closed'?'working':'closed';x.updatedAt=new Date().toISOString();persistStore();renderAll()};
+}
+function selectedPeriodIsClosed(){const a=store.settings.activeMonth||store.settings.currentMonth;return ensurePeriodState(store,a).status==='closed'}
+function renderAll(){renderPeriodManager();renderHome();renderAgency();renderExcellent();renderCommunity();renderTeam();renderCustomers();renderRegulations();renderArchive();renderBackup()}
 document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>go(b.dataset.view));
 $('archiveSearch').oninput=renderArchive;
 $('pdfInput').onchange=e=>e.target.files[0]&&handlePDF(e.target.files[0]);

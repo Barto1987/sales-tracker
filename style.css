@@ -410,3 +410,9 @@ input:focus,select:focus,textarea:focus{
 a{
   color:var(--brand-dark);
 }
+
+.period-manager-card{border:1px solid rgba(255,165,0,.28)}
+.period-manager-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:12px}
+.period-manager-head h3{margin:3px 0 0}.period-status{display:inline-flex;padding:7px 10px;border-radius:999px;font-size:.82rem;font-weight:900;white-space:nowrap}
+.period-status-working{background:#fff5cc;color:#8a5a00}.period-status-verified{background:#e7f8ec;color:#237a3d}.period-status-closed{background:#edf0f4;color:#4b5563}
+.period-actions{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin-top:12px}@media(max-width:600px){.period-actions{grid-template-columns:1fr}}

@@ -979,3 +979,16 @@ SALES TRACKER 3.7.3 — SAFFRON THEME
 
 Aprire:
 https://barto1987.github.io/sales-tracker/index.html?v=373
+
+
+SALES TRACKER 3.8.0 — GESTIONE PERIODI
+- Selettore mese globale nella Home.
+- Community e Squadra seguono il mese selezionato.
+- Excellent e Gara Agenzia seguono automaticamente il trimestre.
+- Mesi precedenti consultabili e modificabili.
+- Stati: In lavorazione, Verificato, Chiuso.
+- Un mese chiuso può essere riaperto.
+- Nessun azzeramento distruttivo dello storico.
+
+Aprire:
+https://barto1987.github.io/sales-tracker/index.html?v=380
