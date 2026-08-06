@@ -56,6 +56,62 @@ export const REGULATIONS=[
     ]
   },
   {
+    id:'community-2026-08',
+    type:'Community',
+    title:'Community agosto 2026',
+    periodLabel:'1–31 agosto 2026',
+    start:'2026-08-01',
+    end:'2026-08-31',
+    status:'active',
+    cadence:'Mensile',
+    summary:'Ability agosto, prodotti validi e boost V-Coin del mese.',
+    sections:[
+      {
+        title:'Soglie di accesso — Ability',
+        items:[
+          'Inflow mensile minimo: 400 €.',
+          'Link mensile minimo: 150 €.',
+          'Per il profilo personale non si applica la soglia agevolata Starter.',
+          'Ad agosto 2026 non sono previsti corsi obbligatori.'
+        ]
+      },
+      {
+        title:'Prodotti validi',
+        items:[
+          'SIM Voce attivate, abbonamento e ricaricabili.',
+          'SIM Dati a canone con traffico incluso.',
+          'Rete Fissa P.IVA: solo VIK, compreso OneBusiness.',
+          'One Net Ufficio e One Net Azienda: link e interni.',
+          'Easy Deal: esclusi interni addizionali su Easy Deal già attivi.',
+          'Easy Rent: inflow pari al solo valore Kasko.',
+          'Soluzioni Digitali Standard.',
+          'Custom Solution, consuntivate a chiusura mese.'
+        ]
+      },
+      {
+        title:'V-Coin',
+        items:[
+          'Regola base: 1 € inflow = 1 V-Coin.',
+          'SIM Voce MNP: 1 € = 3 V-Coin.',
+          'Inflow Prospect: 1 € = 3 V-Coin.',
+          'Easy Rent: 1 € = 2 V-Coin.',
+          'MIIA: 1 € = 3 V-Coin.',
+          '7Layers: 1 € = 2 V-Coin.',
+          'Fast Cloud: 1 € = 2 V-Coin.'
+        ]
+      },
+      {
+        title:'Note operative',
+        items:[
+          'I preventivi TIT devono essere creati dall’agente che chiude la trattativa.',
+          'Per clienti in CB, il cliente deve essere assegnato all’agente.',
+          'Nell’app ogni contratto inserito è considerato già attivo / OK ACA.',
+          'I campi Gare Flash e Corsi restano disponibili come extra manuali; ad agosto i corsi obbligatori sono pari a zero.'
+        ]
+      }
+    ]
+  },
+  {
     id:'excellent-2026-q3',
     type:'Excellent',
     title:'Excellent Q3 2026',
@@ -148,10 +204,3 @@ export function regulationGroups(){
     items:REGULATIONS.filter(r=>r.type===type).sort((a,b)=>b.start.localeCompare(a.start))
   }));
 }
-
-export const COMMUNITY_AUGUST_2026={
- month:'2026-08',label:'Agosto 2026',
- ability:{inflowMin:400,linkInflowMin:150,mandatoryCourses:false,starterRuleApplied:false},
- vcoin:{base:1,simVoiceMnp:3,prospect:3,easyRent:2,miia:3,sevenLayers:2,fastCloud:2},
- manualExtras:{flashRaces:true,courses:true}
-};

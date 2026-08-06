@@ -1002,3 +1002,10 @@ SALES TRACKER 3.8.1 — COMMUNITY AGOSTO 2026
 - Extra manuali Gare Flash e Corsi mantenuti
 - Luglio storico invariato: 800 € / 350 €
 Deploy tramite GitHub Actions > Deploy SmartTracker.
+
+SALES TRACKER 3.8.2 — FIX COMMUNITY AGOSTO
+- Community agosto inserita nel Centro Regolamenti.
+- Scheda Community usa le soglie del mese selezionato.
+- Agosto: Ability 400 €, Link 150 €, nessun corso obbligatorio.
+- Luglio resta 800 €, Link 350 €, corsi obbligatori.
+- Calcolo Ability usa ora le soglie mensili reali.

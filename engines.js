@@ -154,7 +154,7 @@ export function communityStats(store){
     courseVcoins,
     manualExtras:flashVcoins+courseVcoins,
     boosts,
-    ability:inflow>=800&&link>=350,
+    ability:inflow>=communityRulesForMonth(month).abilityInflow&&link>=communityRulesForMonth(month).abilityLinkInflow,
     official,
     difference:official==null?null:official-totalVcoins
   }

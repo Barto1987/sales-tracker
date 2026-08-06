@@ -1,12 +1,12 @@
 
-import {loadStore,saveStore,importBackupObject} from './storage.js?v=381';
-import {TARGETS,generalStats,agencyStats,agencyBreakdown,excellentStats,excellentBreakdown,communityStats,communityBreakdown,teamStats,teamBreakdown,availableMonths,customerList,customerDashboard,customerKey,inflowOf,communityRulesForMonth} from './engines.js?v=381';
-import {savePdf,openPdf,deletePdf} from './pdf-store.js?v=381';
-import {initParser,parsePDF} from './parser.js?v=381';
-import {createAutoBackup,getAutoBackupMeta,getFullBackupMeta,downloadDatabaseBackup,downloadCompleteBackup,restoreCompleteBackup,getArchiveStats,formatBytes,formatDate} from './backup.js?v=381';
-import {exportSync,readSyncFile,previewMerge,applyMerge,getSyncMeta} from './sync.js?v=381';
-import {regulationGroups} from './regulations.js?v=381';
-import {currentMonthKey,monthLabel,quarterFromMonth,availablePeriodMonths,ensurePeriodState,periodStatusLabel,periodStatusIcon,applyGlobalMonth} from './periods.js?v=381';
+import {loadStore,saveStore,importBackupObject} from './storage.js?v=382';
+import {TARGETS,generalStats,agencyStats,agencyBreakdown,excellentStats,excellentBreakdown,communityStats,communityBreakdown,teamStats,teamBreakdown,availableMonths,customerList,customerDashboard,customerKey,inflowOf,communityRulesForMonth} from './engines.js?v=382';
+import {savePdf,openPdf,deletePdf} from './pdf-store.js?v=382';
+import {initParser,parsePDF} from './parser.js?v=382';
+import {createAutoBackup,getAutoBackupMeta,getFullBackupMeta,downloadDatabaseBackup,downloadCompleteBackup,restoreCompleteBackup,getArchiveStats,formatBytes,formatDate} from './backup.js?v=382';
+import {exportSync,readSyncFile,previewMerge,applyMerge,getSyncMeta} from './sync.js?v=382';
+import {regulationGroups} from './regulations.js?v=382';
+import {currentMonthKey,monthLabel,quarterFromMonth,availablePeriodMonths,ensurePeriodState,periodStatusLabel,periodStatusIcon,applyGlobalMonth} from './periods.js?v=382';
 
 let store=loadStore(),parsed=null,pendingPdf=null;
 applyGlobalMonth(store,store.settings.activeMonth||store.settings.currentMonth||currentMonthKey());
@@ -97,7 +97,7 @@ function renderHome(){
  <div class="card section-link" data-go="community"><div><small>Community</small><strong>${Math.round(c.vcoins)} V-Coin</strong><div class="muted">${c.ability?'Ability OK':'Ability da completare'}</div></div><span>›</span></div>
  <div class="card section-link" data-go="team"><div><small>Squadra</small><strong>${money(teamStats(store).Totale.inflow)}</strong><div class="muted">inflow mese</div></div><span>›</span></div>
  <div class="card section-link" data-go="archive"><div><small>Archivio</small><strong>${store.contracts.length}</strong><div class="muted">contratti totali</div></div><span>›</span></div>
- <div class="card section-link" data-go="regulations"><div><small>Regolamenti</small><strong>3</strong><div class="muted">campagne attive</div></div><span>›</span></div>`;
+ <div class="card section-link" data-go="regulations"><div><small>Regolamenti</small><strong>4</strong><div class="muted">campagne attive</div></div><span>›</span></div>`;
  document.querySelectorAll('[data-go]').forEach(x=>x.onclick=()=>go(x.dataset.go))
  const hc=$('homeCustomerCount');if(hc)hc.textContent=customerCount;
 
@@ -380,10 +380,14 @@ function communityAbilityRow(label,value,key){
 }
 function renderCommunity(){
  const c=communityStats(store);
- $('communitySummary').innerHTML=`<div class="card hero metric-clickable" data-community-detail="totalVcoins" role="button" tabindex="0"><div class="muted">V-Coin stimati</div><strong>${Math.round(c.vcoins)}</strong><div class="muted">Automatici ${Math.round(c.automaticVcoins)} · Extra manuali ${Math.round(c.manualExtras)}</div></div>
- <div class="card"><h3>Ability</h3><table class="table-like">
- ${communityAbilityRow('Inflow minimo 800 €',c.inflow,'inflow')}
- ${communityAbilityRow('Link minimo 350 €',c.link,'link')}
+ const communityMonth=store.settings.communityMonth||store.settings.activeMonth;
+ const rules=communityRulesForMonth(communityMonth);
+ const courseStatus=rules.mandatoryCourses?'Corsi obbligatori previsti':'Nessun corso obbligatorio previsto';
+ $('communitySummary').innerHTML=`<div class="card hero metric-clickable" data-community-detail="totalVcoins" role="button" tabindex="0"><div class="muted">V-Coin stimati · ${monthLabel(communityMonth)}</div><strong>${Math.round(c.vcoins)}</strong><div class="muted">Automatici ${Math.round(c.automaticVcoins)} · Extra manuali ${Math.round(c.manualExtras)}</div></div>
+ <div class="card"><h3>Ability · ${monthLabel(communityMonth)}</h3><table class="table-like">
+ ${communityAbilityRow(`Inflow minimo ${rules.abilityInflow} €`,c.inflow,'inflow')}
+ ${communityAbilityRow(`Link minimo ${rules.abilityLinkInflow} €`,c.link,'link')}
+ <tr><td>${courseStatus}</td><td>${rules.mandatoryCourses?'Da verificare':'✓'}</td></tr>
  </table></div>`;
  $('communityBoosts').innerHTML=`<div class="card"><h3>V-Coin e boost</h3><table class="table-like">
  ${communityRow('V-Coin base',c.inflow,'baseVcoins')}
@@ -538,7 +542,7 @@ async function saveParsed(){
      ?[{agent:'Jacopo',share:.5},{agent:'Luciano',share:.5}]
      :[{agent,share:1}];
  const nowIso=new Date().toISOString();
- const contract={id:'C-'+Date.now(),createdAt:nowIso,updatedAt:nowIso,date:$('contractDate').value,offer:parsed.meta.offer,client:parsed.meta.client||'Da verificare',vat:parsed.meta.vat,customerCode:parsed.meta.customerCode||'',prospect,agent,includeAgency,teamAllocations,status:'Valido',pdfRef:parsed.filename,pdfStored:false,notes:'Sales Tracker 3.8.1',services:[]};
+ const contract={id:'C-'+Date.now(),createdAt:nowIso,updatedAt:nowIso,date:$('contractDate').value,offer:parsed.meta.offer,client:parsed.meta.client||'Da verificare',vat:parsed.meta.vat,customerCode:parsed.meta.customerCode||'',prospect,agent,includeAgency,teamAllocations,status:'Valido',pdfRef:parsed.filename,pdfStored:false,notes:'Sales Tracker 3.8.2',services:[]};
  for(const el of rows){
    const service=el.querySelector('.pr-service').value;
    const mnpEl=el.querySelector('.pr-mnp');
