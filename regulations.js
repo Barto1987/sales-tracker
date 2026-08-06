@@ -148,3 +148,10 @@ export function regulationGroups(){
     items:REGULATIONS.filter(r=>r.type===type).sort((a,b)=>b.start.localeCompare(a.start))
   }));
 }
+
+export const COMMUNITY_AUGUST_2026={
+ month:'2026-08',label:'Agosto 2026',
+ ability:{inflowMin:400,linkInflowMin:150,mandatoryCourses:false,starterRuleApplied:false},
+ vcoin:{base:1,simVoiceMnp:3,prospect:3,easyRent:2,miia:3,sevenLayers:2,fastCloud:2},
+ manualExtras:{flashRaces:true,courses:true}
+};

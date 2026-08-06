@@ -440,3 +440,12 @@ export function customerList(store){
   const keys=[...new Set((store.contracts||[]).filter(c=>c.status!=='Eliminato').map(customerKey))];
   return keys.map(k=>customerDashboard(store,k)).filter(Boolean).sort((a,b)=>b.inflow-a.inflow);
 }
+
+export function communityRulesForMonth(month){
+  if(month==='2026-08'){
+    return {abilityInflow:400,abilityLinkInflow:150,mandatoryCourses:false,
+      multipliers:{base:1,mnp:3,prospect:3,easyRent:2,miia:3,sevenLayers:2,fastCloud:2}};
+  }
+  return {abilityInflow:800,abilityLinkInflow:350,mandatoryCourses:true,
+    multipliers:{base:1,mnp:3,prospect:3,easyRent:2,miia:3,sevenLayers:2,fastCloud:2}};
+}

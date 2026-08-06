@@ -992,3 +992,13 @@ SALES TRACKER 3.8.0 — GESTIONE PERIODI
 
 Aprire:
 https://barto1987.github.io/sales-tracker/index.html?v=380
+
+SALES TRACKER 3.8.1 — COMMUNITY AGOSTO 2026
+- Ability inflow: 400 €
+- Ability Link: 150 €
+- Nessun corso obbligatorio
+- Profilo personale: regola Starter non applicata
+- Boost invariati: MNP x3, Prospect x3, Easy Rent x2, MIIA x3, 7Layers x2, Fast Cloud x2
+- Extra manuali Gare Flash e Corsi mantenuti
+- Luglio storico invariato: 800 € / 350 €
+Deploy tramite GitHub Actions > Deploy SmartTracker.
