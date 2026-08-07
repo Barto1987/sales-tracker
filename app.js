@@ -1,13 +1,13 @@
 
-import {loadStore,saveStore,importBackupObject} from './storage.js?v=3104';
-import {TARGETS,generalStats,agencyStats,agencyBreakdown,excellentStats,excellentBreakdown,communityStats,communityBreakdown,teamStats,teamBreakdown,availableMonths,customerList,customerDashboard,customerKey,inflowOf,communityRulesForMonth} from './engines.js?v=3104';
-import {savePdf,openPdf,deletePdf} from './pdf-store.js?v=3104';
-import {initParser,parsePDF} from './parser.js?v=3104';
-import {createAutoBackup,getAutoBackupMeta,getFullBackupMeta,downloadDatabaseBackup,downloadCompleteBackup,restoreCompleteBackup,getArchiveStats,formatBytes,formatDate} from './backup.js?v=3104';
-import {exportSync,readSyncFile,previewMerge,applyMerge,getSyncMeta} from './sync.js?v=3104';
-import {regulationGroups} from './regulations.js?v=3104';
-import {currentMonthKey,monthLabel,quarterFromMonth,availablePeriodMonths,ensurePeriodState,periodStatusLabel,periodStatusIcon,applyGlobalMonth} from './periods.js?v=3104';
-import {cloudLogin,cloudLogout,cloudInfo,uploadLocalFirst,downloadAndMerge,syncNow,bootstrapLinkedCloud,queueCloudPush,getCloudMeta,isCloudLinked,getCloudSession,getCloudEmail,setCloudEmail,runCloudDiagnostics} from './cloud.js?v=3104';
+import {loadStore,saveStore,importBackupObject} from './storage.js?v=3105';
+import {TARGETS,generalStats,agencyStats,agencyBreakdown,excellentStats,excellentBreakdown,communityStats,communityBreakdown,teamStats,teamBreakdown,availableMonths,customerList,customerDashboard,customerKey,inflowOf,communityRulesForMonth} from './engines.js?v=3105';
+import {savePdf,openPdf,deletePdf} from './pdf-store.js?v=3105';
+import {initParser,parsePDF} from './parser.js?v=3105';
+import {createAutoBackup,getAutoBackupMeta,getFullBackupMeta,downloadDatabaseBackup,downloadCompleteBackup,restoreCompleteBackup,getArchiveStats,formatBytes,formatDate} from './backup.js?v=3105';
+import {exportSync,readSyncFile,previewMerge,applyMerge,getSyncMeta} from './sync.js?v=3105';
+import {regulationGroups} from './regulations.js?v=3105';
+import {currentMonthKey,monthLabel,quarterFromMonth,availablePeriodMonths,ensurePeriodState,periodStatusLabel,periodStatusIcon,applyGlobalMonth} from './periods.js?v=3105';
+import {cloudLogin,cloudLogout,cloudInfo,uploadLocalFirst,downloadAndMerge,syncNow,bootstrapLinkedCloud,queueCloudPush,getCloudMeta,isCloudLinked,getCloudSession,getCloudEmail,setCloudEmail,runCloudDiagnostics} from './cloud.js?v=3105';
 
 let store=loadStore(),parsed=null,pendingPdf=null;
 applyGlobalMonth(store,store.settings.activeMonth||store.settings.currentMonth||currentMonthKey());
@@ -568,7 +568,7 @@ async function saveParsed(){
      ?[{agent:'Jacopo',share:.5},{agent:'Luciano',share:.5}]
      :[{agent,share:1}];
  const nowIso=new Date().toISOString();
- const contract={id:'C-'+Date.now(),createdAt:nowIso,updatedAt:nowIso,date:$('contractDate').value,offer:parsed.meta.offer,client:parsed.meta.client||'Da verificare',vat:parsed.meta.vat,customerCode:parsed.meta.customerCode||'',prospect,agent,includeAgency,teamAllocations,status:'Valido',pdfRef:parsed.filename,pdfStored:false,notes:'SmartTracker 3.10.4',services:[]};
+ const contract={id:'C-'+Date.now(),createdAt:nowIso,updatedAt:nowIso,date:$('contractDate').value,offer:parsed.meta.offer,client:parsed.meta.client||'Da verificare',vat:parsed.meta.vat,customerCode:parsed.meta.customerCode||'',prospect,agent,includeAgency,teamAllocations,status:'Valido',pdfRef:parsed.filename,pdfStored:false,notes:'SmartTracker 3.10.5',services:[]};
  for(const el of rows){
    const service=el.querySelector('.pr-service').value;
    const mnpEl=el.querySelector('.pr-mnp');
@@ -668,10 +668,11 @@ function cloudStatusView(info){
 
 async function renderCloud(){
  const email=$('cloudEmail');if(!email)return;
- email.value=localStorage.getItem('smartTrackerCloudEmail')||CLOUD_EMAIL||'';
+ email.value=getCloudEmail()||email.value||'';
  const info=await cloudInfo();
  cloudStatusView(info);
 
+ $('cloudLogin').dataset.cloudBound='1';
  $('cloudLogin').onclick=async()=>{
    const btn=$('cloudLogin');
    const email=($('cloudEmail').value||'').trim();
@@ -759,6 +760,23 @@ async function renderCloud(){
    await cloudLogout();
    await renderCloud();
  };
+}
+
+
+function ensureCloudButtonDiagnosticFallback(){
+ const btn=$('cloudLogin');
+ if(!btn || btn.dataset.cloudBound==='1')return;
+ btn.addEventListener('click',()=>{
+   setTimeout(()=>{
+     if(btn.dataset.cloudBound!=='1'){
+       const box=$('cloudDiagnostics');
+       if(box){
+         box.classList.remove('hidden');
+         box.innerHTML='<div class="cloud-diag-row cloud-diag-ko"><span>✕</span><div><strong>Interfaccia Cloud non inizializzata</strong><small>Ricarica la pagina: SmartTracker mostrerà l’errore di inizializzazione.</small></div></div>';
+       }
+     }
+   },150);
+ });
 }
 
 async function renderBackup(){
@@ -1014,6 +1032,7 @@ $('archiveAgency').onchange=renderArchive;
 
 $('contractDate').valueAsDate=new Date();
 await initParser();
+ensureCloudButtonDiagnosticFallback();
 
 const cloudDevice=localStorage.getItem('smartTrackerCloudDeviceName')||localStorage.getItem('salesTrackerDeviceName')||'Dispositivo';
 const cloudBoot=await bootstrapLinkedCloud(store,cloudDevice);
