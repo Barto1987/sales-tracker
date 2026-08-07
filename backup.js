@@ -1,5 +1,5 @@
 
-import {listPdfs,restorePdf} from './pdf-store.js?v=384';
+import {listPdfs,restorePdf} from './pdf-store.js?v=310';
 
 const AUTO_KEY='salesTrackerAutoBackupV1';
 const AUTO_META_KEY='salesTrackerAutoBackupMetaV1';

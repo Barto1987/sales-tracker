@@ -424,7 +424,7 @@ a{
 
 
 /* =========================================================
-   SmartTracker 3.9.0 — Redesign UI
+   SmartTracker 3.10.0 — Redesign UI
    Visual-only layer: logic and stored data remain unchanged.
    ========================================================= */
 :root{
@@ -608,3 +608,17 @@ input:focus,select:focus,textarea:focus{
   .summary-mini span{font-size:9px}
   .app-nav{grid-template-columns:repeat(6,minmax(58px,1fr));overflow-x:auto}
 }
+
+/* SmartTracker 3.10.0 — Cloud Sync */
+.cloud-card{border:1px solid #e7e9ee;position:relative;overflow:hidden}
+.cloud-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;background:linear-gradient(#e00000,#a90000)}
+.cloud-status{display:inline-flex;align-items:center;gap:7px;border-radius:999px;padding:7px 10px;font-size:10px;font-weight:900;white-space:nowrap}
+.cloud-status-dot{width:9px;height:9px;border-radius:50%;background:currentColor}
+.cloud-status-off{background:#f2f4f7;color:#667085}
+.cloud-status-ready{background:#eaf2ff;color:#175cd3}
+.cloud-status-on{background:#e8f8ed;color:#187a3b}
+.cloud-status-warn{background:#fff4d6;color:#9b6500}
+.cloud-safety-note{margin-top:14px;padding:13px 14px;border-radius:14px;background:#f8f9fb;border:1px solid #eaecf0;display:flex;flex-direction:column;gap:4px;font-size:11px;color:#667085}
+.cloud-safety-note strong{color:#101828;font-size:12px}
+.cloud-pdf-note{margin-top:10px;padding:11px 13px;border-radius:13px;background:#fff7e6;color:#7a4b00;font-size:10.5px;font-weight:650}
+#cloudConnectedBox .actions{margin-top:12px}

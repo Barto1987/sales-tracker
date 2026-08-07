@@ -1046,3 +1046,28 @@ RESTYLING GRAFICO
 SICUREZZA
 - Nessuna modifica intenzionale alle logiche di calcolo, parser, backup o dati.
 - Mantiene le correzioni funzionali della 3.8.4, incluso Easy Rent Community x2.
+
+SMARTTRACKER 3.10.0 — CLOUD SYNC
+
+CLOUD
+- Collegamento al progetto Supabase SmartTracker.
+- Login personale con email preimpostata e password NON salvata nel codice.
+- Publishable key frontend; nessuna service_role/secret key inclusa.
+- Primo dispositivo: pulsante “Carica i dati locali nel Cloud”.
+- Altri dispositivi: “Scarica e unisci dal Cloud”.
+- Dopo la prima migrazione, ogni salvataggio locale viene accodato al Cloud.
+- Controllo periodico ogni 45 secondi per ricevere aggiornamenti dagli altri dispositivi.
+- Se internet non è disponibile, SmartTracker continua a lavorare localmente.
+- I contratti vengono uniti per ID usando updatedAt per scegliere la versione più recente.
+- Stato dei periodi e storico Excellent vengono uniti senza eliminare lo storico.
+
+PDF
+- I PDF restano locali in questa prima release Cloud.
+- I riferimenti ai PDF sono sincronizzati, ma il documento si apre solo sul dispositivo dove è conservato.
+- SmartTrackerBkpCompleto resta il backup indipendente consigliato.
+
+MIGRAZIONE CONSIGLIATA
+1. Fare SmartTrackerBkpCompleto sul dispositivo con i dati completi.
+2. Installare/pubblicare 3.10.0.
+3. Sul dispositivo master: login Cloud > Carica i dati locali nel Cloud.
+4. Sugli altri dispositivi: login Cloud > Scarica e unisci dal Cloud.

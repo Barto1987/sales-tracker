@@ -7,11 +7,11 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icon-192.png">
-<link rel="stylesheet" href="style.css?v=390">
-<title>SmartTracker 3.9.0</title>
+<link rel="stylesheet" href="style.css?v=310">
+<title>SmartTracker 3.10.0</title>
 </head>
 <body>
-<header><div class="title">SmartTracker 3.9.0</div><div class="sub">Cruscotto commerciale personale</div></header>
+<header><div class="title">SmartTracker 3.10.0</div><div class="sub">Cruscotto commerciale personale</div></header>
 <main>
 <section id="home" class="view active">
 <div class="card period-manager-card"><div class="period-manager-head"><div><small>Periodo attivo</small><h3 id="activePeriodLabel">—</h3></div><div id="activePeriodStatus" class="period-status period-status-working">🟡 In lavorazione</div></div><label>Seleziona mese</label><select id="globalMonthSelect"></select><div class="period-actions"><button id="markPeriodWorking" class="secondary">In lavorazione</button><button id="markPeriodVerified" class="secondary">Verificato</button><button id="togglePeriodClosed">Chiudi mese</button></div><div id="activeQuarterInfo" class="field-hint prospect-auto-no"></div><div class="field-hint">Puoi selezionare e modificare anche mesi precedenti. Excellent e Gara Agenzia seguono automaticamente il trimestre scelto.</div></div>
@@ -60,6 +60,54 @@
   </div>
 
   
+
+<div class="card cloud-card">
+  <div class="backup-title-row">
+    <div>
+      <div class="section-kicker">SMARTTRACKER CLOUD</div>
+      <h3 style="margin:2px 0 0">Sincronizzazione dispositivi</h3>
+    </div>
+    <div id="cloudBadge" class="cloud-status cloud-status-off">
+      <span class="cloud-status-dot"></span>
+      <span id="cloudBadgeText">Non collegato</span>
+    </div>
+  </div>
+  <p class="muted">Un unico database per iPhone, iPad e iMac. I dati restano anche salvati localmente e funzionano offline.</p>
+
+  <div id="cloudLoginBox">
+    <label>Email Cloud</label>
+    <input id="cloudEmail" type="email" value="Littleitalytruck@gmail.com" readonly>
+    <label>Password Supabase</label>
+    <input id="cloudPassword" type="password" autocomplete="current-password" placeholder="Password">
+    <button id="cloudLogin" style="margin-top:10px">Accedi a SmartTracker Cloud</button>
+  </div>
+
+  <div id="cloudConnectedBox" class="hidden">
+    <div id="cloudInfo" class="note"></div>
+    <label>Nome dispositivo</label>
+    <input id="cloudDeviceName" placeholder="Es. iPhone Francesco">
+
+    <div id="cloudEmptyActions" class="actions hidden">
+      <button id="cloudUploadFirst">Carica i dati locali nel Cloud</button>
+    </div>
+
+    <div id="cloudExistingActions" class="actions hidden">
+      <button id="cloudDownloadMerge">Scarica e unisci dal Cloud</button>
+      <button id="cloudSyncNow" class="secondary">Sincronizza ora</button>
+    </div>
+
+    <button id="cloudLogout" class="secondary" style="margin-top:10px">Disconnetti Cloud</button>
+    <div id="cloudLastStatus" class="field-hint prospect-auto-no"></div>
+  </div>
+
+  <div class="cloud-safety-note">
+    <strong>Prima migrazione sicura</strong>
+    <span>Il primo dispositivo con tutti i dati deve usare “Carica i dati locali nel Cloud”. Sugli altri dispositivi usa “Scarica e unisci”.</span>
+  </div>
+  <div class="cloud-pdf-note">📄 In questa versione i PDF restano locali sul singolo dispositivo. Contratti, obiettivi, regolamenti e impostazioni vengono sincronizzati.</div>
+</div>
+
+
 <div class="card">
   <h3>SmartTrackerSync</h3>
   <p class="muted">Usa un file Sync su iCloud Drive per allineare iPhone, iPad e iMac. Il file Sync contiene i dati, ma non i PDF.</p>
@@ -189,8 +237,8 @@
 <button data-view="community"><span class="nav-icon">◉</span><span>Community</span></button>
 <button data-view="team"><span class="nav-icon">♟</span><span>Squadra</span></button>
 </nav>
-<script src="jszip.min.js?v=390"></script>
-<script type="module" src="app.js?v=390"></script>
+<script src="jszip.min.js?v=310"></script>
+<script type="module" src="app.js?v=310"></script>
 <script>
 (async()=>{
   if('serviceWorker' in navigator){
