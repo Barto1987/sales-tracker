@@ -116,7 +116,11 @@ function communityMultiplier(row){
   let m=1;
   if(row.service==='SIM Voce'&&row.mnp)m=Math.max(m,3);
   if(c.prospect)m=Math.max(m,3);
-  if(row.service==='Easy Rent')m=Math.max(m,2);
+  if(
+    row.service==='Easy Rent' ||
+    /easy\s*rent|kasko/.test(name) ||
+    /easy\s*rent|kasko/.test(String(row.category||'').toLowerCase())
+  )m=Math.max(m,2);
   if(/miia/.test(name))m=Math.max(m,3);
   if(/7layers|7 layers/.test(name))m=Math.max(m,2);
   if(/fast cloud/.test(name))m=Math.max(m,2);
@@ -136,7 +140,11 @@ export function communityStats(store){
     if(extra>0){
       if(r.service==='SIM Voce'&&r.mnp)boosts.mnp+=extra;
       else if(r.contract.prospect)boosts.prospect+=extra;
-      else if(r.service==='Easy Rent')boosts.easyRent+=extra;
+      else if(
+        r.service==='Easy Rent' ||
+        /easy\s*rent|kasko/.test(String(r.product||r.service||'').toLowerCase()) ||
+        /easy\s*rent|kasko/.test(String(r.category||'').toLowerCase())
+      )boosts.easyRent+=extra;
       else boosts.other+=extra;
     }
   }

@@ -1009,3 +1009,15 @@ SALES TRACKER 3.8.2 — FIX COMMUNITY AGOSTO
 - Agosto: Ability 400 €, Link 150 €, nessun corso obbligatorio.
 - Luglio resta 800 €, Link 350 €, corsi obbligatori.
 - Calcolo Ability usa ora le soglie mensili reali.
+
+SALES TRACKER 3.8.3 — HOLIDAY STABLE
+
+- Tema rosso ripristinato.
+- Community Easy Rent: riconoscimento robusto tramite servizio/prodotto/Kasko.
+- Agosto 2026: Easy Rent = 2 V-Coin per ogni € di inflow Kasko.
+- Esempio Tavano: inflow Kasko 268,50 € => 537 V-Coin.
+- Microsoft 365 Business Basic/Standard/Premium riconosciuto come Soluzione Digitale.
+- M365 singolo: inflow letto dal Totale Netto Complessivo della sezione.
+- CORAM HOLDING M365 Business Standard: 127,40 € di inflow digitale.
+- Centro Regolamenti: un mese Community chiuso viene visualizzato come Chiuso.
+- Luglio resta consultabile nello storico.

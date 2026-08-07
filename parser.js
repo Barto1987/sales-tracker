@@ -3,8 +3,8 @@ let PDFJS=null, catalog=[], easyRent=[];
 export async function initParser(){
   PDFJS=await import('https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.10.38/pdf.min.mjs');
   PDFJS.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.10.38/pdf.worker.min.mjs';
-  catalog=await fetch('./catalog.json?v=382').then(r=>r.json());
-  easyRent=await fetch('./easy-rent-list.json?v=382').then(r=>r.json());
+  catalog=await fetch('./catalog.json?v=383').then(r=>r.json());
+  easyRent=await fetch('./easy-rent-list.json?v=383').then(r=>r.json());
 }
 const num=s=>Number(String(s||'0').replace(/\./g,'').replace(',','.').replace(/[^\d.-]/g,''))||0;
 function norm(s){return String(s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]/g,'')}
@@ -153,7 +153,9 @@ function digitalProductName(block){
     /Smart\s+Digital\s+Marketing\s+(Start|Expert|Pro)/ig,
     /Movylo\s+Exclusive/ig,
     /Lookout\s+for\s+Business/ig,
-    /Lookout\s+Mobile/ig
+    /Lookout\s+Mobile/ig,
+    /M365\s+Business\s+(?:Basic|Standard|Premium)/ig,
+    /Microsoft\s+365\s+Business\s+(?:Basic|Standard|Premium)/ig
   ];
   for(const re of patterns){
     for(const m of block.matchAll(re)){
@@ -176,18 +178,23 @@ function digitalRowsFromBlocks(blocks){
   const processed=new Set(digital);
   const marketing=[];
   const security=[];
+  const standard=[];
 
   for(const block of digital){
     const names=digitalProductName(block);
     const net=totalNetMonthly(block);
     const containsMarketing=names.some(n=>/Smart Digital Marketing|Movylo/i.test(n));
     const containsSecurity=names.some(n=>/Lookout/i.test(n));
+    const standardNames=names.filter(n=>/M365|Microsoft\s+365/i.test(n));
 
     if(containsMarketing){
       marketing.push({block,names:names.filter(n=>/Smart Digital Marketing|Movylo/i.test(n)),net});
     }
     if(containsSecurity){
       security.push({block,names:names.filter(n=>/Lookout/i.test(n)),net});
+    }
+    if(standardNames.length){
+      standard.push({block,names:standardNames,net});
     }
   }
 
@@ -247,6 +254,41 @@ function digitalRowsFromBlocks(blocks){
             ?'Inflow dal Totale Netto Complessivo della sezione Lookout'
             :'Inflow dalla riga economica Lookout del blocco Soluzioni Digitali'
         });
+      }
+    }
+  }
+
+  // Microsoft 365: Soluzione Digitale Standard.
+  // Se la sezione contiene un solo prodotto M365, l'inflow è il Totale Netto Complessivo.
+  for(const item of standard){
+    const uniqueNames=[...new Set(item.names.map(n=>n.replace(/^Microsoft\s+365/i,'M365')))];
+    if(!uniqueNames.length)continue;
+
+    if(uniqueNames.length===1 && item.net!=null && item.net>0){
+      const lineValue=digitalLineValue(item.block,item.names[0]);
+      rows.push({
+        service:'Solution',
+        product:uniqueNames[0],
+        category:'Soluzioni Digitali',
+        qty:1,
+        inflowUnit:Math.round(item.net*100)/100,
+        confidence:'green',
+        calc:'Inflow dal Totale Netto Complessivo della sezione Soluzioni Digitali'
+      });
+    }else{
+      for(const name of item.names){
+        const lineValue=digitalLineValue(item.block,name);
+        if(lineValue){
+          rows.push({
+            service:'Solution',
+            product:name.replace(/^Microsoft\s+365/i,'M365'),
+            category:'Soluzioni Digitali',
+            qty:1,
+            inflowUnit:Math.round(lineValue.qty*lineValue.value*100)/100,
+            confidence:'green',
+            calc:'Inflow dalla riga economica Microsoft 365'
+          });
+        }
       }
     }
   }

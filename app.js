@@ -1,12 +1,12 @@
 
-import {loadStore,saveStore,importBackupObject} from './storage.js?v=382';
-import {TARGETS,generalStats,agencyStats,agencyBreakdown,excellentStats,excellentBreakdown,communityStats,communityBreakdown,teamStats,teamBreakdown,availableMonths,customerList,customerDashboard,customerKey,inflowOf,communityRulesForMonth} from './engines.js?v=382';
-import {savePdf,openPdf,deletePdf} from './pdf-store.js?v=382';
-import {initParser,parsePDF} from './parser.js?v=382';
-import {createAutoBackup,getAutoBackupMeta,getFullBackupMeta,downloadDatabaseBackup,downloadCompleteBackup,restoreCompleteBackup,getArchiveStats,formatBytes,formatDate} from './backup.js?v=382';
-import {exportSync,readSyncFile,previewMerge,applyMerge,getSyncMeta} from './sync.js?v=382';
-import {regulationGroups} from './regulations.js?v=382';
-import {currentMonthKey,monthLabel,quarterFromMonth,availablePeriodMonths,ensurePeriodState,periodStatusLabel,periodStatusIcon,applyGlobalMonth} from './periods.js?v=382';
+import {loadStore,saveStore,importBackupObject} from './storage.js?v=383';
+import {TARGETS,generalStats,agencyStats,agencyBreakdown,excellentStats,excellentBreakdown,communityStats,communityBreakdown,teamStats,teamBreakdown,availableMonths,customerList,customerDashboard,customerKey,inflowOf,communityRulesForMonth} from './engines.js?v=383';
+import {savePdf,openPdf,deletePdf} from './pdf-store.js?v=383';
+import {initParser,parsePDF} from './parser.js?v=383';
+import {createAutoBackup,getAutoBackupMeta,getFullBackupMeta,downloadDatabaseBackup,downloadCompleteBackup,restoreCompleteBackup,getArchiveStats,formatBytes,formatDate} from './backup.js?v=383';
+import {exportSync,readSyncFile,previewMerge,applyMerge,getSyncMeta} from './sync.js?v=383';
+import {regulationGroups} from './regulations.js?v=383';
+import {currentMonthKey,monthLabel,quarterFromMonth,availablePeriodMonths,ensurePeriodState,periodStatusLabel,periodStatusIcon,applyGlobalMonth} from './periods.js?v=383';
 
 let store=loadStore(),parsed=null,pendingPdf=null;
 applyGlobalMonth(store,store.settings.activeMonth||store.settings.currentMonth||currentMonthKey());
@@ -542,7 +542,7 @@ async function saveParsed(){
      ?[{agent:'Jacopo',share:.5},{agent:'Luciano',share:.5}]
      :[{agent,share:1}];
  const nowIso=new Date().toISOString();
- const contract={id:'C-'+Date.now(),createdAt:nowIso,updatedAt:nowIso,date:$('contractDate').value,offer:parsed.meta.offer,client:parsed.meta.client||'Da verificare',vat:parsed.meta.vat,customerCode:parsed.meta.customerCode||'',prospect,agent,includeAgency,teamAllocations,status:'Valido',pdfRef:parsed.filename,pdfStored:false,notes:'Sales Tracker 3.8.2',services:[]};
+ const contract={id:'C-'+Date.now(),createdAt:nowIso,updatedAt:nowIso,date:$('contractDate').value,offer:parsed.meta.offer,client:parsed.meta.client||'Da verificare',vat:parsed.meta.vat,customerCode:parsed.meta.customerCode||'',prospect,agent,includeAgency,teamAllocations,status:'Valido',pdfRef:parsed.filename,pdfStored:false,notes:'Sales Tracker 3.8.3',services:[]};
  for(const el of rows){
    const service=el.querySelector('.pr-service').value;
    const mnpEl=el.querySelector('.pr-mnp');
@@ -732,6 +732,17 @@ async function renderBackup(){
 }
 
 
+
+function regulationVisualStatus(r){
+ const month=(r.start||'').slice(0,7);
+ if(r.cadence==='Mensile'){
+   const status=store.periodStates?.[month]?.status;
+   if(status==='closed')return {label:'Chiuso',cls:'closed'};
+   if(status==='verified')return {label:'Verificato',cls:'verified'};
+ }
+ return {label:'Attivo',cls:'active'};
+}
+
 function renderRegulations(){
  const list=$('regulationsList'),detail=$('regulationDetail');
  if(!list||!detail)return;
@@ -742,17 +753,20 @@ function renderRegulations(){
 
  list.innerHTML=groups.map(group=>`<div class="regulation-group">
    <h3>${group.type}</h3>
-   ${group.items.map(r=>`<div class="card regulation-card" data-regulation-id="${r.id}">
-     <div class="regulation-head">
-       <div>
-         <div class="regulation-type">${r.cadence}</div>
-         <strong>${r.title}</strong>
-         <div class="muted">${r.periodLabel}</div>
+   ${group.items.map(r=>{
+     const rs=regulationVisualStatus(r);
+     return `<div class="card regulation-card" data-regulation-id="${r.id}">
+       <div class="regulation-head">
+         <div>
+           <div class="regulation-type">${r.cadence}</div>
+           <strong>${r.title}</strong>
+           <div class="muted">${r.periodLabel}</div>
+         </div>
+         <div class="regulation-status regulation-status-${rs.cls}">${rs.label}</div>
        </div>
-       <div class="regulation-status">Attivo</div>
-     </div>
-     <div class="muted" style="margin-top:10px">${r.summary}</div>
-   </div>`).join('')}
+       <div class="muted" style="margin-top:10px">${r.summary}</div>
+     </div>`;
+   }).join('')}
  </div>`).join('');
 
  document.querySelectorAll('[data-regulation-id]').forEach(card=>{
@@ -764,6 +778,7 @@ function openRegulation(id){
  const all=regulationGroups().flatMap(g=>g.items);
  const r=all.find(x=>x.id===id);
  if(!r)return;
+ const rs=regulationVisualStatus(r);
 
  const list=$('regulationsList'),detail=$('regulationDetail');
  list.classList.add('hidden');
@@ -777,7 +792,7 @@ function openRegulation(id){
        <h3 style="margin:5px 0">${r.title}</h3>
        <div class="muted">${r.periodLabel}</div>
      </div>
-     <div class="regulation-status">Attivo</div>
+     <div class="regulation-status regulation-status-${rs.cls}">${rs.label}</div>
    </div>
    <p>${r.summary}</p>
  </div>
