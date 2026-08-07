@@ -14,7 +14,7 @@ nav button{border:0;background:#fff;padding:11px 2px;font-size:11px}nav button.a
 .card{background:var(--card);border-radius:18px;padding:15px;box-shadow:0 2px 12px rgba(0,0,0,.06);margin-bottom:12px}
 .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
 .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
-.hero{background:linear-gradient(145deg,#FFA500,#D98200);color:#fff}
+.hero{background:linear-gradient(145deg,#e60000,#b80000);color:#fff}
 .hero strong{font-size:30px;display:block;margin-top:6px}
 .kpi small,.muted{color:var(--muted);font-size:13px}.hero .muted{color:#fff4d6}
 .kpi strong{display:block;font-size:22px;margin:6px 0}
@@ -421,3 +421,190 @@ a{
 .regulation-status-verified{background:#e7f8ec!important;color:#237a3d!important}
 
 .regulation-status-closed::before{background:#8e8e93!important}
+
+
+/* =========================================================
+   SmartTracker 3.9.0 — Redesign UI
+   Visual-only layer: logic and stored data remain unchanged.
+   ========================================================= */
+:root{
+  --brand:#e00000;
+  --brand-2:#b00000;
+  --brand-soft:#fff0f0;
+  --ink:#101828;
+  --muted-2:#667085;
+  --surface:#ffffff;
+  --surface-2:#f7f8fa;
+  --line:#eaecf0;
+  --shadow:0 10px 30px rgba(16,24,40,.07);
+}
+body{
+  background:linear-gradient(180deg,#f7f8fa 0,#f2f4f7 44%,#f5f6f8 100%);
+  color:var(--ink);
+  letter-spacing:-.01em;
+}
+.app-header{
+  min-height:102px;
+  padding:calc(16px + env(safe-area-inset-top)) 20px 17px;
+  background:linear-gradient(135deg,#ed0000 0%,#ce0000 58%,#a90000 100%)!important;
+  display:flex;
+  align-items:flex-end;
+  justify-content:space-between;
+  box-shadow:0 8px 28px rgba(174,0,0,.22);
+}
+.brand-lockup{display:flex;align-items:center;gap:12px}
+.brand-icon{
+  width:44px;height:44px;border-radius:13px;object-fit:cover;
+  box-shadow:0 5px 16px rgba(64,0,0,.28);
+  border:1px solid rgba(255,255,255,.38);
+}
+.app-header .title{font-size:25px;line-height:1;font-weight:900;letter-spacing:-.04em}
+.app-header .title span{font-size:14px;font-weight:800;opacity:.78;letter-spacing:0}
+.app-header .sub{margin-top:6px;font-size:11.5px;opacity:.82;font-weight:600}
+.header-status{
+  font-size:10px;font-weight:900;letter-spacing:.08em;
+  background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.28);
+  padding:7px 9px;border-radius:999px;margin-bottom:2px
+}
+main{max-width:1040px;padding:20px 16px 120px}
+.view>h2{font-size:28px;letter-spacing:-.035em;margin:8px 0 18px}
+.section-kicker{
+  color:var(--brand);font-size:10px;font-weight:900;letter-spacing:.13em;
+  margin:4px 0 5px;text-transform:uppercase
+}
+.home-title{font-size:26px!important;margin:0 0 14px!important}
+.home-section-title{font-size:18px!important;margin:22px 0 12px!important}
+.card{
+  border:1px solid rgba(234,236,240,.92);
+  border-radius:20px;
+  box-shadow:var(--shadow);
+  padding:18px;
+}
+.period-manager-card{
+  border:0!important;
+  background:rgba(255,255,255,.96);
+  padding:16px;
+  margin-bottom:20px;
+}
+.period-manager-card>label{font-size:11px;color:var(--muted-2);text-transform:uppercase;letter-spacing:.08em}
+.period-manager-head h3{font-size:20px}
+.period-status{font-size:11px}
+.period-actions button{min-height:42px}
+input,select,textarea{
+  border:1px solid #d9dde5;border-radius:14px;padding:13px 14px;
+  box-shadow:0 1px 2px rgba(16,24,40,.02)
+}
+input:focus,select:focus,textarea:focus{
+  border-color:#e34b4b;outline:3px solid rgba(224,0,0,.09)
+}
+.primary,button:not(.secondary):not(.danger):not(.excellent-close):not(.metric-close):not(.ghost-link){
+  border-radius:14px;
+  min-height:44px;
+  background:linear-gradient(135deg,#e70000,#c30000);
+  box-shadow:0 7px 18px rgba(211,0,0,.16);
+}
+.secondary{border-radius:13px;background:#fff}
+.dashboard-summary{
+  border-radius:24px;overflow:hidden;margin-bottom:14px;
+  background:linear-gradient(135deg,#e80000 0,#cf0000 54%,#a80000 100%);
+  color:#fff;box-shadow:0 16px 38px rgba(186,0,0,.22)
+}
+.summary-main{padding:24px 22px 21px}
+.summary-label{font-size:12px;font-weight:800;opacity:.78;text-transform:uppercase;letter-spacing:.08em}
+.summary-value{font-size:40px;font-weight:950;letter-spacing:-.05em;margin:4px 0 3px}
+.summary-caption{font-size:12px;opacity:.83}
+.summary-mini-grid{
+  display:grid;grid-template-columns:repeat(3,1fr);
+  background:rgba(81,0,0,.17);border-top:1px solid rgba(255,255,255,.14)
+}
+.summary-mini{padding:14px 16px;border-right:1px solid rgba(255,255,255,.12)}
+.summary-mini:last-child{border-right:0}
+.summary-mini small{display:block;font-size:10px;opacity:.72;text-transform:uppercase;letter-spacing:.07em}
+.summary-mini strong{display:block;font-size:18px;margin:4px 0 2px}
+.summary-mini span{display:block;font-size:10px;opacity:.77}
+.dashboard-goals{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:12px}
+.goal-card{
+  position:relative;min-height:142px;transition:transform .15s ease,box-shadow .15s ease;
+  overflow:hidden
+}
+.goal-card:active{transform:scale(.985)}
+.goal-card::before{
+  content:'';position:absolute;left:0;top:0;bottom:0;width:4px;
+  background:linear-gradient(#ef1010,#af0000)
+}
+.goal-top{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
+.goal-card small{font-size:10px;color:#667085;font-weight:900;letter-spacing:.07em}
+.goal-card strong{display:block;font-size:23px;margin-top:6px;letter-spacing:-.035em}
+.goal-card strong em{font-size:11px;font-style:normal;font-weight:700;color:#667085;letter-spacing:0}
+.status-pill{padding:6px 8px;border-radius:999px;font-size:10px;font-weight:900;white-space:nowrap}
+.ok-pill{background:#e8f8ed;color:#187a3b}.work-pill{background:#fff4d6;color:#9b6500}
+.goal-progress{height:7px;background:#f0f1f3;border-radius:99px;margin:15px 0 10px;overflow:hidden}
+.goal-progress span{display:block;height:100%;background:linear-gradient(90deg,#ee1111,#b60000);border-radius:99px}
+.goal-foot{font-size:11px;color:#667085;font-weight:650}
+.goal-arrow{font-size:26px;color:#98a2b3;font-weight:500}
+.compact-goal{min-height:105px;display:flex;align-items:center}
+.recent-card{padding:16px 18px}
+.card-heading-row{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.card-heading-row h3{margin:2px 0 0}
+.ghost-link{border:0!important;background:transparent!important;color:var(--brand)!important;box-shadow:none!important;min-height:auto!important;padding:6px!important;font-weight:800;font-size:12px}
+.recent-row{display:grid;grid-template-columns:10px 1fr auto;gap:11px;align-items:center;padding:12px 0;border-top:1px solid var(--line)}
+.recent-row:first-of-type{margin-top:10px}
+.recent-dot{width:9px;height:9px;border-radius:50%;background:#12b76a;box-shadow:0 0 0 4px #e9f9f0}
+.recent-copy{min-width:0}.recent-copy strong{display:block;font-size:13px}.recent-copy span{display:block;color:#667085;font-size:11px;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.recent-row time{font-size:10px;color:#98a2b3}
+.hero{
+  background:linear-gradient(135deg,#e70000,#ac0000)!important;
+  border:0!important;box-shadow:0 14px 30px rgba(190,0,0,.18)
+}
+.hero strong{font-size:38px;letter-spacing:-.045em}
+.hero .muted{color:rgba(255,255,255,.82)!important}
+.kpi{overflow:hidden}
+.kpi small{font-weight:700}
+.progress{height:7px;background:#f0f1f3}
+.progress span{background:linear-gradient(90deg,#ee1111,#b50000)}
+.table-like td{padding:12px 0;border-color:#eef0f3}
+.metric-table-row:hover{background:#fafafa}
+.pdfbox{
+  border:1.5px dashed #d0d5dd;border-radius:20px;padding:20px;
+  box-shadow:0 8px 24px rgba(16,24,40,.04)
+}
+.preview-row{border-color:#eaecf0;border-radius:18px}
+.regulations-intro,.customer-kpi,.backup-health-item,.sync-preview-card{background:#f8f9fb}
+.regulation-card{transition:transform .15s ease}
+.regulation-card:active{transform:scale(.99)}
+.regulation-status{font-size:10px}
+.warning-card{background:#fff9e8;border-color:#f6d97a}
+.warning-card h3{color:#845300}
+.app-nav{
+  background:rgba(255,255,255,.96);
+  backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);
+  border-top:1px solid rgba(218,221,227,.88);
+  box-shadow:0 -8px 30px rgba(16,24,40,.06);
+  padding:5px 4px calc(5px + env(safe-area-inset-bottom));
+  gap:0
+}
+.app-nav button{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:2px;min-height:52px;padding:4px 2px;border-radius:12px;
+  color:#667085;font-size:9.5px;font-weight:650
+}
+.app-nav button.active{color:var(--brand)!important;background:#fff4f4}
+.nav-icon{font-size:19px;line-height:1;font-weight:800}
+.home-shortcuts .section-link{border:1px solid #eceef2}
+.section-link>span:last-child{font-size:25px;color:#98a2b3}
+.badge{font-size:10px}
+.note{border-radius:15px}
+@media(max-width:600px){
+  main{padding-left:12px;padding-right:12px}
+  .app-header{padding-left:14px;padding-right:14px}
+  .brand-icon{width:39px;height:39px;border-radius:11px}
+  .app-header .title{font-size:22px}
+  .header-status{display:none}
+  .dashboard-goals{grid-template-columns:1fr!important}
+  .summary-value{font-size:35px}
+  .summary-mini-grid{grid-template-columns:1fr 1fr 1fr}
+  .summary-mini{padding:12px 10px}
+  .summary-mini strong{font-size:15px}
+  .summary-mini span{font-size:9px}
+  .app-nav{grid-template-columns:repeat(6,minmax(58px,1fr));overflow-x:auto}
+}

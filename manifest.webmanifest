@@ -1,10 +1,10 @@
 {
-  "name": "Sales Tracker 3.8.4",
-  "short_name": "Sales Tracker 3.8.4",
-  "start_url": "./index.html?v=384",
+  "name": "SmartTracker",
+  "short_name": "SmartTracker",
+  "start_url": "./index.html?v=390",
   "display": "standalone",
-  "background_color": "#f4f5f7",
-  "theme_color": "#e60000",
+  "background_color": "#f7f8fa",
+  "theme_color": "#e00000",
   "icons": [
     {
       "src": "icon-192.png",

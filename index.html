@@ -7,15 +7,15 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icon-192.png">
-<link rel="stylesheet" href="style.css?v=384">
-<title>Sales Tracker 3.8.4</title>
+<link rel="stylesheet" href="style.css?v=390">
+<title>SmartTracker 3.9.0</title>
 </head>
 <body>
-<header><div class="title">Sales Tracker 3.8.4</div><div class="sub">Cruscotto commerciale personale</div></header>
+<header><div class="title">SmartTracker 3.9.0</div><div class="sub">Cruscotto commerciale personale</div></header>
 <main>
 <section id="home" class="view active">
 <div class="card period-manager-card"><div class="period-manager-head"><div><small>Periodo attivo</small><h3 id="activePeriodLabel">—</h3></div><div id="activePeriodStatus" class="period-status period-status-working">🟡 In lavorazione</div></div><label>Seleziona mese</label><select id="globalMonthSelect"></select><div class="period-actions"><button id="markPeriodWorking" class="secondary">In lavorazione</button><button id="markPeriodVerified" class="secondary">Verificato</button><button id="togglePeriodClosed">Chiudi mese</button></div><div id="activeQuarterInfo" class="field-hint prospect-auto-no"></div><div class="field-hint">Puoi selezionare e modificare anche mesi precedenti. Excellent e Gara Agenzia seguono automaticamente il trimestre scelto.</div></div>
-<h2>Home</h2><div id="homeTop"></div><div id="homeCards" class="grid"></div>
+<div class="section-kicker">DASHBOARD</div><h2 class="home-title">Panoramica generale</h2><div id="homeTop"></div><h2 class="home-section-title">Obiettivi e controllo</h2><div id="homeCards" class="grid dashboard-goals"></div>
 
 <div class="home-shortcuts">
   <div class="card section-link" data-go="customers">
@@ -24,7 +24,7 @@
 </div>
 
 <div class="home-backup-block">
-  <h2>Backup Center</h2>
+  <h2>Sicurezza e backup</h2>
 
   <div class="card warning-card">
     <h3>Prima di cancellare i dati di Safari</h3>
@@ -181,16 +181,16 @@
 
 <section id="archive" class="view"><h2>Archivio</h2><div class="card"><input id="archiveSearch" placeholder="Cerca cliente, P.IVA, codice cliente, offerta o prodotto"><label>Agente</label><select id="archiveAgent"><option>Tutti</option><option>Francesco</option><option>Jacopo</option><option>Luciano</option></select><label>Gara Agenzia</label><select id="archiveAgency"><option>Tutti</option><option>Inclusi</option><option>Esclusi</option></select></div><div id="archiveList"></div></section>
 </main>
-<nav>
-<button class="active" data-view="home">Home</button>
-<button data-view="new">Nuovo</button>
-<button data-view="agency">Agenzia</button>
-<button data-view="excellent">Excellent</button>
-<button data-view="community">Community</button>
-<button data-view="team">Squadra</button>
+<nav class="app-nav">
+<button class="active" data-view="home"><span class="nav-icon">⌂</span><span>Home</span></button>
+<button data-view="new"><span class="nav-icon">＋</span><span>Nuovo</span></button>
+<button data-view="agency"><span class="nav-icon">◎</span><span>Agenzia</span></button>
+<button data-view="excellent"><span class="nav-icon">★</span><span>Excellent</span></button>
+<button data-view="community"><span class="nav-icon">◉</span><span>Community</span></button>
+<button data-view="team"><span class="nav-icon">♟</span><span>Squadra</span></button>
 </nav>
-<script src="jszip.min.js?v=384"></script>
-<script type="module" src="app.js?v=384"></script>
+<script src="jszip.min.js?v=390"></script>
+<script type="module" src="app.js?v=390"></script>
 <script>
 (async()=>{
   if('serviceWorker' in navigator){

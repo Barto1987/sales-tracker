@@ -1030,3 +1030,19 @@ SALES TRACKER 3.8.4 — COMMUNITY FIX
 - Dashboard Community: voce esplicita “Boost Easy Rent ×2” e totale V-Coin Easy Rent.
 - Centro Regolamenti: stato “Chiuso” con pallino grigio.
 - Restano invariati tema rosso e riconoscimento Microsoft 365 introdotti nella 3.8.3.
+
+SMARTTRACKER 3.9.0 — REDESIGN
+
+RESTYLING GRAFICO
+- Nuova identità SmartTracker e nuova icona app bersaglio/freccia.
+- Header moderno con branding SmartTracker.
+- Home ridisegnata con riepilogo inflow, V-Coin, Excellent e clienti.
+- Card obiettivi più leggibili con stato e barre di avanzamento.
+- Attività recenti in Home.
+- Navigazione inferiore ridisegnata in stile app.
+- Card, moduli, tabelle, regolamenti e backup uniformati.
+- Tema rosso mantenuto e reso più moderno.
+
+SICUREZZA
+- Nessuna modifica intenzionale alle logiche di calcolo, parser, backup o dati.
+- Mantiene le correzioni funzionali della 3.8.4, incluso Easy Rent Community x2.
