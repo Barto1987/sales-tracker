@@ -1,6 +1,6 @@
 const PROJECT_URL='https://exosbflachjzhzjtikah.supabase.co';
 const PUBLISHABLE_KEY='sb_publishable_9HWmkG6IFXL9l0F9L_l6tA_lOuecELJ';
-export const CLOUD_EMAIL='Littleitalytruck@gmail.com';
+export const CLOUD_EMAIL='littleitalytruck@gmail.com';
 
 const SESSION_KEY='smartTrackerCloudSessionV1';
 const LINKED_KEY='smartTrackerCloudLinkedV1';
@@ -36,10 +36,16 @@ async function authFetch(path,options={}){
 export async function cloudLogin(password){
   const res=await authFetch('/auth/v1/token?grant_type=password',{
     method:'POST',
-    body:JSON.stringify({email:CLOUD_EMAIL,password})
+    body:JSON.stringify({email:CLOUD_EMAIL.trim().toLowerCase(),password})
   });
   const body=await res.json().catch(()=>({}));
-  if(!res.ok)throw new Error(body?.error_description||body?.msg||body?.message||'Accesso Cloud non riuscito');
+  if(!res.ok){
+    const raw=body?.error_description||body?.msg||body?.message||'Accesso Cloud non riuscito';
+    const msg=/invalid login credentials/i.test(raw)
+      ?'Credenziali SmartTracker Cloud non valide. Usa la password dell’utente Auth di Supabase, non la password del pannello Supabase.'
+      :raw;
+    throw new Error(msg);
+  }
   setSession({
     access_token:body.access_token,
     refresh_token:body.refresh_token,

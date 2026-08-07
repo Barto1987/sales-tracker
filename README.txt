@@ -1071,3 +1071,10 @@ MIGRAZIONE CONSIGLIATA
 2. Installare/pubblicare 3.10.0.
 3. Sul dispositivo master: login Cloud > Carica i dati locali nel Cloud.
 4. Sugli altri dispositivi: login Cloud > Scarica e unisci dal Cloud.
+
+
+SMARTTRACKER 3.10.1 — CLOUD AUTH FIX
+- Email Cloud normalizzata in minuscolo.
+- Login Auth reso coerente con l’utente Supabase configurato.
+- Messaggio diagnostico esplicito se viene usata la password del pannello Supabase invece della password dell’utente Auth.
+- Nessuna modifica ai dati, alle regole di calcolo o alle policy RLS.
