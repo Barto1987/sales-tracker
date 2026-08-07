@@ -7,7 +7,7 @@ import {createAutoBackup,getAutoBackupMeta,getFullBackupMeta,downloadDatabaseBac
 import {exportSync,readSyncFile,previewMerge,applyMerge,getSyncMeta} from './sync.js?v=3101';
 import {regulationGroups} from './regulations.js?v=3101';
 import {currentMonthKey,monthLabel,quarterFromMonth,availablePeriodMonths,ensurePeriodState,periodStatusLabel,periodStatusIcon,applyGlobalMonth} from './periods.js?v=3101';
-import {CLOUD_EMAIL,cloudLogin,cloudLogout,cloudInfo,uploadLocalFirst,downloadAndMerge,syncNow,bootstrapLinkedCloud,queueCloudPush,getCloudMeta,isCloudLinked,getCloudSession} from './cloud.js?v=3102';
+import {CLOUD_EMAIL,cloudLogin,cloudLogout,cloudInfo,uploadLocalFirst,downloadAndMerge,syncNow,bootstrapLinkedCloud,queueCloudPush,getCloudMeta,isCloudLinked,getCloudSession} from './cloud.js?v=3103';
 
 let store=loadStore(),parsed=null,pendingPdf=null;
 applyGlobalMonth(store,store.settings.activeMonth||store.settings.currentMonth||currentMonthKey());

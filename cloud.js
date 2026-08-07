@@ -24,53 +24,71 @@ export function getCloudMeta(){return meta()}
 export function getCloudSession(){return session()}
 export function cloudIsBootstrapped(){return bootstrapped}
 
-async function authFetch(path,options={}){
-  const headers={
-    'apikey':PUBLISHABLE_KEY,
-    'Content-Type':'application/json',
-    ...(options.headers||{})
+const SUPABASE_JS_URL='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+let supabasePromise=null;
+
+async function supabaseClient(){
+  if(!supabasePromise){
+    supabasePromise=import(SUPABASE_JS_URL).then(({createClient})=>createClient(PROJECT_URL,PUBLISHABLE_KEY,{
+      auth:{
+        persistSession:true,
+        autoRefreshToken:true,
+        detectSessionInUrl:false,
+        storageKey:'smarttracker-supabase-auth-v1'
+      }
+    }));
+  }
+  return supabasePromise;
+}
+
+function normalizeSdkSession(s){
+  if(!s)return null;
+  return {
+    access_token:s.access_token,
+    refresh_token:s.refresh_token,
+    expires_at:Number(s.expires_at||0),
+    user:s.user?{id:s.user.id,email:s.user.email}:null
   };
-  return fetch(PROJECT_URL+path,{...options,headers});
 }
 
 export async function cloudLogin(email,password){
-  const res=await authFetch('/auth/v1/token?grant_type=password',{
-    method:'POST',
-    body:JSON.stringify({email:String(email||'').trim().toLowerCase(),password})
-  });
-  const body=await res.json().catch(()=>({}));
-  if(!res.ok){
-    const raw=body?.error_description||body?.msg||body?.message||'Accesso Cloud non riuscito';
-    const msg=/invalid login credentials/i.test(raw)
-      ?'Credenziali SmartTracker Cloud non valide. Usa la password dell’utente Auth di Supabase, non la password del pannello Supabase.'
-      :raw;
-    throw new Error(msg);
+  const cleanEmail=String(email||'').trim().toLowerCase();
+  try{
+    const supabase=await supabaseClient();
+    const {data,error}=await supabase.auth.signInWithPassword({email:cleanEmail,password});
+    if(error)throw error;
+    if(!data?.session)throw new Error('Supabase non ha restituito una sessione di accesso.');
+    setSession(normalizeSdkSession(data.session));
+    return session();
+  }catch(e){
+    const detail=e?.message||String(e||'Errore sconosciuto');
+    throw new Error(`Login Supabase: ${detail}`);
   }
-  setSession({
-    access_token:body.access_token,
-    refresh_token:body.refresh_token,
-    expires_at:Math.floor(Date.now()/1000)+Number(body.expires_in||3600),
-    user:body.user?{id:body.user.id,email:body.user.email}:null
-  });
-  return session();
 }
 
 async function refreshSession(){
   const s=session();
   if(!s?.refresh_token)throw new Error('Sessione Cloud non disponibile');
-  const res=await authFetch('/auth/v1/token?grant_type=refresh_token',{
-    method:'POST',
-    body:JSON.stringify({refresh_token:s.refresh_token})
-  });
-  const body=await res.json().catch(()=>({}));
-  if(!res.ok)throw new Error('Sessione Cloud scaduta. Accedi di nuovo.');
-  setSession({
-    access_token:body.access_token,
-    refresh_token:body.refresh_token||s.refresh_token,
-    expires_at:Math.floor(Date.now()/1000)+Number(body.expires_in||3600),
-    user:body.user?{id:body.user.id,email:body.user.email}:s.user
-  });
-  return session();
+  try{
+    const supabase=await supabaseClient();
+    const {data:setData,error:setError}=await supabase.auth.setSession({
+      access_token:s.access_token||'',
+      refresh_token:s.refresh_token
+    });
+    if(setError)throw setError;
+    let sdkSession=setData?.session;
+    if(!sdkSession){
+      const {data,error}=await supabase.auth.refreshSession({refresh_token:s.refresh_token});
+      if(error)throw error;
+      sdkSession=data?.session;
+    }
+    if(!sdkSession)throw new Error('Nessuna sessione restituita da Supabase.');
+    setSession(normalizeSdkSession(sdkSession));
+    return session();
+  }catch(e){
+    clearSession();
+    throw new Error(`Sessione Cloud scaduta: ${e?.message||e}`);
+  }
 }
 
 async function validSession(){
@@ -103,10 +121,8 @@ export async function cloudLogout(){
   try{
     const s=await validSession();
     if(s){
-      await authFetch('/auth/v1/logout',{
-        method:'POST',
-        headers:{Authorization:`Bearer ${s.access_token}`}
-      }).catch(()=>{});
+      const supabase=await supabaseClient();
+      await supabase.auth.signOut({scope:'local'}).catch(()=>{});
     }
   }finally{
     clearSession();
