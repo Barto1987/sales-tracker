@@ -1073,7 +1073,7 @@ MIGRAZIONE CONSIGLIATA
 4. Sugli altri dispositivi: login Cloud > Scarica e unisci dal Cloud.
 
 
-SMARTTRACKER 3.10.1 — CLOUD AUTH FIX
+SMARTTRACKER 3.10.2 — CLOUD AUTH FIX
 - Email Cloud normalizzata in minuscolo.
 - Login Auth reso coerente con l’utente Supabase configurato.
 - Messaggio diagnostico esplicito se viene usata la password del pannello Supabase invece della password dell’utente Auth.

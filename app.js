@@ -7,7 +7,7 @@ import {createAutoBackup,getAutoBackupMeta,getFullBackupMeta,downloadDatabaseBac
 import {exportSync,readSyncFile,previewMerge,applyMerge,getSyncMeta} from './sync.js?v=3101';
 import {regulationGroups} from './regulations.js?v=3101';
 import {currentMonthKey,monthLabel,quarterFromMonth,availablePeriodMonths,ensurePeriodState,periodStatusLabel,periodStatusIcon,applyGlobalMonth} from './periods.js?v=3101';
-import {CLOUD_EMAIL,cloudLogin,cloudLogout,cloudInfo,uploadLocalFirst,downloadAndMerge,syncNow,bootstrapLinkedCloud,queueCloudPush,getCloudMeta,isCloudLinked,getCloudSession} from './cloud.js?v=3101';
+import {CLOUD_EMAIL,cloudLogin,cloudLogout,cloudInfo,uploadLocalFirst,downloadAndMerge,syncNow,bootstrapLinkedCloud,queueCloudPush,getCloudMeta,isCloudLinked,getCloudSession} from './cloud.js?v=3102';
 
 let store=loadStore(),parsed=null,pendingPdf=null;
 applyGlobalMonth(store,store.settings.activeMonth||store.settings.currentMonth||currentMonthKey());
@@ -668,16 +668,18 @@ function cloudStatusView(info){
 
 async function renderCloud(){
  const email=$('cloudEmail');if(!email)return;
- email.value=CLOUD_EMAIL;
+ email.value=localStorage.getItem('smartTrackerCloudEmail')||CLOUD_EMAIL||'';
  const info=await cloudInfo();
  cloudStatusView(info);
 
  $('cloudLogin').onclick=async()=>{
-   const btn=$('cloudLogin'),password=$('cloudPassword').value;
+   const btn=$('cloudLogin'),password=$('cloudPassword').value,cloudEmail=(email.value||'').trim().toLowerCase();
+   if(!cloudEmail)return alert('Inserisci l’email Cloud.');
    if(!password)return alert('Inserisci la password Supabase.');
    btn.disabled=true;btn.textContent='Accesso…';
    try{
-     await cloudLogin(password);
+     await cloudLogin(cloudEmail,password);
+     localStorage.setItem('smartTrackerCloudEmail',cloudEmail);
      $('cloudPassword').value='';
      alert('Accesso a SmartTracker Cloud riuscito.');
      await renderCloud();

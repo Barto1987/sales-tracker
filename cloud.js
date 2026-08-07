@@ -1,6 +1,6 @@
 const PROJECT_URL='https://exosbflachjzhzjtikah.supabase.co';
 const PUBLISHABLE_KEY='sb_publishable_9HWmkG6IFXL9l0F9L_l6tA_lOuecELJ';
-export const CLOUD_EMAIL='littleitalytruck@gmail.com';
+export const CLOUD_EMAIL='';
 
 const SESSION_KEY='smartTrackerCloudSessionV1';
 const LINKED_KEY='smartTrackerCloudLinkedV1';
@@ -33,10 +33,10 @@ async function authFetch(path,options={}){
   return fetch(PROJECT_URL+path,{...options,headers});
 }
 
-export async function cloudLogin(password){
+export async function cloudLogin(email,password){
   const res=await authFetch('/auth/v1/token?grant_type=password',{
     method:'POST',
-    body:JSON.stringify({email:CLOUD_EMAIL.trim().toLowerCase(),password})
+    body:JSON.stringify({email:String(email||'').trim().toLowerCase(),password})
   });
   const body=await res.json().catch(()=>({}));
   if(!res.ok){

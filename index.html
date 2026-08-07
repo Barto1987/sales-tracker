@@ -8,10 +8,10 @@
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icon-192.png">
 <link rel="stylesheet" href="style.css?v=3101">
-<title>SmartTracker 3.10.1</title>
+<title>SmartTracker 3.10.2</title>
 </head>
 <body>
-<header><div class="title">SmartTracker 3.10.1</div><div class="sub">Cruscotto commerciale personale</div></header>
+<header><div class="title">SmartTracker 3.10.2</div><div class="sub">Cruscotto commerciale personale</div></header>
 <main>
 <section id="home" class="view active">
 <div class="card period-manager-card"><div class="period-manager-head"><div><small>Periodo attivo</small><h3 id="activePeriodLabel">—</h3></div><div id="activePeriodStatus" class="period-status period-status-working">🟡 In lavorazione</div></div><label>Seleziona mese</label><select id="globalMonthSelect"></select><div class="period-actions"><button id="markPeriodWorking" class="secondary">In lavorazione</button><button id="markPeriodVerified" class="secondary">Verificato</button><button id="togglePeriodClosed">Chiudi mese</button></div><div id="activeQuarterInfo" class="field-hint prospect-auto-no"></div><div class="field-hint">Puoi selezionare e modificare anche mesi precedenti. Excellent e Gara Agenzia seguono automaticamente il trimestre scelto.</div></div>
@@ -76,7 +76,7 @@
 
   <div id="cloudLoginBox">
     <label>Email Cloud</label>
-    <input id="cloudEmail" type="email" value="Littleitalytruck@gmail.com" readonly>
+    <input id="cloudEmail" type="email" placeholder="Email account Supabase" autocomplete="username">
     <label>Password Supabase</label>
     <input id="cloudPassword" type="password" autocomplete="current-password" placeholder="Password">
     <button id="cloudLogin" style="margin-top:10px">Accedi a SmartTracker Cloud</button>
@@ -238,7 +238,7 @@
 <button data-view="team"><span class="nav-icon">♟</span><span>Squadra</span></button>
 </nav>
 <script src="jszip.min.js?v=3101"></script>
-<script type="module" src="app.js?v=3101"></script>
+<script type="module" src="app.js?v=3102"></script>
 <script>
 (async()=>{
   if('serviceWorker' in navigator){
