@@ -110,17 +110,22 @@ export function excellentStats(store){
   const historyWon=store.excellentHistory.filter(x=>x.won).length;
   return {...vals,variable,totalPrize:1000+variable,won,historyWon,trimestersNeeded:Math.max(6-historyWon-(won?1:0),0)}
 }
+function isCommunityEasyRent(row){
+  const haystack=[
+    row.service,
+    row.product,
+    row.category,
+    row.calc
+  ].map(v=>String(v||'').toLowerCase()).join(' ');
+  return row.service==='Easy Rent' || /easy\s*rent|kasko/.test(haystack);
+}
 function communityMultiplier(row){
-  const c=row.contract;
+  const c=row.contract||{};
   const name=(row.product||row.service||'').toLowerCase();
   let m=1;
   if(row.service==='SIM Voce'&&row.mnp)m=Math.max(m,3);
   if(c.prospect)m=Math.max(m,3);
-  if(
-    row.service==='Easy Rent' ||
-    /easy\s*rent|kasko/.test(name) ||
-    /easy\s*rent|kasko/.test(String(row.category||'').toLowerCase())
-  )m=Math.max(m,2);
+  if(isCommunityEasyRent(row))m=Math.max(m,2);
   if(/miia/.test(name))m=Math.max(m,3);
   if(/7layers|7 layers/.test(name))m=Math.max(m,2);
   if(/fast cloud/.test(name))m=Math.max(m,2);
@@ -140,11 +145,7 @@ export function communityStats(store){
     if(extra>0){
       if(r.service==='SIM Voce'&&r.mnp)boosts.mnp+=extra;
       else if(r.contract.prospect)boosts.prospect+=extra;
-      else if(
-        r.service==='Easy Rent' ||
-        /easy\s*rent|kasko/.test(String(r.product||r.service||'').toLowerCase()) ||
-        /easy\s*rent|kasko/.test(String(r.category||'').toLowerCase())
-      )boosts.easyRent+=extra;
+      else if(isCommunityEasyRent(r))boosts.easyRent+=extra;
       else boosts.other+=extra;
     }
   }
@@ -350,7 +351,7 @@ export function communityBreakdown(store){
           extra<=0?'Nessun boost':
           r.service==='SIM Voce'&&r.mnp?'MNP':
           r.contract.prospect?'Prospect':
-          r.service==='Easy Rent'?'Easy Rent':
+          isCommunityEasyRent(r)?'Easy Rent':
           /miia/i.test(r.product||'')?'MIIA':
           /7layers|7 layers/i.test(r.product||'')?'7Layers':
           /fast cloud/i.test(r.product||'')?'Fast Cloud':'Altro'
@@ -370,7 +371,7 @@ export function communityBreakdown(store){
       });
       if(r.service==='SIM Voce'&&r.mnp)mnp.push({...row,boostType:'MNP'});
       else if(r.contract.prospect)prospect.push({...row,boostType:'Prospect'});
-      else if(r.service==='Easy Rent')easyRent.push({...row,boostType:'Easy Rent'});
+      else if(isCommunityEasyRent(r))easyRent.push({...row,boostType:'Easy Rent'});
       else other.push({...row,boostType:'Altro'});
     }
   }

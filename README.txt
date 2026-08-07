@@ -1021,3 +1021,12 @@ SALES TRACKER 3.8.3 — HOLIDAY STABLE
 - CORAM HOLDING M365 Business Standard: 127,40 € di inflow digitale.
 - Centro Regolamenti: un mese Community chiuso viene visualizzato come Chiuso.
 - Luglio resta consultabile nello storico.
+
+SALES TRACKER 3.8.4 — COMMUNITY FIX
+
+- Community agosto 2026: Easy Rent/Kasko applica 2 V-Coin per ogni euro di inflow.
+- Riconoscimento Easy Rent centralizzato anche per contratti già presenti.
+- Tavano: 268,50 € inflow Kasko = 537 V-Coin totali (268,50 base + 268,50 boost).
+- Dashboard Community: voce esplicita “Boost Easy Rent ×2” e totale V-Coin Easy Rent.
+- Centro Regolamenti: stato “Chiuso” con pallino grigio.
+- Restano invariati tema rosso e riconoscimento Microsoft 365 introdotti nella 3.8.3.

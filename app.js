@@ -1,12 +1,12 @@
 
-import {loadStore,saveStore,importBackupObject} from './storage.js?v=383';
-import {TARGETS,generalStats,agencyStats,agencyBreakdown,excellentStats,excellentBreakdown,communityStats,communityBreakdown,teamStats,teamBreakdown,availableMonths,customerList,customerDashboard,customerKey,inflowOf,communityRulesForMonth} from './engines.js?v=383';
-import {savePdf,openPdf,deletePdf} from './pdf-store.js?v=383';
-import {initParser,parsePDF} from './parser.js?v=383';
-import {createAutoBackup,getAutoBackupMeta,getFullBackupMeta,downloadDatabaseBackup,downloadCompleteBackup,restoreCompleteBackup,getArchiveStats,formatBytes,formatDate} from './backup.js?v=383';
-import {exportSync,readSyncFile,previewMerge,applyMerge,getSyncMeta} from './sync.js?v=383';
-import {regulationGroups} from './regulations.js?v=383';
-import {currentMonthKey,monthLabel,quarterFromMonth,availablePeriodMonths,ensurePeriodState,periodStatusLabel,periodStatusIcon,applyGlobalMonth} from './periods.js?v=383';
+import {loadStore,saveStore,importBackupObject} from './storage.js?v=384';
+import {TARGETS,generalStats,agencyStats,agencyBreakdown,excellentStats,excellentBreakdown,communityStats,communityBreakdown,teamStats,teamBreakdown,availableMonths,customerList,customerDashboard,customerKey,inflowOf,communityRulesForMonth} from './engines.js?v=384';
+import {savePdf,openPdf,deletePdf} from './pdf-store.js?v=384';
+import {initParser,parsePDF} from './parser.js?v=384';
+import {createAutoBackup,getAutoBackupMeta,getFullBackupMeta,downloadDatabaseBackup,downloadCompleteBackup,restoreCompleteBackup,getArchiveStats,formatBytes,formatDate} from './backup.js?v=384';
+import {exportSync,readSyncFile,previewMerge,applyMerge,getSyncMeta} from './sync.js?v=384';
+import {regulationGroups} from './regulations.js?v=384';
+import {currentMonthKey,monthLabel,quarterFromMonth,availablePeriodMonths,ensurePeriodState,periodStatusLabel,periodStatusIcon,applyGlobalMonth} from './periods.js?v=384';
 
 let store=loadStore(),parsed=null,pendingPdf=null;
 applyGlobalMonth(store,store.settings.activeMonth||store.settings.currentMonth||currentMonthKey());
@@ -393,7 +393,7 @@ function renderCommunity(){
  ${communityRow('V-Coin base',c.inflow,'baseVcoins')}
  ${communityRow('Boost MNP',c.boosts.mnp,'mnp','+')}
  ${communityRow('Boost Prospect',c.boosts.prospect,'prospect','+')}
- ${communityRow('Boost Easy Rent',c.boosts.easyRent,'easyRent','+')}
+ ${communityRow('Boost Easy Rent ×2',c.boosts.easyRent,'easyRent','+')}<tr><td><strong>Easy Rent · V-Coin totali</strong><div class="muted">Base + boost ×2</div></td><td><strong>${Math.round(c.boosts.easyRent*2*100)/100}</strong></td></tr>
  ${communityRow('Altri boost',c.boosts.other,'other','+')} ${communityRow('Gare Flash manuali',c.flashVcoins,'manualFlash','+')} ${communityRow('Corsi obbligatori manuali',c.courseVcoins,'manualCourses','+')}
  </table></div>`;
  $('communityCompare').innerHTML=`<div class="card"><h3>Confronto portale</h3><label>V-Coin ufficiali dichiarati</label><input id="officialVcoins" type="number" value="${store.officialCommunity.vcoins??''}" placeholder="Inserisci dato portale"><button id="saveOfficial" class="secondary" style="margin-top:10px">Salva confronto</button>${c.difference==null?'':`<div class="note" style="margin-top:10px">Differenza portale − app: <strong>${Math.round(c.difference)}</strong> V-Coin</div>`}</div>`;
@@ -542,7 +542,7 @@ async function saveParsed(){
      ?[{agent:'Jacopo',share:.5},{agent:'Luciano',share:.5}]
      :[{agent,share:1}];
  const nowIso=new Date().toISOString();
- const contract={id:'C-'+Date.now(),createdAt:nowIso,updatedAt:nowIso,date:$('contractDate').value,offer:parsed.meta.offer,client:parsed.meta.client||'Da verificare',vat:parsed.meta.vat,customerCode:parsed.meta.customerCode||'',prospect,agent,includeAgency,teamAllocations,status:'Valido',pdfRef:parsed.filename,pdfStored:false,notes:'Sales Tracker 3.8.3',services:[]};
+ const contract={id:'C-'+Date.now(),createdAt:nowIso,updatedAt:nowIso,date:$('contractDate').value,offer:parsed.meta.offer,client:parsed.meta.client||'Da verificare',vat:parsed.meta.vat,customerCode:parsed.meta.customerCode||'',prospect,agent,includeAgency,teamAllocations,status:'Valido',pdfRef:parsed.filename,pdfStored:false,notes:'Sales Tracker 3.8.4',services:[]};
  for(const el of rows){
    const service=el.querySelector('.pr-service').value;
    const mnpEl=el.querySelector('.pr-mnp');

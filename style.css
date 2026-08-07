@@ -419,3 +419,5 @@ a{
 
 .regulation-status-closed{background:#edf0f4!important;color:#4b5563!important}
 .regulation-status-verified{background:#e7f8ec!important;color:#237a3d!important}
+
+.regulation-status-closed::before{background:#8e8e93!important}
