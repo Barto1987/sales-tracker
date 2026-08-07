@@ -1094,3 +1094,8 @@ SMARTTRACKER 3.10.5 — CLOUD BUTTON FIX
 - Corretto errore runtime CLOUD_EMAIL che impediva l'inizializzazione della sezione Cloud.
 - Il pulsante "Accedi a SmartTracker Cloud" ora riceve correttamente il gestore click.
 - Diagnostica Cloud 3.10.4 mantenuta integralmente.
+
+SMARTTRACKER 3.10.6 — CLOUD ERROR DETAILS
+- Nessuna modifica ai dati o alla sincronizzazione.
+- Mostra il messaggio reale dell'errore di connessione/login Supabase.
+- Aggiunta cattura errori JavaScript e Promise per evitare errori silenziosi su iOS/PWA.
