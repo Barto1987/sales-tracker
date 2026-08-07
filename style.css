@@ -622,3 +622,12 @@ input:focus,select:focus,textarea:focus{
 .cloud-safety-note strong{color:#101828;font-size:12px}
 .cloud-pdf-note{margin-top:10px;padding:11px 13px;border-radius:13px;background:#fff7e6;color:#7a4b00;font-size:10.5px;font-weight:650}
 #cloudConnectedBox .actions{margin-top:12px}
+
+.cloud-diagnostics{margin-top:12px;padding:12px;border-radius:14px;background:#f8f9fb;border:1px solid #eaecf0}
+.cloud-diag-row{display:flex;gap:9px;align-items:flex-start;padding:8px 0;border-top:1px solid #eceef2}
+.cloud-diag-row:first-child{border-top:0}
+.cloud-diag-row>span{font-weight:900;width:18px}
+.cloud-diag-row strong{display:block;font-size:12px}
+.cloud-diag-row small{display:block;font-size:10px;color:#667085;margin-top:2px;word-break:break-word}
+.cloud-diag-ok>span{color:#187a3b}
+.cloud-diag-ko>span{color:#d92d20}

@@ -1,13 +1,13 @@
 
-import {loadStore,saveStore,importBackupObject} from './storage.js?v=3101';
-import {TARGETS,generalStats,agencyStats,agencyBreakdown,excellentStats,excellentBreakdown,communityStats,communityBreakdown,teamStats,teamBreakdown,availableMonths,customerList,customerDashboard,customerKey,inflowOf,communityRulesForMonth} from './engines.js?v=3101';
-import {savePdf,openPdf,deletePdf} from './pdf-store.js?v=3101';
-import {initParser,parsePDF} from './parser.js?v=3101';
-import {createAutoBackup,getAutoBackupMeta,getFullBackupMeta,downloadDatabaseBackup,downloadCompleteBackup,restoreCompleteBackup,getArchiveStats,formatBytes,formatDate} from './backup.js?v=3101';
-import {exportSync,readSyncFile,previewMerge,applyMerge,getSyncMeta} from './sync.js?v=3101';
-import {regulationGroups} from './regulations.js?v=3101';
-import {currentMonthKey,monthLabel,quarterFromMonth,availablePeriodMonths,ensurePeriodState,periodStatusLabel,periodStatusIcon,applyGlobalMonth} from './periods.js?v=3101';
-import {CLOUD_EMAIL,cloudLogin,cloudLogout,cloudInfo,uploadLocalFirst,downloadAndMerge,syncNow,bootstrapLinkedCloud,queueCloudPush,getCloudMeta,isCloudLinked,getCloudSession} from './cloud.js?v=3103';
+import {loadStore,saveStore,importBackupObject} from './storage.js?v=3104';
+import {TARGETS,generalStats,agencyStats,agencyBreakdown,excellentStats,excellentBreakdown,communityStats,communityBreakdown,teamStats,teamBreakdown,availableMonths,customerList,customerDashboard,customerKey,inflowOf,communityRulesForMonth} from './engines.js?v=3104';
+import {savePdf,openPdf,deletePdf} from './pdf-store.js?v=3104';
+import {initParser,parsePDF} from './parser.js?v=3104';
+import {createAutoBackup,getAutoBackupMeta,getFullBackupMeta,downloadDatabaseBackup,downloadCompleteBackup,restoreCompleteBackup,getArchiveStats,formatBytes,formatDate} from './backup.js?v=3104';
+import {exportSync,readSyncFile,previewMerge,applyMerge,getSyncMeta} from './sync.js?v=3104';
+import {regulationGroups} from './regulations.js?v=3104';
+import {currentMonthKey,monthLabel,quarterFromMonth,availablePeriodMonths,ensurePeriodState,periodStatusLabel,periodStatusIcon,applyGlobalMonth} from './periods.js?v=3104';
+import {cloudLogin,cloudLogout,cloudInfo,uploadLocalFirst,downloadAndMerge,syncNow,bootstrapLinkedCloud,queueCloudPush,getCloudMeta,isCloudLinked,getCloudSession,getCloudEmail,setCloudEmail,runCloudDiagnostics} from './cloud.js?v=3104';
 
 let store=loadStore(),parsed=null,pendingPdf=null;
 applyGlobalMonth(store,store.settings.activeMonth||store.settings.currentMonth||currentMonthKey());
@@ -568,7 +568,7 @@ async function saveParsed(){
      ?[{agent:'Jacopo',share:.5},{agent:'Luciano',share:.5}]
      :[{agent,share:1}];
  const nowIso=new Date().toISOString();
- const contract={id:'C-'+Date.now(),createdAt:nowIso,updatedAt:nowIso,date:$('contractDate').value,offer:parsed.meta.offer,client:parsed.meta.client||'Da verificare',vat:parsed.meta.vat,customerCode:parsed.meta.customerCode||'',prospect,agent,includeAgency,teamAllocations,status:'Valido',pdfRef:parsed.filename,pdfStored:false,notes:'SmartTracker 3.10.1',services:[]};
+ const contract={id:'C-'+Date.now(),createdAt:nowIso,updatedAt:nowIso,date:$('contractDate').value,offer:parsed.meta.offer,client:parsed.meta.client||'Da verificare',vat:parsed.meta.vat,customerCode:parsed.meta.customerCode||'',prospect,agent,includeAgency,teamAllocations,status:'Valido',pdfRef:parsed.filename,pdfStored:false,notes:'SmartTracker 3.10.4',services:[]};
  for(const el of rows){
    const service=el.querySelector('.pr-service').value;
    const mnpEl=el.querySelector('.pr-mnp');
@@ -673,18 +673,41 @@ async function renderCloud(){
  cloudStatusView(info);
 
  $('cloudLogin').onclick=async()=>{
-   const btn=$('cloudLogin'),password=$('cloudPassword').value,cloudEmail=(email.value||'').trim().toLowerCase();
-   if(!cloudEmail)return alert('Inserisci l’email Cloud.');
+   const btn=$('cloudLogin');
+   const email=($('cloudEmail').value||'').trim();
+   const password=$('cloudPassword').value;
+   if(!email)return alert('Inserisci l’email Cloud.');
    if(!password)return alert('Inserisci la password Supabase.');
-   btn.disabled=true;btn.textContent='Accesso…';
+   setCloudEmail(email);
+   btn.disabled=true;btn.textContent='Test Cloud…';
+
+   const diagBox=$('cloudDiagnostics');
+   if(diagBox){
+     diagBox.classList.remove('hidden');
+     diagBox.innerHTML='<div class="muted">Verifica connessione in corso…</div>';
+   }
+
    try{
-     await cloudLogin(cloudEmail,password);
-     localStorage.setItem('smartTrackerCloudEmail',cloudEmail);
+     const result=await runCloudDiagnostics(email,password);
+     if(diagBox){
+       diagBox.innerHTML=result.steps.map(s=>`
+         <div class="cloud-diag-row ${s.ok?'cloud-diag-ok':'cloud-diag-ko'}">
+           <span>${s.ok?'✓':'✕'}</span>
+           <div><strong>${s.label}</strong>${s.detail?`<small>${s.detail}</small>`:''}</div>
+         </div>`).join('');
+     }
+     if(!result.ok){
+       alert(`SmartTracker Cloud: ${result.error}`);
+       return;
+     }
+
      $('cloudPassword').value='';
-     alert('Accesso a SmartTracker Cloud riuscito.');
+     alert('Login Cloud riuscito.');
      await renderCloud();
    }catch(e){
-     console.error(e);alert(e.message||'Accesso Cloud non riuscito.');
+     console.error(e);
+     if(diagBox)diagBox.innerHTML+=`<div class="cloud-diag-row cloud-diag-ko"><span>✕</span><div><strong>Errore inatteso</strong><small>${e.message||e}</small></div></div>`;
+     alert(e.message||'Test Cloud non riuscito.');
    }finally{
      btn.disabled=false;btn.textContent='Accedi a SmartTracker Cloud';
    }

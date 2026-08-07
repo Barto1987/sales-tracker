@@ -1078,3 +1078,14 @@ SMARTTRACKER 3.10.3 — CLOUD AUTH FIX
 - Login Auth reso coerente con l’utente Supabase configurato.
 - Messaggio diagnostico esplicito se viene usata la password del pannello Supabase invece della password dell’utente Auth.
 - Nessuna modifica ai dati, alle regole di calcolo o alle policy RLS.
+
+SMARTTRACKER 3.10.4 — CLOUD DIAGNOSTIC FIX
+
+- Nessuna dipendenza CDN per il login.
+- Test Cloud visibile direttamente nell'app:
+  1. raggiungibilità Supabase;
+  2. validità publishable key;
+  3. risposta reale Supabase Auth.
+- L'email Cloud resta modificabile e viene ricordata localmente.
+- Nessun upload automatico finché il login non riesce.
+- Database, parser, calcoli e dati locali invariati.
