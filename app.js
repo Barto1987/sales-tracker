@@ -20,14 +20,15 @@ window.addEventListener('unhandledrejection',(e)=>{
 });
 
 
-import {loadStore,saveStore,importBackupObject} from './storage.js?v=3112';
-import {TARGETS,generalStats,agencyStats,agencyBreakdown,excellentStats,excellentBreakdown,communityStats,communityBreakdown,teamStats,teamBreakdown,availableMonths,customerList,customerDashboard,customerKey,inflowOf,communityRulesForMonth} from './engines.js?v=3112';
-import {savePdf,openPdf,deletePdf} from './pdf-store.js?v=3112';
-import {initParser,parsePDF} from './parser.js?v=3112';
-import {createAutoBackup,getAutoBackupMeta,getFullBackupMeta,downloadCompleteBackup,restoreCompleteBackup,getArchiveStats,formatBytes,formatDate} from './backup.js?v=3112';
-import {regulationGroups} from './regulations.js?v=3112';
-import {currentMonthKey,monthLabel,quarterFromMonth,availablePeriodMonths,ensurePeriodState,periodStatusLabel,periodStatusIcon,applyGlobalMonth} from './periods.js?v=3112';
-import {cloudLogin,cloudLogout,cloudInfo,uploadLocalFirst,downloadAndMerge,syncNow,bootstrapLinkedCloud,queueCloudPush,getCloudMeta,isCloudLinked,getCloudSession,getCloudEmail,setCloudEmail,runCloudDiagnostics} from './cloud.js?v=3112';
+import {loadStore,saveStore,importBackupObject} from './storage.js?v=3113';
+import {TARGETS,generalStats,agencyStats,agencyBreakdown,excellentStats,excellentBreakdown,communityStats,communityBreakdown,teamStats,teamBreakdown,availableMonths,customerList,customerDashboard,customerKey,inflowOf,communityRulesForMonth} from './engines.js?v=3113';
+import {savePdf,openPdf,deletePdf} from './pdf-store.js?v=3113';
+import {initParser,parsePDF} from './parser.js?v=3113';
+import {createAutoBackup,getAutoBackupMeta,getFullBackupMeta,downloadDatabaseBackup,downloadCompleteBackup,restoreCompleteBackup,getArchiveStats,formatBytes,formatDate} from './backup.js?v=3113';
+import {exportSync,readSyncFile,previewMerge,applyMerge,getSyncMeta} from './sync.js?v=3113';
+import {regulationGroups} from './regulations.js?v=3113';
+import {currentMonthKey,monthLabel,quarterFromMonth,availablePeriodMonths,ensurePeriodState,periodStatusLabel,periodStatusIcon,applyGlobalMonth} from './periods.js?v=3113';
+import {cloudLogin,cloudLogout,cloudInfo,uploadLocalFirst,downloadAndMerge,syncNow,bootstrapLinkedCloud,queueCloudPush,getCloudMeta,isCloudLinked,getCloudSession,getCloudEmail,setCloudEmail,runCloudDiagnostics} from './cloud.js?v=3113';
 
 let store=loadStore(),parsed=null,pendingPdf=null;
 applyGlobalMonth(store,store.settings.activeMonth||store.settings.currentMonth||currentMonthKey());
@@ -39,8 +40,6 @@ function persistStore(){
 }
 createAutoBackup(store);
 const $=id=>document.getElementById(id),money=v=>new Intl.NumberFormat('it-IT',{style:'currency',currency:'EUR'}).format(v||0);
-// Bind Cloud login immediately: must work even if parser/bootstrap is slow or fails.
-queueMicrotask(()=>{try{bindCloudLoginSafe()}catch(e){console.error('Cloud login bind',e)}});
 const pct=(v,t)=>Math.min((v/t)*100,100);
 
 const pad=n=>String(n).padStart(2,'0');
@@ -590,7 +589,7 @@ async function saveParsed(){
      ?[{agent:'Jacopo',share:.5},{agent:'Luciano',share:.5}]
      :[{agent,share:1}];
  const nowIso=new Date().toISOString();
- const contract={id:'C-'+Date.now(),createdAt:nowIso,updatedAt:nowIso,date:$('contractDate').value,offer:parsed.meta.offer,client:parsed.meta.client||'Da verificare',vat:parsed.meta.vat,customerCode:parsed.meta.customerCode||'',prospect,agent,includeAgency,teamAllocations,status:'Valido',pdfRef:parsed.filename,pdfStored:false,notes:'SmartTracker 3.11.2',services:[]};
+ const contract={id:'C-'+Date.now(),createdAt:nowIso,updatedAt:nowIso,date:$('contractDate').value,offer:parsed.meta.offer,client:parsed.meta.client||'Da verificare',vat:parsed.meta.vat,customerCode:parsed.meta.customerCode||'',prospect,agent,includeAgency,teamAllocations,status:'Valido',pdfRef:parsed.filename,pdfStored:false,notes:'SmartTracker 3.11.3',services:[]};
  for(const el of rows){
    const service=el.querySelector('.pr-service').value;
    const mnpEl=el.querySelector('.pr-mnp');
@@ -688,51 +687,94 @@ function cloudStatusView(info){
      :'Nessuna sincronizzazione Cloud completata';
 }
 
-
-function bindCloudLoginSafe(){
- const btn=$('cloudLogin');
- if(!btn || btn.dataset.safeLoginBound==='1') return;
- btn.dataset.safeLoginBound='1';
- btn.onclick=async()=>{
-   btn.dataset.clickedAt=String(Date.now());
-   const email=($('cloudEmail')?.value||'').trim();
-   const password=$('cloudPassword')?.value||'';
-   if(!email)return alert('Inserisci l’email Cloud.');
-   if(!password)return alert('Inserisci la password Supabase.');
-   setCloudEmail(email);
-   btn.disabled=true;btn.textContent='Connessione…';
-   const box=$('cloudDiagnostics');
-   if(box){box.classList.remove('hidden');box.innerHTML='<div class="muted">Verifica connessione in corso…</div>'}
-   try{
-     const result=await runCloudDiagnostics(email,password);
-     if(box){
-       box.innerHTML=result.steps.map(s=>`
-        <div class="cloud-diag-row ${s.ok?'cloud-diag-ok':'cloud-diag-ko'}">
-         <span>${s.ok?'✓':'✕'}</span>
-         <div><strong>${s.label}</strong>${s.detail?`<small>${s.detail}</small>`:''}</div>
-        </div>`).join('');
-     }
-     if(!result.ok){alert(`SmartTracker Cloud\n\n${result.error}`);return}
-     $('cloudPassword').value='';
-     alert('Login Cloud riuscito.');
-     await renderCloud();
-   }catch(e){
-     console.error(e);
-     if(box)box.innerHTML+=`<div class="cloud-diag-row cloud-diag-ko"><span>✕</span><div><strong>Errore login</strong><small>${e.message||e}</small></div></div>`;
-     alert(e.message||'Accesso Cloud non riuscito.');
-   }finally{
-     btn.disabled=false;btn.textContent='Accedi a SmartTracker Cloud';
-   }
- };
-}
-
 async function renderCloud(){
  const email=$('cloudEmail');if(!email)return;
  email.value=getCloudEmail()||email.value||'';
  const info=await cloudInfo();
  cloudStatusView(info);
 
- bindCloudLoginSafe();
+ $('cloudLogin').dataset.cloudBound='1';
+ $('cloudLogin').onclick=async()=>{
+   const btn=$('cloudLogin');
+   const email=($('cloudEmail').value||'').trim();
+   const password=$('cloudPassword').value;
+   if(!email)return alert('Inserisci l’email Cloud.');
+   if(!password)return alert('Inserisci la password Supabase.');
+   setCloudEmail(email);
+   btn.disabled=true;btn.textContent='Connessione…';
+
+   const diagBox=$('cloudDiagnostics');
+   if(diagBox){
+     diagBox.classList.remove('hidden');
+     diagBox.innerHTML='<div class="muted">Verifica connessione in corso…</div>';
+   }
+
+   try{
+     const result=await runCloudDiagnostics(email,password);
+     if(diagBox){
+       diagBox.innerHTML=result.steps.map(s=>`
+         <div class="cloud-diag-row ${s.ok?'cloud-diag-ok':'cloud-diag-ko'}">
+           <span>${s.ok?'✓':'✕'}</span>
+           <div><strong>${s.label}</strong>${s.detail?`<small>${s.detail}</small>`:''}</div>
+         </div>`).join('');
+     }
+     if(!result.ok){
+       alert(`SmartTracker Cloud\n\n${result.error}\n\nGuarda il riquadro diagnostico per il punto esatto.`);
+       return;
+     }
+
+     $('cloudPassword').value='';
+     alert('Login Cloud riuscito.');
+     await renderCloud();
+   }catch(e){
+     console.error(e);
+     if(diagBox)diagBox.innerHTML+=`<div class="cloud-diag-row cloud-diag-ko"><span>✕</span><div><strong>Errore inatteso</strong><small>${e.message||e}</small></div></div>`;
+     alert(e.message||'Test Cloud non riuscito.');
+   }finally{
+     btn.disabled=false;btn.textContent='Accedi a SmartTracker Cloud';
+   }
+ };
+
+ $('cloudUploadFirst').onclick=async()=>{
+   const device=($('cloudDeviceName').value||'Dispositivo').trim();
+   localStorage.setItem('smartTrackerCloudDeviceName',device);
+   if(!confirm(`Caricare nel Cloud i ${store.contracts.length} contratti presenti su questo dispositivo?`))return;
+   const btn=$('cloudUploadFirst');btn.disabled=true;btn.textContent='Caricamento…';
+   try{
+     await uploadLocalFirst(store,device);
+     alert(`Cloud inizializzato con ${store.contracts.length} contratti.`);
+     await renderCloud();
+   }catch(e){console.error(e);alert(e.message||'Caricamento Cloud non riuscito.')}
+   finally{btn.disabled=false;btn.textContent='Carica i dati locali nel Cloud'}
+ };
+
+ $('cloudDownloadMerge').onclick=async()=>{
+   const device=($('cloudDeviceName').value||'Dispositivo').trim();
+   localStorage.setItem('smartTrackerCloudDeviceName',device);
+   const btn=$('cloudDownloadMerge');btn.disabled=true;btn.textContent='Sincronizzazione…';
+   try{
+     const result=await downloadAndMerge(store,device);
+     store=result.store;
+     saveStore(store);createAutoBackup(store);
+     renderAll();
+     alert(`Cloud unito con successo. Totale: ${store.contracts.length} contratti.`);
+   }catch(e){console.error(e);alert(e.message||'Sincronizzazione Cloud non riuscita.')}
+   finally{btn.disabled=false;btn.textContent='Scarica e unisci dal Cloud'}
+ };
+
+ $('cloudSyncNow').onclick=async()=>{
+   const device=($('cloudDeviceName').value||'Dispositivo').trim();
+   localStorage.setItem('smartTrackerCloudDeviceName',device);
+   const btn=$('cloudSyncNow');btn.disabled=true;btn.textContent='Sync…';
+   try{
+     const result=await syncNow(store,device,'local');
+     store=result.store;
+     saveStore(store);createAutoBackup(store);
+     renderAll();
+     alert('SmartTracker Cloud sincronizzato.');
+   }catch(e){console.error(e);alert(e.message||'Sincronizzazione Cloud non riuscita.')}
+   finally{btn.disabled=false;btn.textContent='Forza sincronizzazione'}
+ };
 
  $('cloudLogout').onclick=async()=>{
    if(!confirm('Disconnettere SmartTracker Cloud da questo dispositivo? I dati locali resteranno disponibili.'))return;
@@ -744,10 +786,10 @@ async function renderCloud(){
 
 function ensureCloudButtonDiagnosticFallback(){
  const btn=$('cloudLogin');
- if(!btn || btn.dataset.safeLoginBound==='1')return;
+ if(!btn || btn.dataset.cloudBound==='1')return;
  btn.addEventListener('click',()=>{
    setTimeout(()=>{
-     if(btn.dataset.safeLoginBound!=='1'){
+     if(btn.dataset.cloudBound!=='1'){
        const box=$('cloudDiagnostics');
        if(box){
          box.classList.remove('hidden');
@@ -783,10 +825,28 @@ async function renderBackup(){
    badge.className=`backup-status backup-status-${backupState.level}`;
    $('fullBackupStatusText').textContent=backupState.label;
    $('fullBackupAgeInfo').textContent=backupState.detail;
+
+   const syncMeta=getSyncMeta();
+   const deviceInput=$('syncDeviceName');
+   if(deviceInput&&!deviceInput.value){
+     deviceInput.value=localStorage.getItem('salesTrackerDeviceName')||'';
+   }
+   const syncStatus=$('syncStatus');
+   if(syncStatus){
+     syncStatus.textContent=syncMeta
+       ?`Ultima Sync: ${formatDate(syncMeta.exportedAt||syncMeta.importedAt)} · ${syncMeta.contracts||0} contratti`
+       :'Nessuna sincronizzazione eseguita';
+   }
  }catch(e){
    console.error(e);
    health.innerHTML='<div class="card"><div class="note">Impossibile leggere lo stato dell’archivio.</div></div>';
  }
+
+ $('downloadDbBackup').onclick=()=>{
+   const when=downloadDatabaseBackup(store);
+   alert(`Backup rapido creato: ${formatDate(when)}`);
+   renderBackup();
+ };
 
  $('downloadFullBackup').onclick=async()=>{
    const btn=$('downloadFullBackup');
@@ -804,6 +864,46 @@ async function renderBackup(){
      renderBackup();
    }
  };
+
+
+ $('exportSync').onclick=()=>{
+   const device=($('syncDeviceName').value||'Dispositivo').trim();
+   localStorage.setItem('salesTrackerDeviceName',device);
+   const payload=exportSync(store,device);
+   $('syncStatus').textContent=`Sync esportata: ${formatDate(payload.exportedAt)} · ${payload.store.contracts.length} contratti`;
+ };
+
+ $('importSyncInput').onchange=async()=>{
+   const file=$('importSyncInput').files?.[0];
+   if(!file)return;
+
+   try{
+     const payload=await readSyncFile(file);
+     const preview=previewMerge(store,payload.store);
+     const box=$('syncPreview');
+     box.classList.remove('hidden');
+     box.innerHTML=`<div class="sync-preview-card">
+       <strong>Confronto sincronizzazione</strong>
+       <div class="muted">File da ${payload.deviceName||'altro dispositivo'} · ${formatDate(payload.exportedAt)}</div>
+       <div class="sync-preview-grid">
+         <div class="sync-preview-item"><small>Nuove pratiche</small><strong>${preview.added}</strong></div>
+         <div class="sync-preview-item"><small>Da aggiornare</small><strong>${preview.updated}</strong></div>
+         <div class="sync-preview-item"><small>Già presenti</small><strong>${preview.unchanged}</strong></div>
+         <div class="sync-preview-item"><small>Totale finale</small><strong>${preview.finalContracts}</strong></div>
+       </div>
+       <button id="confirmSyncImport" style="margin-top:12px">Conferma sincronizzazione</button>
+     </div>`;
+
+     $('confirmSyncImport').onclick=()=>{
+       const result=applyMerge(store,payload.store);
+       store=result.store;
+       persistStore();
+       alert(`Sincronizzazione completata. Nuove: ${result.added} · Aggiornate: ${result.updated}`);
+       box.classList.add('hidden');
+       box.innerHTML='';
+       $('importSyncInput').value='';
+       renderAll();
+     };
    }catch(e){
      console.error(e);
      alert('File Sync non valido o non leggibile.');
@@ -939,28 +1039,6 @@ function renderPeriodManager(){
  $('markPeriodVerified').onclick=()=>{const x=ensurePeriodState(store,active);x.status='verified';x.updatedAt=new Date().toISOString();persistStore();renderAll()};
  $('togglePeriodClosed').onclick=()=>{const x=ensurePeriodState(store,active);x.status=x.status==='closed'?'working':'closed';x.updatedAt=new Date().toISOString();persistStore();renderAll()};
 }
-
-let cloudAutoSyncBusy=false;
-async function autoSyncFromCloud(reason='auto'){
-  if(cloudAutoSyncBusy||!isCloudLinked()||!getCloudSession()?.access_token)return;
-  cloudAutoSyncBusy=true;
-  try{
-    const device=localStorage.getItem('smartTrackerCloudDeviceName')||'Dispositivo';
-    const result=await bootstrapLinkedCloud(store,device);
-    if(result?.store){
-      const changed=result.changed;
-      store=result.store;
-      saveStore(store);
-      createAutoBackup(store);
-      if(changed)renderAll();
-    }
-  }catch(e){
-    console.warn(`Cloud auto-sync (${reason})`,e);
-  }finally{
-    cloudAutoSyncBusy=false;
-  }
-}
-
 function selectedPeriodIsClosed(){const a=store.settings.activeMonth||store.settings.currentMonth;return ensurePeriodState(store,a).status==='closed'}
 function renderAll(){renderPeriodManager();renderHome();renderAgency();renderExcellent();renderCommunity();renderTeam();renderCustomers();renderRegulations();renderArchive();renderBackup()}
 document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>go(b.dataset.view));
@@ -974,31 +1052,35 @@ $('archiveAgent').onchange=renderArchive;
 $('archiveAgency').onchange=renderArchive;
 
 $('contractDate').valueAsDate=new Date();
+await initParser();
 ensureCloudButtonDiagnosticFallback();
-bindCloudLoginSafe();
-
-// Render local UI immediately. Parser and Cloud bootstrap must never block login/UI.
-renderAll();
-
-initParser().catch(e=>console.error('Parser init',e));
 
 const cloudDevice=localStorage.getItem('smartTrackerCloudDeviceName')||localStorage.getItem('salesTrackerDeviceName')||'Dispositivo';
-bootstrapLinkedCloud(store,cloudDevice).then(cloudBoot=>{
-  if(cloudBoot?.store){
-    store=cloudBoot.store;
-    saveStore(store);
-    createAutoBackup(store);
-    renderAll();
-  }
-}).catch(e=>console.error('Cloud bootstrap',e));
+const cloudBoot=await bootstrapLinkedCloud(store,cloudDevice);
+if(cloudBoot?.store){
+  store=cloudBoot.store;
+  saveStore(store);
+  createAutoBackup(store);
+}
+renderAll();
 
-// SmartTracker Cloud AutoSync:
- // - ogni salvataggio/modifica locale viene inviato da persistStore() dopo ~0,9 s;
- // - quando l'app torna in primo piano scarica subito eventuali novità;
- // - mentre resta aperta controlla il Cloud ogni 15 secondi.
- const triggerForegroundSync=()=>autoSyncFromCloud('foreground');
- document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')triggerForegroundSync()});
- window.addEventListener('focus',triggerForegroundSync);
- window.addEventListener('pageshow',triggerForegroundSync);
- setTimeout(()=>autoSyncFromCloud('startup'),2500);
- setInterval(()=>autoSyncFromCloud('timer'),15000);
+// Leggero controllo periodico: se un altro dispositivo ha aggiornato il Cloud,
+// scarica e unisce senza interrompere il lavoro locale.
+const pullCloudChanges=async()=>{
+  if(!isCloudLinked()||!getCloudSession()?.access_token)return;
+  try{
+    const result=await bootstrapLinkedCloud(store,localStorage.getItem('smartTrackerCloudDeviceName')||'Dispositivo');
+    if(result?.changed){
+      store=result.store;
+      saveStore(store);
+      createAutoBackup(store);
+      renderAll();
+    }
+  }catch(e){
+    console.warn('Cloud auto pull',e);
+  }
+};
+setInterval(pullCloudChanges,15000);
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')pullCloudChanges()});
+window.addEventListener('focus',pullCloudChanges);
+window.addEventListener('pageshow',pullCloudChanges);

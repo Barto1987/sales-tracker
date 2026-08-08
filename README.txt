@@ -1100,47 +1100,27 @@ SMARTTRACKER 3.10.6 — CLOUD ERROR DETAILS
 - Mostra il messaggio reale dell'errore di connessione/login Supabase.
 - Aggiunta cattura errori JavaScript e Promise per evitare errori silenziosi su iOS/PWA.
 
-SMARTTRACKER 3.11.0 — CONNECTION FIX
+SMARTTRACKER 3.10.8 — CONNECTION FIX
 - Diagnostica Cloud aggiornata con endpoint browser-safe.
 - Header apikey + Authorization Bearer publishable key su gateway Supabase.
 - Test esplicito: REST raggiungibile -> Auth raggiungibile -> login.
 - Nessuna modifica a dati, parser, calcoli o sincronizzazione.
 
 
-PATCH 3.11.0
+PATCH 3.10.8
 - Corretto Project URL Supabase con il valore verificato dal dashboard.
 - Publishable key verificata.
 - Cache-busting aggiornato a 3108.
 
-SMARTTRACKER 3.11.0 — AUTO CLOUD
+SMARTTRACKER 3.11.3 — STABLE AUTOSYNC
 
-Novità:
-- AutoSync Cloud per nuovi contratti, modifiche ed eliminazioni.
-- Push automatico ~0,9 secondi dopo un salvataggio locale.
-- Pull automatico quando l'app torna in primo piano.
-- Controllo Cloud ogni 15 secondi mentre l'app resta aperta.
-- Eliminazioni protette con tombstone: un contratto eliminato non viene
-  "resuscitato" da un altro dispositivo con dati più vecchi.
-- "Sincronizza ora" rinominato "Forza sincronizzazione" e mantenuto come emergenza.
-- Rimossa la sezione "Backup rapido".
-- Rimossa la sezione legacy "SmartTrackerSync" via file/iCloud Drive.
-- Restano SmartTrackerLocal automatico, backup completo ZIP e ripristino completo.
-- PDF ancora locali sul singolo dispositivo.
+Questa release riparte direttamente dalla 3.10.8, l'ultima versione Cloud verificata funzionante.
 
-Nota:
-La prima inizializzazione di un nuovo dispositivo usa ancora "Scarica e unisci dal Cloud".
-Dopo l'inizializzazione, l'uso normale è automatico.
-
-SMARTTRACKER 3.11.1 — LOGIN FIX
-- Corretto binding del pulsante Accedi dopo introduzione AutoSync.
-- Il login Cloud viene collegato indipendentemente dal rendering delle altre sezioni.
-- Diagnostica Supabase mantenuta.
-- AutoSync mantenuto, con avvio ritardato dopo l'inizializzazione.
-- Nessuna modifica ai dati Cloud o alle policy.
-
-SMARTTRACKER 3.11.2 — STARTUP / LOGIN FIX
-- Il pulsante Cloud viene collegato immediatamente, prima di parser e bootstrap.
-- L'interfaccia locale viene renderizzata subito.
-- Parser e bootstrap Cloud partono in background e non possono più bloccare il login.
-- Corretto anche il fallback diagnostico del pulsante.
-- AutoSync, tombstone eliminazioni e database Cloud invariati.
+- Login Cloud lasciato invariato rispetto alla 3.10.8.
+- Push automatico già presente in 3.10.8: ogni persistStore invia al Cloud dopo ~0,9 s.
+- Pull Cloud ogni 15 secondi mentre l'app è aperta.
+- Pull immediato quando l'app torna in primo piano.
+- Eliminazioni protette da tombstone, per evitare che un contratto cancellato ricompaia da un dispositivo vecchio.
+- Backup rapido e SmartTrackerSync nascosti dall'interfaccia ma mantenuti tecnicamente nel DOM per non introdurre regressioni.
+- Backup completo ZIP e ripristino completo restano disponibili.
+- Pulsante manuale rinominato "Forza sincronizzazione".

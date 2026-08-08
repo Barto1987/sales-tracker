@@ -7,11 +7,11 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icon-192.png">
-<link rel="stylesheet" href="style.css?v=3112">
-<title>SmartTracker 3.11.2</title>
+<link rel="stylesheet" href="style.css?v=3113">
+<title>SmartTracker 3.11.3</title>
 </head>
 <body>
-<header><div class="title">SmartTracker 3.11.2</div><div class="sub">Cruscotto commerciale personale</div></header>
+<header><div class="title">SmartTracker 3.11.3</div><div class="sub">Cruscotto commerciale personale</div></header>
 <main>
 <section id="home" class="view active">
 <div class="card period-manager-card"><div class="period-manager-head"><div><small>Periodo attivo</small><h3 id="activePeriodLabel">—</h3></div><div id="activePeriodStatus" class="period-status period-status-working">🟡 In lavorazione</div></div><label>Seleziona mese</label><select id="globalMonthSelect"></select><div class="period-actions"><button id="markPeriodWorking" class="secondary">In lavorazione</button><button id="markPeriodVerified" class="secondary">Verificato</button><button id="togglePeriodClosed">Chiudi mese</button></div><div id="activeQuarterInfo" class="field-hint prospect-auto-no"></div><div class="field-hint">Puoi selezionare e modificare anche mesi precedenti. Excellent e Gara Agenzia seguono automaticamente il trimestre scelto.</div></div>
@@ -37,6 +37,12 @@
     <h3>SmartTrackerLocal</h3>
     <p class="muted">Creato all’apertura dell’app e dopo ogni salvataggio o modifica. Non include i PDF e non protegge dalla cancellazione dei dati del sito.</p>
     <div id="autoBackupInfo"></div>
+  </div>
+
+  <div class="card legacy-cloud-hidden">
+    <h3>Backup rapido</h3>
+    <p class="muted">Scarica database, contratti, storico e impostazioni. Non include i PDF.</p>
+    <button id="downloadDbBackup">Scarica SmartTrackerLocal</button>
   </div>
 
   <div class="card">
@@ -66,7 +72,7 @@
       <span id="cloudBadgeText">Non collegato</span>
     </div>
   </div>
-  <p class="muted">Un unico database per iPhone, iPad e iMac. Nuovi contratti, modifiche ed eliminazioni vengono sincronizzati automaticamente; i dati restano disponibili anche offline.</p>
+  <p class="muted">Un unico database per iPhone, iPad e iMac. Contratti nuovi, modifiche ed eliminazioni vengono sincronizzati automaticamente; i dati restano disponibili anche offline.</p>
 
   <div id="cloudLoginBox">
     <label>Email Cloud</label>
@@ -94,7 +100,7 @@
 
     <button id="cloudLogout" class="secondary" style="margin-top:10px">Disconnetti Cloud</button>
     <div id="cloudLastStatus" class="field-hint prospect-auto-no"></div>
-    <div class="cloud-auto-note">⚡ AutoSync attivo: salva qui, ritrovi sugli altri dispositivi.</div>
+    <div class="cloud-auto-note">⚡ AutoSync attivo: le modifiche vengono inviate al Cloud e scaricate automaticamente sugli altri dispositivi.</div>
   </div>
 
   <div class="cloud-safety-note">
@@ -105,6 +111,24 @@
 </div>
 
 
+<div class="card legacy-cloud-hidden">
+  <h3>SmartTrackerSync</h3>
+  <p class="muted">Usa un file Sync su iCloud Drive per allineare iPhone, iPad e iMac. Il file Sync contiene i dati, ma non i PDF.</p>
+
+  <label>Nome dispositivo</label>
+  <input id="syncDeviceName" placeholder="Es. iPhone Francesco">
+
+  <div class="actions sync-actions">
+    <button id="exportSync">Esporta SmartTrackerSync</button>
+    <label class="file-button secondary">
+      Importa SmartTrackerSync
+      <input id="importSyncInput" type="file" accept=".json,application/json" hidden>
+    </label>
+  </div>
+
+  <div id="syncStatus" class="field-hint prospect-auto-no"></div>
+  <div id="syncPreview" class="hidden"></div>
+</div>
 
 <div class="card">
     <h3>Ripristino completo</h3>
@@ -216,8 +240,8 @@
 <button data-view="community"><span class="nav-icon">◉</span><span>Community</span></button>
 <button data-view="team"><span class="nav-icon">♟</span><span>Squadra</span></button>
 </nav>
-<script src="jszip.min.js?v=3112"></script>
-<script type="module" src="app.js?v=3112"></script>
+<script src="jszip.min.js?v=3113"></script>
+<script type="module" src="app.js?v=3113"></script>
 <script>
 (async()=>{
   if('serviceWorker' in navigator){

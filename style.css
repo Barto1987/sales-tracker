@@ -632,7 +632,5 @@ input:focus,select:focus,textarea:focus{
 .cloud-diag-ok>span{color:#187a3b}
 .cloud-diag-ko>span{color:#d92d20}
 
-.cloud-auto-note{
-  margin-top:10px;padding:10px 12px;border-radius:12px;
-  background:#edf9f1;color:#176b35;font-weight:800;font-size:12px;
-}
+.legacy-cloud-hidden{display:none!important}
+.cloud-auto-note{margin-top:10px;padding:10px 12px;border-radius:12px;background:#edf9f1;color:#176b35;font-weight:800;font-size:12px}
