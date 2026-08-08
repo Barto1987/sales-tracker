@@ -1124,3 +1124,8 @@ Questa release riparte direttamente dalla 3.10.8, l'ultima versione Cloud verifi
 - Backup rapido e SmartTrackerSync nascosti dall'interfaccia ma mantenuti tecnicamente nel DOM per non introdurre regressioni.
 - Backup completo ZIP e ripristino completo restano disponibili.
 - Pulsante manuale rinominato "Forza sincronizzazione".
+
+SMARTTRACKER 3.11.4 — LOGO UPDATE
+- Nessuna modifica funzionale rispetto alla 3.11.3.
+- Nuova icona rossa piena con bersaglio e freccia.
+- Aggiornate icone PWA 192x192, 512x512 e Apple Touch Icon.

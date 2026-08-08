@@ -1,7 +1,7 @@
 {
   "name": "SmartTracker",
   "short_name": "SmartTracker",
-  "start_url": "./index.html?v=3113",
+  "start_url": "./index.html?v=3114",
   "display": "standalone",
   "background_color": "#f7f8fa",
   "theme_color": "#e00000",
@@ -9,12 +9,14 @@
     {
       "src": "icon-192.png",
       "sizes": "192x192",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     },
     {
       "src": "icon-512.png",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     }
   ]
 }
