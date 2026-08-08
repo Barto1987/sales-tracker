@@ -20,14 +20,14 @@ window.addEventListener('unhandledrejection',(e)=>{
 });
 
 
-import {loadStore,saveStore,importBackupObject} from './storage.js?v=3110';
-import {TARGETS,generalStats,agencyStats,agencyBreakdown,excellentStats,excellentBreakdown,communityStats,communityBreakdown,teamStats,teamBreakdown,availableMonths,customerList,customerDashboard,customerKey,inflowOf,communityRulesForMonth} from './engines.js?v=3110';
-import {savePdf,openPdf,deletePdf} from './pdf-store.js?v=3110';
-import {initParser,parsePDF} from './parser.js?v=3110';
-import {createAutoBackup,getAutoBackupMeta,getFullBackupMeta,downloadCompleteBackup,restoreCompleteBackup,getArchiveStats,formatBytes,formatDate} from './backup.js?v=3110';
-import {regulationGroups} from './regulations.js?v=3110';
-import {currentMonthKey,monthLabel,quarterFromMonth,availablePeriodMonths,ensurePeriodState,periodStatusLabel,periodStatusIcon,applyGlobalMonth} from './periods.js?v=3110';
-import {cloudLogin,cloudLogout,cloudInfo,uploadLocalFirst,downloadAndMerge,syncNow,bootstrapLinkedCloud,queueCloudPush,getCloudMeta,isCloudLinked,getCloudSession,getCloudEmail,setCloudEmail,runCloudDiagnostics} from './cloud.js?v=3110';
+import {loadStore,saveStore,importBackupObject} from './storage.js?v=3111';
+import {TARGETS,generalStats,agencyStats,agencyBreakdown,excellentStats,excellentBreakdown,communityStats,communityBreakdown,teamStats,teamBreakdown,availableMonths,customerList,customerDashboard,customerKey,inflowOf,communityRulesForMonth} from './engines.js?v=3111';
+import {savePdf,openPdf,deletePdf} from './pdf-store.js?v=3111';
+import {initParser,parsePDF} from './parser.js?v=3111';
+import {createAutoBackup,getAutoBackupMeta,getFullBackupMeta,downloadCompleteBackup,restoreCompleteBackup,getArchiveStats,formatBytes,formatDate} from './backup.js?v=3111';
+import {regulationGroups} from './regulations.js?v=3111';
+import {currentMonthKey,monthLabel,quarterFromMonth,availablePeriodMonths,ensurePeriodState,periodStatusLabel,periodStatusIcon,applyGlobalMonth} from './periods.js?v=3111';
+import {cloudLogin,cloudLogout,cloudInfo,uploadLocalFirst,downloadAndMerge,syncNow,bootstrapLinkedCloud,queueCloudPush,getCloudMeta,isCloudLinked,getCloudSession,getCloudEmail,setCloudEmail,runCloudDiagnostics} from './cloud.js?v=3111';
 
 let store=loadStore(),parsed=null,pendingPdf=null;
 applyGlobalMonth(store,store.settings.activeMonth||store.settings.currentMonth||currentMonthKey());
@@ -588,7 +588,7 @@ async function saveParsed(){
      ?[{agent:'Jacopo',share:.5},{agent:'Luciano',share:.5}]
      :[{agent,share:1}];
  const nowIso=new Date().toISOString();
- const contract={id:'C-'+Date.now(),createdAt:nowIso,updatedAt:nowIso,date:$('contractDate').value,offer:parsed.meta.offer,client:parsed.meta.client||'Da verificare',vat:parsed.meta.vat,customerCode:parsed.meta.customerCode||'',prospect,agent,includeAgency,teamAllocations,status:'Valido',pdfRef:parsed.filename,pdfStored:false,notes:'SmartTracker 3.11.0',services:[]};
+ const contract={id:'C-'+Date.now(),createdAt:nowIso,updatedAt:nowIso,date:$('contractDate').value,offer:parsed.meta.offer,client:parsed.meta.client||'Da verificare',vat:parsed.meta.vat,customerCode:parsed.meta.customerCode||'',prospect,agent,includeAgency,teamAllocations,status:'Valido',pdfRef:parsed.filename,pdfStored:false,notes:'SmartTracker 3.11.1',services:[]};
  for(const el of rows){
    const service=el.querySelector('.pr-service').value;
    const mnpEl=el.querySelector('.pr-mnp');
@@ -686,94 +686,50 @@ function cloudStatusView(info){
      :'Nessuna sincronizzazione Cloud completata';
 }
 
+
+function bindCloudLoginSafe(){
+ const btn=$('cloudLogin');
+ if(!btn || btn.dataset.safeLoginBound==='1') return;
+ btn.dataset.safeLoginBound='1';
+ btn.onclick=async()=>{
+   const email=($('cloudEmail')?.value||'').trim();
+   const password=$('cloudPassword')?.value||'';
+   if(!email)return alert('Inserisci l’email Cloud.');
+   if(!password)return alert('Inserisci la password Supabase.');
+   setCloudEmail(email);
+   btn.disabled=true;btn.textContent='Connessione…';
+   const box=$('cloudDiagnostics');
+   if(box){box.classList.remove('hidden');box.innerHTML='<div class="muted">Verifica connessione in corso…</div>'}
+   try{
+     const result=await runCloudDiagnostics(email,password);
+     if(box){
+       box.innerHTML=result.steps.map(s=>`
+        <div class="cloud-diag-row ${s.ok?'cloud-diag-ok':'cloud-diag-ko'}">
+         <span>${s.ok?'✓':'✕'}</span>
+         <div><strong>${s.label}</strong>${s.detail?`<small>${s.detail}</small>`:''}</div>
+        </div>`).join('');
+     }
+     if(!result.ok){alert(`SmartTracker Cloud\n\n${result.error}`);return}
+     $('cloudPassword').value='';
+     alert('Login Cloud riuscito.');
+     await renderCloud();
+   }catch(e){
+     console.error(e);
+     if(box)box.innerHTML+=`<div class="cloud-diag-row cloud-diag-ko"><span>✕</span><div><strong>Errore login</strong><small>${e.message||e}</small></div></div>`;
+     alert(e.message||'Accesso Cloud non riuscito.');
+   }finally{
+     btn.disabled=false;btn.textContent='Accedi a SmartTracker Cloud';
+   }
+ };
+}
+
 async function renderCloud(){
  const email=$('cloudEmail');if(!email)return;
  email.value=getCloudEmail()||email.value||'';
  const info=await cloudInfo();
  cloudStatusView(info);
 
- $('cloudLogin').dataset.cloudBound='1';
- $('cloudLogin').onclick=async()=>{
-   const btn=$('cloudLogin');
-   const email=($('cloudEmail').value||'').trim();
-   const password=$('cloudPassword').value;
-   if(!email)return alert('Inserisci l’email Cloud.');
-   if(!password)return alert('Inserisci la password Supabase.');
-   setCloudEmail(email);
-   btn.disabled=true;btn.textContent='Connessione…';
-
-   const diagBox=$('cloudDiagnostics');
-   if(diagBox){
-     diagBox.classList.remove('hidden');
-     diagBox.innerHTML='<div class="muted">Verifica connessione in corso…</div>';
-   }
-
-   try{
-     const result=await runCloudDiagnostics(email,password);
-     if(diagBox){
-       diagBox.innerHTML=result.steps.map(s=>`
-         <div class="cloud-diag-row ${s.ok?'cloud-diag-ok':'cloud-diag-ko'}">
-           <span>${s.ok?'✓':'✕'}</span>
-           <div><strong>${s.label}</strong>${s.detail?`<small>${s.detail}</small>`:''}</div>
-         </div>`).join('');
-     }
-     if(!result.ok){
-       alert(`SmartTracker Cloud\n\n${result.error}\n\nGuarda il riquadro diagnostico per il punto esatto.`);
-       return;
-     }
-
-     $('cloudPassword').value='';
-     alert('Login Cloud riuscito.');
-     await renderCloud();
-   }catch(e){
-     console.error(e);
-     if(diagBox)diagBox.innerHTML+=`<div class="cloud-diag-row cloud-diag-ko"><span>✕</span><div><strong>Errore inatteso</strong><small>${e.message||e}</small></div></div>`;
-     alert(e.message||'Test Cloud non riuscito.');
-   }finally{
-     btn.disabled=false;btn.textContent='Accedi a SmartTracker Cloud';
-   }
- };
-
- $('cloudUploadFirst').onclick=async()=>{
-   const device=($('cloudDeviceName').value||'Dispositivo').trim();
-   localStorage.setItem('smartTrackerCloudDeviceName',device);
-   if(!confirm(`Caricare nel Cloud i ${store.contracts.length} contratti presenti su questo dispositivo?`))return;
-   const btn=$('cloudUploadFirst');btn.disabled=true;btn.textContent='Caricamento…';
-   try{
-     await uploadLocalFirst(store,device);
-     alert(`Cloud inizializzato con ${store.contracts.length} contratti.`);
-     await renderCloud();
-   }catch(e){console.error(e);alert(e.message||'Caricamento Cloud non riuscito.')}
-   finally{btn.disabled=false;btn.textContent='Carica i dati locali nel Cloud'}
- };
-
- $('cloudDownloadMerge').onclick=async()=>{
-   const device=($('cloudDeviceName').value||'Dispositivo').trim();
-   localStorage.setItem('smartTrackerCloudDeviceName',device);
-   const btn=$('cloudDownloadMerge');btn.disabled=true;btn.textContent='Sincronizzazione…';
-   try{
-     const result=await downloadAndMerge(store,device);
-     store=result.store;
-     saveStore(store);createAutoBackup(store);
-     renderAll();
-     alert(`Cloud unito con successo. Totale: ${store.contracts.length} contratti.`);
-   }catch(e){console.error(e);alert(e.message||'Sincronizzazione Cloud non riuscita.')}
-   finally{btn.disabled=false;btn.textContent='Scarica e unisci dal Cloud'}
- };
-
- $('cloudSyncNow').onclick=async()=>{
-   const device=($('cloudDeviceName').value||'Dispositivo').trim();
-   localStorage.setItem('smartTrackerCloudDeviceName',device);
-   const btn=$('cloudSyncNow');btn.disabled=true;btn.textContent='Sync…';
-   try{
-     const result=await syncNow(store,device,'local');
-     store=result.store;
-     saveStore(store);createAutoBackup(store);
-     renderAll();
-     alert('SmartTracker Cloud sincronizzato.');
-   }catch(e){console.error(e);alert(e.message||'Sincronizzazione Cloud non riuscita.')}
-   finally{btn.disabled=false;btn.textContent='Forza sincronizzazione'}
- };
+ bindCloudLoginSafe();
 
  $('cloudLogout').onclick=async()=>{
    if(!confirm('Disconnettere SmartTracker Cloud da questo dispositivo? I dati locali resteranno disponibili.'))return;
@@ -1035,4 +991,5 @@ renderAll();
  document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')triggerForegroundSync()});
  window.addEventListener('focus',triggerForegroundSync);
  window.addEventListener('pageshow',triggerForegroundSync);
+ setTimeout(()=>autoSyncFromCloud('startup'),2500);
  setInterval(()=>autoSyncFromCloud('timer'),15000);

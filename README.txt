@@ -1130,3 +1130,10 @@ Novità:
 Nota:
 La prima inizializzazione di un nuovo dispositivo usa ancora "Scarica e unisci dal Cloud".
 Dopo l'inizializzazione, l'uso normale è automatico.
+
+SMARTTRACKER 3.11.1 — LOGIN FIX
+- Corretto binding del pulsante Accedi dopo introduzione AutoSync.
+- Il login Cloud viene collegato indipendentemente dal rendering delle altre sezioni.
+- Diagnostica Supabase mantenuta.
+- AutoSync mantenuto, con avvio ritardato dopo l'inizializzazione.
+- Nessuna modifica ai dati Cloud o alle policy.
