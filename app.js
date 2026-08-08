@@ -20,15 +20,14 @@ window.addEventListener('unhandledrejection',(e)=>{
 });
 
 
-import {loadStore,saveStore,importBackupObject} from './storage.js?v=3108';
-import {TARGETS,generalStats,agencyStats,agencyBreakdown,excellentStats,excellentBreakdown,communityStats,communityBreakdown,teamStats,teamBreakdown,availableMonths,customerList,customerDashboard,customerKey,inflowOf,communityRulesForMonth} from './engines.js?v=3108';
-import {savePdf,openPdf,deletePdf} from './pdf-store.js?v=3108';
-import {initParser,parsePDF} from './parser.js?v=3108';
-import {createAutoBackup,getAutoBackupMeta,getFullBackupMeta,downloadDatabaseBackup,downloadCompleteBackup,restoreCompleteBackup,getArchiveStats,formatBytes,formatDate} from './backup.js?v=3108';
-import {exportSync,readSyncFile,previewMerge,applyMerge,getSyncMeta} from './sync.js?v=3108';
-import {regulationGroups} from './regulations.js?v=3108';
-import {currentMonthKey,monthLabel,quarterFromMonth,availablePeriodMonths,ensurePeriodState,periodStatusLabel,periodStatusIcon,applyGlobalMonth} from './periods.js?v=3108';
-import {cloudLogin,cloudLogout,cloudInfo,uploadLocalFirst,downloadAndMerge,syncNow,bootstrapLinkedCloud,queueCloudPush,getCloudMeta,isCloudLinked,getCloudSession,getCloudEmail,setCloudEmail,runCloudDiagnostics} from './cloud.js?v=3108';
+import {loadStore,saveStore,importBackupObject} from './storage.js?v=3110';
+import {TARGETS,generalStats,agencyStats,agencyBreakdown,excellentStats,excellentBreakdown,communityStats,communityBreakdown,teamStats,teamBreakdown,availableMonths,customerList,customerDashboard,customerKey,inflowOf,communityRulesForMonth} from './engines.js?v=3110';
+import {savePdf,openPdf,deletePdf} from './pdf-store.js?v=3110';
+import {initParser,parsePDF} from './parser.js?v=3110';
+import {createAutoBackup,getAutoBackupMeta,getFullBackupMeta,downloadCompleteBackup,restoreCompleteBackup,getArchiveStats,formatBytes,formatDate} from './backup.js?v=3110';
+import {regulationGroups} from './regulations.js?v=3110';
+import {currentMonthKey,monthLabel,quarterFromMonth,availablePeriodMonths,ensurePeriodState,periodStatusLabel,periodStatusIcon,applyGlobalMonth} from './periods.js?v=3110';
+import {cloudLogin,cloudLogout,cloudInfo,uploadLocalFirst,downloadAndMerge,syncNow,bootstrapLinkedCloud,queueCloudPush,getCloudMeta,isCloudLinked,getCloudSession,getCloudEmail,setCloudEmail,runCloudDiagnostics} from './cloud.js?v=3110';
 
 let store=loadStore(),parsed=null,pendingPdf=null;
 applyGlobalMonth(store,store.settings.activeMonth||store.settings.currentMonth||currentMonthKey());
@@ -519,7 +518,7 @@ function renderArchive(){
    return text.includes(q)&&agentOk&&agencyOk;
  });
  $('archiveList').innerHTML=rows.length?rows.map(archiveItem).join(''):'<div class="card muted">Nessun contratto.</div>';
- document.querySelectorAll('[data-del]').forEach(b=>b.onclick=async()=>{if(confirm('Eliminare il contratto?')){await deletePdf(b.dataset.del).catch(()=>{});store.contracts=store.contracts.filter(c=>c.id!==b.dataset.del);persistStore();renderAll()}});
+ document.querySelectorAll('[data-del]').forEach(b=>b.onclick=async()=>{if(confirm('Eliminare il contratto?')){const id=b.dataset.del;await deletePdf(id).catch(()=>{});store.deletedContracts=store.deletedContracts||{};store.deletedContracts[id]=new Date().toISOString();store.contracts=store.contracts.filter(c=>c.id!==id);persistStore();renderAll()}});
  document.querySelectorAll('[data-open-pdf]').forEach(b=>b.onclick=async()=>{if(!await openPdf(b.dataset.openPdf))alert('PDF non disponibile su questo dispositivo')});
  document.querySelectorAll('[data-edit]').forEach(b=>b.onclick=()=>editAttrs(b.dataset.edit))
 }
@@ -589,7 +588,7 @@ async function saveParsed(){
      ?[{agent:'Jacopo',share:.5},{agent:'Luciano',share:.5}]
      :[{agent,share:1}];
  const nowIso=new Date().toISOString();
- const contract={id:'C-'+Date.now(),createdAt:nowIso,updatedAt:nowIso,date:$('contractDate').value,offer:parsed.meta.offer,client:parsed.meta.client||'Da verificare',vat:parsed.meta.vat,customerCode:parsed.meta.customerCode||'',prospect,agent,includeAgency,teamAllocations,status:'Valido',pdfRef:parsed.filename,pdfStored:false,notes:'SmartTracker 3.10.8',services:[]};
+ const contract={id:'C-'+Date.now(),createdAt:nowIso,updatedAt:nowIso,date:$('contractDate').value,offer:parsed.meta.offer,client:parsed.meta.client||'Da verificare',vat:parsed.meta.vat,customerCode:parsed.meta.customerCode||'',prospect,agent,includeAgency,teamAllocations,status:'Valido',pdfRef:parsed.filename,pdfStored:false,notes:'SmartTracker 3.11.0',services:[]};
  for(const el of rows){
    const service=el.querySelector('.pr-service').value;
    const mnpEl=el.querySelector('.pr-mnp');
@@ -773,7 +772,7 @@ async function renderCloud(){
      renderAll();
      alert('SmartTracker Cloud sincronizzato.');
    }catch(e){console.error(e);alert(e.message||'Sincronizzazione Cloud non riuscita.')}
-   finally{btn.disabled=false;btn.textContent='Sincronizza ora'}
+   finally{btn.disabled=false;btn.textContent='Forza sincronizzazione'}
  };
 
  $('cloudLogout').onclick=async()=>{
@@ -825,28 +824,10 @@ async function renderBackup(){
    badge.className=`backup-status backup-status-${backupState.level}`;
    $('fullBackupStatusText').textContent=backupState.label;
    $('fullBackupAgeInfo').textContent=backupState.detail;
-
-   const syncMeta=getSyncMeta();
-   const deviceInput=$('syncDeviceName');
-   if(deviceInput&&!deviceInput.value){
-     deviceInput.value=localStorage.getItem('salesTrackerDeviceName')||'';
-   }
-   const syncStatus=$('syncStatus');
-   if(syncStatus){
-     syncStatus.textContent=syncMeta
-       ?`Ultima Sync: ${formatDate(syncMeta.exportedAt||syncMeta.importedAt)} · ${syncMeta.contracts||0} contratti`
-       :'Nessuna sincronizzazione eseguita';
-   }
  }catch(e){
    console.error(e);
    health.innerHTML='<div class="card"><div class="note">Impossibile leggere lo stato dell’archivio.</div></div>';
  }
-
- $('downloadDbBackup').onclick=()=>{
-   const when=downloadDatabaseBackup(store);
-   alert(`Backup rapido creato: ${formatDate(when)}`);
-   renderBackup();
- };
 
  $('downloadFullBackup').onclick=async()=>{
    const btn=$('downloadFullBackup');
@@ -864,46 +845,6 @@ async function renderBackup(){
      renderBackup();
    }
  };
-
-
- $('exportSync').onclick=()=>{
-   const device=($('syncDeviceName').value||'Dispositivo').trim();
-   localStorage.setItem('salesTrackerDeviceName',device);
-   const payload=exportSync(store,device);
-   $('syncStatus').textContent=`Sync esportata: ${formatDate(payload.exportedAt)} · ${payload.store.contracts.length} contratti`;
- };
-
- $('importSyncInput').onchange=async()=>{
-   const file=$('importSyncInput').files?.[0];
-   if(!file)return;
-
-   try{
-     const payload=await readSyncFile(file);
-     const preview=previewMerge(store,payload.store);
-     const box=$('syncPreview');
-     box.classList.remove('hidden');
-     box.innerHTML=`<div class="sync-preview-card">
-       <strong>Confronto sincronizzazione</strong>
-       <div class="muted">File da ${payload.deviceName||'altro dispositivo'} · ${formatDate(payload.exportedAt)}</div>
-       <div class="sync-preview-grid">
-         <div class="sync-preview-item"><small>Nuove pratiche</small><strong>${preview.added}</strong></div>
-         <div class="sync-preview-item"><small>Da aggiornare</small><strong>${preview.updated}</strong></div>
-         <div class="sync-preview-item"><small>Già presenti</small><strong>${preview.unchanged}</strong></div>
-         <div class="sync-preview-item"><small>Totale finale</small><strong>${preview.finalContracts}</strong></div>
-       </div>
-       <button id="confirmSyncImport" style="margin-top:12px">Conferma sincronizzazione</button>
-     </div>`;
-
-     $('confirmSyncImport').onclick=()=>{
-       const result=applyMerge(store,payload.store);
-       store=result.store;
-       persistStore();
-       alert(`Sincronizzazione completata. Nuove: ${result.added} · Aggiornate: ${result.updated}`);
-       box.classList.add('hidden');
-       box.innerHTML='';
-       $('importSyncInput').value='';
-       renderAll();
-     };
    }catch(e){
      console.error(e);
      alert('File Sync non valido o non leggibile.');
@@ -1039,6 +980,28 @@ function renderPeriodManager(){
  $('markPeriodVerified').onclick=()=>{const x=ensurePeriodState(store,active);x.status='verified';x.updatedAt=new Date().toISOString();persistStore();renderAll()};
  $('togglePeriodClosed').onclick=()=>{const x=ensurePeriodState(store,active);x.status=x.status==='closed'?'working':'closed';x.updatedAt=new Date().toISOString();persistStore();renderAll()};
 }
+
+let cloudAutoSyncBusy=false;
+async function autoSyncFromCloud(reason='auto'){
+  if(cloudAutoSyncBusy||!isCloudLinked()||!getCloudSession()?.access_token)return;
+  cloudAutoSyncBusy=true;
+  try{
+    const device=localStorage.getItem('smartTrackerCloudDeviceName')||'Dispositivo';
+    const result=await bootstrapLinkedCloud(store,device);
+    if(result?.store){
+      const changed=result.changed;
+      store=result.store;
+      saveStore(store);
+      createAutoBackup(store);
+      if(changed)renderAll();
+    }
+  }catch(e){
+    console.warn(`Cloud auto-sync (${reason})`,e);
+  }finally{
+    cloudAutoSyncBusy=false;
+  }
+}
+
 function selectedPeriodIsClosed(){const a=store.settings.activeMonth||store.settings.currentMonth;return ensurePeriodState(store,a).status==='closed'}
 function renderAll(){renderPeriodManager();renderHome();renderAgency();renderExcellent();renderCommunity();renderTeam();renderCustomers();renderRegulations();renderArchive();renderBackup()}
 document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>go(b.dataset.view));
@@ -1064,15 +1027,12 @@ if(cloudBoot?.store){
 }
 renderAll();
 
-// Leggero controllo periodico: se un altro dispositivo ha aggiornato il Cloud,
-// scarica e unisce senza interrompere il lavoro locale.
-setInterval(async()=>{
-  if(!isCloudLinked()||!getCloudSession()?.access_token)return;
-  try{
-    const result=await bootstrapLinkedCloud(store,localStorage.getItem('smartTrackerCloudDeviceName')||'Dispositivo');
-    if(result?.changed){
-      store=result.store;
-      saveStore(store);createAutoBackup(store);renderAll();
-    }
-  }catch(e){console.warn('Cloud background check',e)}
-},45000);
+// SmartTracker Cloud AutoSync:
+ // - ogni salvataggio/modifica locale viene inviato da persistStore() dopo ~0,9 s;
+ // - quando l'app torna in primo piano scarica subito eventuali novità;
+ // - mentre resta aperta controlla il Cloud ogni 15 secondi.
+ const triggerForegroundSync=()=>autoSyncFromCloud('foreground');
+ document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')triggerForegroundSync()});
+ window.addEventListener('focus',triggerForegroundSync);
+ window.addEventListener('pageshow',triggerForegroundSync);
+ setInterval(()=>autoSyncFromCloud('timer'),15000);

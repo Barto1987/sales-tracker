@@ -216,14 +216,24 @@ export async function pushCloudStore(store,deviceName='Dispositivo'){
 }
 
 const updatedAtOf=c=>c?.updatedAt||c?.createdAt||c?.date||'';
-function mergeContracts(local=[],remote=[]){
+function mergeDeletedContracts(local={},remote={}){
+  const out={...(local||{})};
+  for(const [id,ts] of Object.entries(remote||{})){
+    if(!out[id] || String(ts)>String(out[id])) out[id]=ts;
+  }
+  return out;
+}
+function mergeContracts(local=[],remote=[],deletedContracts={}){
   const map=new Map();
-  for(const c of local||[])map.set(c.id,c);
+  for(const c of local||[]) map.set(c.id,c);
   for(const r of remote||[]){
     const l=map.get(r.id);
-    if(!l||updatedAtOf(r)>updatedAtOf(l))map.set(r.id,r);
+    if(!l || updatedAtOf(r)>updatedAtOf(l)) map.set(r.id,r);
   }
-  return [...map.values()];
+  return [...map.values()].filter(c=>{
+    const deletedAt=deletedContracts?.[c.id];
+    return !deletedAt || String(updatedAtOf(c))>String(deletedAt);
+  });
 }
 function mergePeriodStates(local={},remote={},prefer='remote'){
   const out={...local};
@@ -246,10 +256,12 @@ function newerOfficial(local={},remote={},prefer='remote'){
   return (r>l||(r===l&&prefer==='remote'))?{...local,...remote}:{...remote,...local};
 }
 export function mergeStores(local={},remote={},prefer='remote'){
+  const deletedContracts=mergeDeletedContracts(local.deletedContracts||{},remote.deletedContracts||{});
   return {
     ...local,...remote,
     version:Math.max(Number(local.version||0),Number(remote.version||0)),
-    contracts:mergeContracts(local.contracts||[],remote.contracts||[]),
+    deletedContracts,
+    contracts:mergeContracts(local.contracts||[],remote.contracts||[],deletedContracts),
     settings:prefer==='remote'?{...(local.settings||{}),...(remote.settings||{})}:{...(remote.settings||{}),...(local.settings||{})},
     officialCommunity:newerOfficial(local.officialCommunity||{},remote.officialCommunity||{},prefer),
     communityManualExtras:prefer==='remote'?{...(local.communityManualExtras||{}),...(remote.communityManualExtras||{})}:{...(remote.communityManualExtras||{}),...(local.communityManualExtras||{})},

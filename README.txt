@@ -1100,14 +1100,33 @@ SMARTTRACKER 3.10.6 — CLOUD ERROR DETAILS
 - Mostra il messaggio reale dell'errore di connessione/login Supabase.
 - Aggiunta cattura errori JavaScript e Promise per evitare errori silenziosi su iOS/PWA.
 
-SMARTTRACKER 3.10.8 — CONNECTION FIX
+SMARTTRACKER 3.11.0 — CONNECTION FIX
 - Diagnostica Cloud aggiornata con endpoint browser-safe.
 - Header apikey + Authorization Bearer publishable key su gateway Supabase.
 - Test esplicito: REST raggiungibile -> Auth raggiungibile -> login.
 - Nessuna modifica a dati, parser, calcoli o sincronizzazione.
 
 
-PATCH 3.10.8
+PATCH 3.11.0
 - Corretto Project URL Supabase con il valore verificato dal dashboard.
 - Publishable key verificata.
 - Cache-busting aggiornato a 3108.
+
+SMARTTRACKER 3.11.0 — AUTO CLOUD
+
+Novità:
+- AutoSync Cloud per nuovi contratti, modifiche ed eliminazioni.
+- Push automatico ~0,9 secondi dopo un salvataggio locale.
+- Pull automatico quando l'app torna in primo piano.
+- Controllo Cloud ogni 15 secondi mentre l'app resta aperta.
+- Eliminazioni protette con tombstone: un contratto eliminato non viene
+  "resuscitato" da un altro dispositivo con dati più vecchi.
+- "Sincronizza ora" rinominato "Forza sincronizzazione" e mantenuto come emergenza.
+- Rimossa la sezione "Backup rapido".
+- Rimossa la sezione legacy "SmartTrackerSync" via file/iCloud Drive.
+- Restano SmartTrackerLocal automatico, backup completo ZIP e ripristino completo.
+- PDF ancora locali sul singolo dispositivo.
+
+Nota:
+La prima inizializzazione di un nuovo dispositivo usa ancora "Scarica e unisci dal Cloud".
+Dopo l'inizializzazione, l'uso normale è automatico.

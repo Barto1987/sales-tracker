@@ -6,6 +6,7 @@ export function emptyStore(){
   return {
     version:3,
     contracts:[],
+    deletedContracts:{},
     settings:{
       currentMonth:'2026-07',
       activeMonth:'2026-07',
@@ -33,6 +34,7 @@ export function loadStore(){
     try{
       const store=JSON.parse(v2);
       store.settings=store.settings||emptyStore().settings;
+      store.deletedContracts=store.deletedContracts||{};
       store.communityManualExtras=store.communityManualExtras||{};
       store.periodStates=store.periodStates||{};
       store.settings.activeMonth=store.settings.activeMonth||store.settings.currentMonth||'2026-07';
@@ -87,6 +89,7 @@ export function importBackupObject(obj){
   const store=emptyStore();
   if(Array.isArray(obj)) store.contracts=migrateLegacy(obj);
   else if(obj&&(obj.version===2||obj.version===3)&&Array.isArray(obj.contracts)){
+    obj.deletedContracts=obj.deletedContracts||{};
     obj.contracts=obj.contracts.map(c=>({
       ...c,
       createdAt:c.createdAt||c.date||new Date().toISOString(),
