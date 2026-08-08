@@ -1137,3 +1137,10 @@ SMARTTRACKER 3.11.1 — LOGIN FIX
 - Diagnostica Supabase mantenuta.
 - AutoSync mantenuto, con avvio ritardato dopo l'inizializzazione.
 - Nessuna modifica ai dati Cloud o alle policy.
+
+SMARTTRACKER 3.11.2 — STARTUP / LOGIN FIX
+- Il pulsante Cloud viene collegato immediatamente, prima di parser e bootstrap.
+- L'interfaccia locale viene renderizzata subito.
+- Parser e bootstrap Cloud partono in background e non possono più bloccare il login.
+- Corretto anche il fallback diagnostico del pulsante.
+- AutoSync, tombstone eliminazioni e database Cloud invariati.

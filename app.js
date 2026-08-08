@@ -20,14 +20,14 @@ window.addEventListener('unhandledrejection',(e)=>{
 });
 
 
-import {loadStore,saveStore,importBackupObject} from './storage.js?v=3111';
-import {TARGETS,generalStats,agencyStats,agencyBreakdown,excellentStats,excellentBreakdown,communityStats,communityBreakdown,teamStats,teamBreakdown,availableMonths,customerList,customerDashboard,customerKey,inflowOf,communityRulesForMonth} from './engines.js?v=3111';
-import {savePdf,openPdf,deletePdf} from './pdf-store.js?v=3111';
-import {initParser,parsePDF} from './parser.js?v=3111';
-import {createAutoBackup,getAutoBackupMeta,getFullBackupMeta,downloadCompleteBackup,restoreCompleteBackup,getArchiveStats,formatBytes,formatDate} from './backup.js?v=3111';
-import {regulationGroups} from './regulations.js?v=3111';
-import {currentMonthKey,monthLabel,quarterFromMonth,availablePeriodMonths,ensurePeriodState,periodStatusLabel,periodStatusIcon,applyGlobalMonth} from './periods.js?v=3111';
-import {cloudLogin,cloudLogout,cloudInfo,uploadLocalFirst,downloadAndMerge,syncNow,bootstrapLinkedCloud,queueCloudPush,getCloudMeta,isCloudLinked,getCloudSession,getCloudEmail,setCloudEmail,runCloudDiagnostics} from './cloud.js?v=3111';
+import {loadStore,saveStore,importBackupObject} from './storage.js?v=3112';
+import {TARGETS,generalStats,agencyStats,agencyBreakdown,excellentStats,excellentBreakdown,communityStats,communityBreakdown,teamStats,teamBreakdown,availableMonths,customerList,customerDashboard,customerKey,inflowOf,communityRulesForMonth} from './engines.js?v=3112';
+import {savePdf,openPdf,deletePdf} from './pdf-store.js?v=3112';
+import {initParser,parsePDF} from './parser.js?v=3112';
+import {createAutoBackup,getAutoBackupMeta,getFullBackupMeta,downloadCompleteBackup,restoreCompleteBackup,getArchiveStats,formatBytes,formatDate} from './backup.js?v=3112';
+import {regulationGroups} from './regulations.js?v=3112';
+import {currentMonthKey,monthLabel,quarterFromMonth,availablePeriodMonths,ensurePeriodState,periodStatusLabel,periodStatusIcon,applyGlobalMonth} from './periods.js?v=3112';
+import {cloudLogin,cloudLogout,cloudInfo,uploadLocalFirst,downloadAndMerge,syncNow,bootstrapLinkedCloud,queueCloudPush,getCloudMeta,isCloudLinked,getCloudSession,getCloudEmail,setCloudEmail,runCloudDiagnostics} from './cloud.js?v=3112';
 
 let store=loadStore(),parsed=null,pendingPdf=null;
 applyGlobalMonth(store,store.settings.activeMonth||store.settings.currentMonth||currentMonthKey());
@@ -39,6 +39,8 @@ function persistStore(){
 }
 createAutoBackup(store);
 const $=id=>document.getElementById(id),money=v=>new Intl.NumberFormat('it-IT',{style:'currency',currency:'EUR'}).format(v||0);
+// Bind Cloud login immediately: must work even if parser/bootstrap is slow or fails.
+queueMicrotask(()=>{try{bindCloudLoginSafe()}catch(e){console.error('Cloud login bind',e)}});
 const pct=(v,t)=>Math.min((v/t)*100,100);
 
 const pad=n=>String(n).padStart(2,'0');
@@ -588,7 +590,7 @@ async function saveParsed(){
      ?[{agent:'Jacopo',share:.5},{agent:'Luciano',share:.5}]
      :[{agent,share:1}];
  const nowIso=new Date().toISOString();
- const contract={id:'C-'+Date.now(),createdAt:nowIso,updatedAt:nowIso,date:$('contractDate').value,offer:parsed.meta.offer,client:parsed.meta.client||'Da verificare',vat:parsed.meta.vat,customerCode:parsed.meta.customerCode||'',prospect,agent,includeAgency,teamAllocations,status:'Valido',pdfRef:parsed.filename,pdfStored:false,notes:'SmartTracker 3.11.1',services:[]};
+ const contract={id:'C-'+Date.now(),createdAt:nowIso,updatedAt:nowIso,date:$('contractDate').value,offer:parsed.meta.offer,client:parsed.meta.client||'Da verificare',vat:parsed.meta.vat,customerCode:parsed.meta.customerCode||'',prospect,agent,includeAgency,teamAllocations,status:'Valido',pdfRef:parsed.filename,pdfStored:false,notes:'SmartTracker 3.11.2',services:[]};
  for(const el of rows){
    const service=el.querySelector('.pr-service').value;
    const mnpEl=el.querySelector('.pr-mnp');
@@ -692,6 +694,7 @@ function bindCloudLoginSafe(){
  if(!btn || btn.dataset.safeLoginBound==='1') return;
  btn.dataset.safeLoginBound='1';
  btn.onclick=async()=>{
+   btn.dataset.clickedAt=String(Date.now());
    const email=($('cloudEmail')?.value||'').trim();
    const password=$('cloudPassword')?.value||'';
    if(!email)return alert('Inserisci l’email Cloud.');
@@ -741,10 +744,10 @@ async function renderCloud(){
 
 function ensureCloudButtonDiagnosticFallback(){
  const btn=$('cloudLogin');
- if(!btn || btn.dataset.cloudBound==='1')return;
+ if(!btn || btn.dataset.safeLoginBound==='1')return;
  btn.addEventListener('click',()=>{
    setTimeout(()=>{
-     if(btn.dataset.cloudBound!=='1'){
+     if(btn.dataset.safeLoginBound!=='1'){
        const box=$('cloudDiagnostics');
        if(box){
          box.classList.remove('hidden');
@@ -971,17 +974,23 @@ $('archiveAgent').onchange=renderArchive;
 $('archiveAgency').onchange=renderArchive;
 
 $('contractDate').valueAsDate=new Date();
-await initParser();
 ensureCloudButtonDiagnosticFallback();
+bindCloudLoginSafe();
+
+// Render local UI immediately. Parser and Cloud bootstrap must never block login/UI.
+renderAll();
+
+initParser().catch(e=>console.error('Parser init',e));
 
 const cloudDevice=localStorage.getItem('smartTrackerCloudDeviceName')||localStorage.getItem('salesTrackerDeviceName')||'Dispositivo';
-const cloudBoot=await bootstrapLinkedCloud(store,cloudDevice);
-if(cloudBoot?.store){
-  store=cloudBoot.store;
-  saveStore(store);
-  createAutoBackup(store);
-}
-renderAll();
+bootstrapLinkedCloud(store,cloudDevice).then(cloudBoot=>{
+  if(cloudBoot?.store){
+    store=cloudBoot.store;
+    saveStore(store);
+    createAutoBackup(store);
+    renderAll();
+  }
+}).catch(e=>console.error('Cloud bootstrap',e));
 
 // SmartTracker Cloud AutoSync:
  // - ogni salvataggio/modifica locale viene inviato da persistStore() dopo ~0,9 s;
