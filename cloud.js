@@ -1,4 +1,4 @@
-const PROJECT_URL='https://exosbflachjzhzjtikah.supabase.co';
+const PROJECT_URL='https://exosbflachizhzjtjkah.supabase.co';
 const PUBLISHABLE_KEY='sb_publishable_9HWmkG6IFXL9l0F9L_l6tA_lOuecELJ';
 
 const SESSION_KEY='smartTrackerCloudSessionV2';
