@@ -36,7 +36,9 @@ async function timedFetch(url,options={},timeoutMs=12000){
 async function rawAuth(path,options={}){
   const headers={
     apikey:PUBLISHABLE_KEY,
+    Authorization:`Bearer ${PUBLISHABLE_KEY}`,
     'Content-Type':'application/json',
+    Accept:'application/json',
     ...(options.headers||{})
   };
   return timedFetch(PROJECT_URL+path,{...options,headers});
@@ -91,35 +93,73 @@ async function dbFetch(path,options={}){
 export async function runCloudDiagnostics(email,password){
   const steps=[];
   const push=(ok,label,detail='')=>steps.push({ok,label,detail});
+
+  // 1) Project / REST reachability. This endpoint is intended for browser access.
   try{
-    const health=await timedFetch(PROJECT_URL+'/auth/v1/health',{headers:{apikey:PUBLISHABLE_KEY}},10000);
-    push(health.ok,'Supabase raggiungibile',`HTTP ${health.status}`);
-    if(!health.ok)return {ok:false,steps,error:`Health endpoint HTTP ${health.status}`};
+    const res=await timedFetch(PROJECT_URL+'/rest/v1/',{
+      method:'GET',
+      headers:{
+        apikey:PUBLISHABLE_KEY,
+        Authorization:`Bearer ${PUBLISHABLE_KEY}`,
+        Accept:'application/json'
+      }
+    },10000);
+    // Supabase may answer 200/404 depending gateway version; any HTTP response proves reachability/CORS.
+    const reachable = res.status >= 200 && res.status < 500;
+    push(reachable,'Supabase raggiungibile',`HTTP ${res.status}`);
+    if(!reachable) return {ok:false,steps,error:`Gateway Supabase HTTP ${res.status}`};
   }catch(e){
-    push(false,'Supabase raggiungibile',e.name==='AbortError'?'Timeout di rete':e.message);
+    push(false,'Supabase raggiungibile',e.name==='AbortError'?'Timeout di rete':(e.message||String(e)));
     return {ok:false,steps,error:'Connessione a Supabase non riuscita'};
   }
 
+  // 2) Auth settings endpoint with standard Supabase browser headers.
   try{
-    const settings=await timedFetch(PROJECT_URL+'/auth/v1/settings',{headers:{apikey:PUBLISHABLE_KEY}},10000);
-    push(settings.ok,'Publishable key accettata',`HTTP ${settings.status}`);
-    if(!settings.ok)return {ok:false,steps,error:`API key rifiutata: HTTP ${settings.status}`};
-  }catch(e){
-    push(false,'Publishable key accettata',e.message);
-    return {ok:false,steps,error:'Impossibile verificare la publishable key'};
-  }
-
-  try{
-    const res=await rawAuth('/auth/v1/token?grant_type=password',{
-      method:'POST',
-      body:JSON.stringify({email:String(email||'').trim(),password:String(password||'')})
-    });
+    const res=await timedFetch(PROJECT_URL+'/auth/v1/settings',{
+      method:'GET',
+      headers:{
+        apikey:PUBLISHABLE_KEY,
+        Authorization:`Bearer ${PUBLISHABLE_KEY}`,
+        Accept:'application/json'
+      }
+    },10000);
     const text=await res.text();
     let body={}; try{body=JSON.parse(text)}catch{body={raw:text}}
     if(!res.ok){
-      push(false,'Login Auth',body?.msg||body?.message||body?.error_description||`HTTP ${res.status}`);
-      return {ok:false,steps,error:body?.msg||body?.message||body?.error_description||`Login fallito (${res.status})`,status:res.status,body};
+      push(false,'Auth raggiungibile',body?.message||body?.msg||`HTTP ${res.status}`);
+      return {ok:false,steps,error:body?.message||body?.msg||`Auth HTTP ${res.status}`,status:res.status,body};
     }
+    push(true,'Auth raggiungibile',`HTTP ${res.status}`);
+  }catch(e){
+    push(false,'Auth raggiungibile',e.name==='AbortError'?'Timeout di rete':(e.message||String(e)));
+    return {ok:false,steps,error:'Endpoint Auth non raggiungibile'};
+  }
+
+  // 3) Password login.
+  try{
+    const res=await timedFetch(PROJECT_URL+'/auth/v1/token?grant_type=password',{
+      method:'POST',
+      headers:{
+        apikey:PUBLISHABLE_KEY,
+        Authorization:`Bearer ${PUBLISHABLE_KEY}`,
+        'Content-Type':'application/json',
+        Accept:'application/json'
+      },
+      body:JSON.stringify({
+        email:String(email||'').trim(),
+        password:String(password||'')
+      })
+    },12000);
+
+    const text=await res.text();
+    let body={}; try{body=JSON.parse(text)}catch{body={raw:text}}
+
+    if(!res.ok){
+      const detail=body?.error_description||body?.msg||body?.message||body?.error||`HTTP ${res.status}`;
+      push(false,'Login Auth',detail);
+      return {ok:false,steps,error:detail,status:res.status,body};
+    }
+
     push(true,'Login Auth',body?.user?.email||'Autenticazione riuscita');
     const s={
       access_token:body.access_token,
@@ -131,8 +171,8 @@ export async function runCloudDiagnostics(email,password){
     setCloudEmail(email);
     return {ok:true,steps,session:s};
   }catch(e){
-    push(false,'Login Auth',e.name==='AbortError'?'Timeout':e.message);
-    return {ok:false,steps,error:e.message};
+    push(false,'Login Auth',e.name==='AbortError'?'Timeout di rete':(e.message||String(e)));
+    return {ok:false,steps,error:e.message||String(e)};
   }
 }
 

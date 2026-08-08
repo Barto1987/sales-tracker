@@ -1099,3 +1099,9 @@ SMARTTRACKER 3.10.6 — CLOUD ERROR DETAILS
 - Nessuna modifica ai dati o alla sincronizzazione.
 - Mostra il messaggio reale dell'errore di connessione/login Supabase.
 - Aggiunta cattura errori JavaScript e Promise per evitare errori silenziosi su iOS/PWA.
+
+SMARTTRACKER 3.10.7 — CONNECTION FIX
+- Diagnostica Cloud aggiornata con endpoint browser-safe.
+- Header apikey + Authorization Bearer publishable key su gateway Supabase.
+- Test esplicito: REST raggiungibile -> Auth raggiungibile -> login.
+- Nessuna modifica a dati, parser, calcoli o sincronizzazione.
