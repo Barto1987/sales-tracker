@@ -20,15 +20,16 @@ window.addEventListener('unhandledrejection',(e)=>{
 });
 
 
-import {loadStore,saveStore,importBackupObject} from './storage.js?v=3114';
-import {TARGETS,generalStats,agencyStats,agencyBreakdown,excellentStats,excellentBreakdown,communityStats,communityBreakdown,teamStats,teamBreakdown,availableMonths,customerList,customerDashboard,customerKey,inflowOf,communityRulesForMonth} from './engines.js?v=3114';
-import {savePdf,openPdf,deletePdf} from './pdf-store.js?v=3114';
-import {initParser,parsePDF} from './parser.js?v=3114';
-import {createAutoBackup,getAutoBackupMeta,getFullBackupMeta,downloadDatabaseBackup,downloadCompleteBackup,restoreCompleteBackup,getArchiveStats,formatBytes,formatDate} from './backup.js?v=3114';
-import {exportSync,readSyncFile,previewMerge,applyMerge,getSyncMeta} from './sync.js?v=3114';
-import {regulationGroups} from './regulations.js?v=3114';
-import {currentMonthKey,monthLabel,quarterFromMonth,availablePeriodMonths,ensurePeriodState,periodStatusLabel,periodStatusIcon,applyGlobalMonth} from './periods.js?v=3114';
-import {cloudLogin,cloudLogout,cloudInfo,uploadLocalFirst,downloadAndMerge,syncNow,bootstrapLinkedCloud,queueCloudPush,getCloudMeta,isCloudLinked,getCloudSession,getCloudEmail,setCloudEmail,runCloudDiagnostics} from './cloud.js?v=3114';
+import {loadStore,saveStore,importBackupObject} from './storage.js?v=3120';
+import {TARGETS,generalStats,agencyStats,agencyBreakdown,excellentStats,excellentBreakdown,communityStats,communityBreakdown,teamStats,teamBreakdown,availableMonths,customerList,customerDashboard,customerKey,inflowOf,communityRulesForMonth} from './engines.js?v=3120';
+import {savePdf,openPdf,deletePdf} from './pdf-store.js?v=3120';
+import {initParser,parsePDF} from './parser.js?v=3120';
+import {createAutoBackup,getAutoBackupMeta,getFullBackupMeta,downloadDatabaseBackup,downloadCompleteBackup,restoreCompleteBackup,getArchiveStats,formatBytes,formatDate} from './backup.js?v=3120';
+import {exportSync,readSyncFile,previewMerge,applyMerge,getSyncMeta} from './sync.js?v=3120';
+import {regulationGroups} from './regulations.js?v=3120';
+import {currentMonthKey,monthLabel,quarterFromMonth,availablePeriodMonths,ensurePeriodState,periodStatusLabel,periodStatusIcon,applyGlobalMonth} from './periods.js?v=3120';
+import {cloudLogin,cloudLogout,cloudInfo,uploadLocalFirst,downloadAndMerge,syncNow,bootstrapLinkedCloud,queueCloudPush,getCloudMeta,isCloudLinked,getCloudSession,getCloudEmail,setCloudEmail,runCloudDiagnostics} from './cloud.js?v=3120';
+import {commissionsForPeriod} from './commissions.js?v=3120';
 
 let store=loadStore(),parsed=null,pendingPdf=null;
 applyGlobalMonth(store,store.settings.activeMonth||store.settings.currentMonth||currentMonthKey());
@@ -589,7 +590,7 @@ async function saveParsed(){
      ?[{agent:'Jacopo',share:.5},{agent:'Luciano',share:.5}]
      :[{agent,share:1}];
  const nowIso=new Date().toISOString();
- const contract={id:'C-'+Date.now(),createdAt:nowIso,updatedAt:nowIso,date:$('contractDate').value,offer:parsed.meta.offer,client:parsed.meta.client||'Da verificare',vat:parsed.meta.vat,customerCode:parsed.meta.customerCode||'',prospect,agent,includeAgency,teamAllocations,status:'Valido',pdfRef:parsed.filename,pdfStored:false,notes:'SmartTracker 3.11.4',services:[]};
+ const contract={id:'C-'+Date.now(),createdAt:nowIso,updatedAt:nowIso,date:$('contractDate').value,offer:parsed.meta.offer,client:parsed.meta.client||'Da verificare',vat:parsed.meta.vat,customerCode:parsed.meta.customerCode||'',prospect,agent,includeAgency,teamAllocations,status:'Valido',pdfRef:parsed.filename,pdfStored:false,notes:'SmartTracker 3.12.0',services:[]};
  for(const el of rows){
    const service=el.querySelector('.pr-service').value;
    const mnpEl=el.querySelector('.pr-mnp');
@@ -1024,6 +1025,53 @@ function openRegulation(id){
 }
 
 
+function renderCommissions(){
+ const box=$('commissionsSummary'),list=$('commissionsList'),ruleBox=$('commissionsRules');
+ if(!box||!list||!ruleBox)return;
+
+ const q=store.settings.agencyPeriod||{start:'2026-07-01',end:'2026-09-30'};
+ const data=commissionsForPeriod(store,q.start,q.end);
+ const t=data.target;
+
+ box.innerHTML=`
+ <div class="card commission-hero">
+   <small>STIMA PROVVIGIONI · Q3 2026</small>
+   <strong>${money(data.estimated)}</strong>
+   <div class="muted">Base calcolabile + extra già determinabili. Non include ancora voci con regole incomplete o bonus esterni da confermare.</div>
+ </div>
+ <div class="grid commission-kpis">
+   <div class="card kpi"><small>Base calcolabile</small><strong>${money(data.base)}</strong></div>
+   <div class="card kpi"><small>Extra determinabili</small><strong>${money(data.deterministicExtra)}</strong></div>
+   <div class="card kpi"><small>Voci da completare</small><strong>${data.manualCount}</strong></div>
+   <div class="card kpi"><small>Target individuale</small><strong>${t.won?'Raggiunto':'In corso'}</strong></div>
+ </div>`;
+
+ ruleBox.innerHTML=`
+ <div class="card commission-rules-card">
+   <h3>Motore provvigionale — stato attuale</h3>
+   <div class="commission-rule-row"><span>Core / ADSL / One Net / Easy Deal</span><b class="ok-text">Calcolo base attivo</b></div>
+   <div class="commission-rule-row"><span>Prospect</span><b class="ok-text">Calcolato quando presente</b></div>
+   <div class="commission-rule-row"><span>Target individuale Q3</span><b>${t.won?'Applicato':'Non ancora applicato'}</b></div>
+   <div class="commission-rule-row"><span>Target Agenzia + Rush</span><b class="pending-text">Da confermare</b></div>
+   <div class="commission-rule-row"><span>Digital / Energy / Gas</span><b class="pending-text">Listino da completare</b></div>
+   <p class="muted" style="margin-top:12px">La prima versione evita di attribuire automaticamente importi non ancora supportati da una regola certa.</p>
+ </div>`;
+
+ const rows=[...data.rows].sort((a,b)=>String(b.date).localeCompare(String(a.date)));
+ list.innerHTML=rows.length?rows.map(r=>`
+   <div class="card commission-row">
+     <div class="commission-row-head">
+       <div><strong>${r.client}</strong><div class="muted">${r.date} · ${r.service}${r.product&&r.product!==r.service?' · '+r.product:''}</div></div>
+       <div class="commission-amount">${r.status==='calculated'?money(r.estimated):'—'}</div>
+     </div>
+     ${r.status==='calculated'
+       ?`<div class="commission-breakdown"><span>Base ${money(r.base)}</span><span>Extra ${money(r.deterministicExtra)}</span><span>Inflow ${money(r.inflow)}</span></div>
+         ${r.pending?.length?`<div class="commission-pending">Potenziali non conteggiati: ${r.pending.join(' · ')}</div>`:''}`
+       :`<div class="commission-pending">${r.note}</div>`}
+   </div>`).join('')
+   :'<div class="card"><p class="muted">Nessuna pratica nel trimestre selezionato.</p></div>';
+}
+
 function renderPeriodManager(){
  const select=$('globalMonthSelect');if(!select)return;
  const active=store.settings.activeMonth||store.settings.currentMonth||currentMonthKey();
@@ -1035,12 +1083,12 @@ function renderPeriodManager(){
  $('activeQuarterInfo').textContent=`Excellent e Gara Agenzia: ${q.label} · ${q.start} → ${q.end}`;
  $('markPeriodWorking').disabled=state.status==='working';$('markPeriodVerified').disabled=state.status==='verified';$('togglePeriodClosed').textContent=state.status==='closed'?'Riapri mese':'Chiudi mese';
  select.onchange=()=>{applyGlobalMonth(store,select.value);persistStore();renderAll()};
- $('markPeriodWorking').onclick=()=>{const x=ensurePeriodState(store,active);x.status='working';x.updatedAt=new Date().toISOString();persistStore();renderAll()};
- $('markPeriodVerified').onclick=()=>{const x=ensurePeriodState(store,active);x.status='verified';x.updatedAt=new Date().toISOString();persistStore();renderAll()};
- $('togglePeriodClosed').onclick=()=>{const x=ensurePeriodState(store,active);x.status=x.status==='closed'?'working':'closed';x.updatedAt=new Date().toISOString();persistStore();renderAll()};
+ $('markPeriodWorking').onclick=()=>{const x=ensurePeriodState(store,active);x.status='working';x.manual=true;x.updatedAt=new Date().toISOString();persistStore();renderAll()};
+ $('markPeriodVerified').onclick=()=>{const x=ensurePeriodState(store,active);x.status='verified';x.manual=true;x.updatedAt=new Date().toISOString();persistStore();renderAll()};
+ $('togglePeriodClosed').onclick=()=>{const x=ensurePeriodState(store,active);x.status=x.status==='closed'?'working':'closed';x.manual=true;x.updatedAt=new Date().toISOString();persistStore();renderAll()};
 }
 function selectedPeriodIsClosed(){const a=store.settings.activeMonth||store.settings.currentMonth;return ensurePeriodState(store,a).status==='closed'}
-function renderAll(){renderPeriodManager();renderHome();renderAgency();renderExcellent();renderCommunity();renderTeam();renderCustomers();renderRegulations();renderArchive();renderBackup()}
+function renderAll(){renderPeriodManager();renderHome();renderAgency();renderExcellent();renderCommunity();renderTeam();renderCommissions();renderCustomers();renderRegulations();renderArchive();renderBackup()}
 document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>go(b.dataset.view));
 $('archiveSearch').oninput=renderArchive;
 $('pdfInput').onchange=e=>e.target.files[0]&&handlePDF(e.target.files[0]);

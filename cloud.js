@@ -238,8 +238,19 @@ function mergeContracts(local=[],remote=[],deletedContracts={}){
 function mergePeriodStates(local={},remote={},prefer='remote'){
   const out={...local};
   for(const [k,r] of Object.entries(remote||{})){
-    const l=out[k],lt=l?.updatedAt||'',rt=r?.updatedAt||'';
-    if(!l||rt>lt||(rt===lt&&prefer==='remote'))out[k]=r;
+    const l=out[k];
+    if(!l){out[k]=r;continue}
+
+    const lManual=l?.manual===true || l?.status!=='working';
+    const rManual=r?.manual===true || r?.status!=='working';
+
+    // Un semplice "working" creato automaticamente su un nuovo device
+    // non deve riaprire un mese già verificato/chiuso sul Cloud.
+    if(!lManual && rManual){out[k]=r;continue}
+    if(lManual && !rManual)continue;
+
+    const lt=l?.updatedAt||'',rt=r?.updatedAt||'';
+    if(rt>lt||(rt===lt&&prefer==='remote'))out[k]=r;
   }
   return out;
 }

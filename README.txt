@@ -1129,3 +1129,15 @@ SMARTTRACKER 3.11.4 — LOGO UPDATE
 - Nessuna modifica funzionale rispetto alla 3.11.3.
 - Nuova icona rossa piena con bersaglio e freccia.
 - Aggiornate icone PWA 192x192, 512x512 e Apple Touch Icon.
+
+SMARTTRACKER 3.12.0 — PROVVIGIONI
+
+NOVITÀ
+- Nuova sezione "Provvigioni" nella barra inferiore.
+- Prima stima Q3 2026 con base calcolabile ed extra già determinabili.
+- Core / ADSL / One Net / Easy Deal gestiti con le regole già raccolte.
+- Digital, Energy/Gas e bonus non ancora certi restano visibili come "da completare", senza inventare importi.
+- Fix definitivo stato mese: uno stato "working" creato automaticamente su un nuovo device non può più riaprire un mese verificato/chiuso nel Cloud.
+- Le azioni manuali In lavorazione / Verificato / Chiudi / Riapri vengono marcate come manuali e sincronizzate.
+- Fix barra inferiore: la voce selezionata è ora bianca con icona/testo rossi, quindi sempre leggibile.
+- Nessuna modifica a Supabase Storage/PDF Cloud in questa release.
