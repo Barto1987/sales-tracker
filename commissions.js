@@ -1,4 +1,4 @@
-// SmartTracker 3.12.0 — prima base del motore Provvigioni.
+// SmartTracker 3.12.1 — prima base del motore Provvigioni.
 // Q3 2026: calcoliamo solo le parti supportate dalle regole già raccolte.
 // Le voci ancora ambigue restano esplicitamente "da confermare".
 

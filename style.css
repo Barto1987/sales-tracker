@@ -636,7 +636,7 @@ input:focus,select:focus,textarea:focus{
 .cloud-auto-note{margin-top:10px;padding:10px 12px;border-radius:12px;background:#edf9f1;color:#176b35;font-weight:800;font-size:12px}
 
 
-/* SmartTracker 3.12.0 — navigation active-state visibility */
+/* SmartTracker 3.12.1 — navigation active-state visibility */
 .app-nav{
   grid-template-columns:repeat(7,minmax(62px,1fr))!important;
   overflow-x:auto;
@@ -676,4 +676,88 @@ input:focus,select:focus,textarea:focus{
 @media(max-width:600px){
   .commission-kpis{grid-template-columns:1fr 1fr!important}
   .app-nav{grid-template-columns:repeat(7,minmax(66px,1fr))!important}
+}
+
+
+/* SmartTracker 3.12.1 — menu iPhone + pulsante Nuovo in testata */
+.smart-header{
+  position:sticky;
+  top:0;
+  z-index:40;
+  background:var(--brand)!important;
+  color:#fff;
+  padding:calc(14px + env(safe-area-inset-top)) 18px 15px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:14px;
+  box-shadow:0 4px 18px rgba(133,0,0,.12);
+}
+.smart-header-copy{min-width:0}
+.smart-header .title{
+  font-size:22px;
+  line-height:1.05;
+  font-weight:900;
+  letter-spacing:-.035em;
+}
+.smart-header .sub{
+  margin-top:5px;
+  font-size:12px;
+  opacity:.9;
+  font-weight:600;
+}
+.header-new-contract{
+  flex:0 0 46px;
+  width:46px;
+  height:46px;
+  min-height:46px;
+  margin:0!important;
+  padding:0!important;
+  border-radius:50%!important;
+  border:2px solid rgba(255,255,255,.95)!important;
+  background:#fff!important;
+  color:var(--brand)!important;
+  display:flex!important;
+  align-items:center;
+  justify-content:center;
+  font-size:31px!important;
+  line-height:1!important;
+  font-weight:800!important;
+  box-shadow:0 5px 16px rgba(100,0,0,.22)!important;
+  -webkit-tap-highlight-color:transparent;
+}
+.header-new-contract:active{
+  transform:scale(.96);
+}
+
+.app-nav{
+  grid-template-columns:repeat(6,minmax(0,1fr))!important;
+  overflow-x:hidden!important;
+}
+.app-nav button{
+  min-width:0!important;
+  padding-left:2px!important;
+  padding-right:2px!important;
+}
+.app-nav button span:last-child{
+  font-size:10px;
+  white-space:nowrap;
+}
+
+@media(max-width:600px){
+  .app-nav{
+    grid-template-columns:repeat(6,minmax(0,1fr))!important;
+    overflow-x:hidden!important;
+  }
+  .smart-header{
+    padding-left:16px;
+    padding-right:16px;
+  }
+  .smart-header .title{font-size:21px}
+  .header-new-contract{
+    flex-basis:44px;
+    width:44px;
+    height:44px;
+    min-height:44px;
+  }
 }

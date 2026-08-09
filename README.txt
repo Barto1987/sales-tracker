@@ -1141,3 +1141,12 @@ NOVITÀ
 - Le azioni manuali In lavorazione / Verificato / Chiudi / Riapri vengono marcate come manuali e sincronizzate.
 - Fix barra inferiore: la voce selezionata è ora bianca con icona/testo rossi, quindi sempre leggibile.
 - Nessuna modifica a Supabase Storage/PDF Cloud in questa release.
+
+SMARTTRACKER 3.12.1 — MENU IPHONE
+
+- Rimossa la voce "Nuovo" dalla barra inferiore.
+- Aggiunto pulsante + bianco/rosso a destra del titolo SmartTracker.
+- Il + apre direttamente la schermata "Nuovo contratto".
+- Barra inferiore fissata a 6 sezioni: Home, Agenzia, Excellent, Community, Squadra, Provvigioni.
+- Eliminato lo scorrimento orizzontale del menu su iPhone.
+- Nessuna modifica ai dati, al Cloud AutoSync o al motore Provvigioni della 3.12.0.
