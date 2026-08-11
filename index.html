@@ -7,14 +7,14 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icon-192.png">
-<link rel="stylesheet" href="style.css?v=3122">
-<title>SmartTracker 3.12.2</title>
-  <link rel="apple-touch-icon" href="apple-touch-icon.png?v=3122">
+<link rel="stylesheet" href="style.css?v=3123">
+<title>SmartTracker 3.12.3</title>
+  <link rel="apple-touch-icon" href="apple-touch-icon.png?v=3123">
 </head>
 <body>
 <header class="smart-header">
   <div class="smart-header-copy">
-    <div class="title">SmartTracker 3.12.2</div>
+    <div class="title">SmartTracker 3.12.3</div>
     <div class="sub">Cruscotto commerciale personale</div>
   </div>
   <button id="headerNewContract" class="header-new-contract" type="button" aria-label="Nuovo contratto" title="Nuovo contratto">＋</button>
@@ -231,39 +231,17 @@
 <section id="commissions" class="view">
   <div class="section-kicker">ECONOMICS</div>
   <h2>Provvigioni</h2>
-
-  <div class="card commission-controls">
-    <div class="row">
-      <div>
-        <label>Agente</label>
-        <select id="commissionAgent"></select>
-      </div>
-      <div>
-        <label>Periodo regole</label>
-        <select id="commissionQuarter">
-          <option value="2026-Q3">Q3 2026 · Lug–Set</option>
-        </select>
-      </div>
-    </div>
-
-    <label style="margin-top:10px">Gara Agenzia · esito trimestrale</label>
-    <select id="commissionAgencyResult">
-      <option value="pending">Da definire</option>
-      <option value="yes">Sì · raggiunta</option>
-      <option value="no">No · non raggiunta</option>
-    </select>
-    <div class="field-hint">La Gara Agenzia è distinta dalla gara individuale. Se confermata, abilita il +1 canone solo sui prodotti ammessi.</div>
+  <div class="card regulations-intro">
+    <h3>Prima base operativa</h3>
+    <p class="muted">Stima delle provvigioni sulle pratiche del trimestre. Le componenti non ancora definite dal listino restano separate e non vengono sommate.</p>
   </div>
-
   <div id="commissionsSummary"></div>
   <div id="commissionsRules"></div>
-  <div id="commissionsCalendar"></div>
-
-  <h3 style="margin-top:18px">Dettaglio economico</h3>
+  <h3 style="margin-top:18px">Dettaglio pratiche</h3>
   <div id="commissionsList"></div>
 </section>
 
-<section id="regulations class="view">
+<section id="regulations" class="view">
   <h2>Centro Regolamenti</h2>
   <div class="card regulations-intro">
     <h3>Regole e storico campagne</h3>
@@ -283,8 +261,8 @@
 <button data-view="team"><span class="nav-icon">♟</span><span>Squadra</span></button>
 <button data-view="commissions"><span class="nav-icon">€</span><span>Provvig.</span></button>
 </nav>
-<script src="jszip.min.js?v=3122"></script>
-<script type="module" src="app.js?v=3122"></script>
+<script src="jszip.min.js?v=3123"></script>
+<script type="module" src="app.js?v=3123"></script>
 <script>
 (async()=>{
   if('serviceWorker' in navigator){

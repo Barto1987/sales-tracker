@@ -20,16 +20,16 @@ window.addEventListener('unhandledrejection',(e)=>{
 });
 
 
-import {loadStore,saveStore,importBackupObject} from './storage.js?v=3122';
-import {TARGETS,generalStats,agencyStats,agencyBreakdown,excellentStats,excellentBreakdown,communityStats,communityBreakdown,teamStats,teamBreakdown,availableMonths,customerList,customerDashboard,customerKey,inflowOf,communityRulesForMonth} from './engines.js?v=3122';
-import {savePdf,openPdf,deletePdf} from './pdf-store.js?v=3122';
-import {initParser,parsePDF} from './parser.js?v=3122';
-import {createAutoBackup,getAutoBackupMeta,getFullBackupMeta,downloadDatabaseBackup,downloadCompleteBackup,restoreCompleteBackup,getArchiveStats,formatBytes,formatDate} from './backup.js?v=3122';
-import {exportSync,readSyncFile,previewMerge,applyMerge,getSyncMeta} from './sync.js?v=3122';
-import {regulationGroups} from './regulations.js?v=3122';
-import {currentMonthKey,monthLabel,quarterFromMonth,availablePeriodMonths,ensurePeriodState,periodStatusLabel,periodStatusIcon,applyGlobalMonth} from './periods.js?v=3122';
-import {cloudLogin,cloudLogout,cloudInfo,uploadLocalFirst,downloadAndMerge,syncNow,bootstrapLinkedCloud,queueCloudPush,getCloudMeta,isCloudLinked,getCloudSession,getCloudEmail,setCloudEmail,runCloudDiagnostics} from './cloud.js?v=3122';
-import {commissionReport,setAgencyResult} from './commissions.js?v=3122';
+import {loadStore,saveStore,importBackupObject} from './storage.js?v=3123';
+import {TARGETS,generalStats,agencyStats,agencyBreakdown,excellentStats,excellentBreakdown,communityStats,communityBreakdown,teamStats,teamBreakdown,availableMonths,customerList,customerDashboard,customerKey,inflowOf,communityRulesForMonth} from './engines.js?v=3123';
+import {savePdf,openPdf,deletePdf} from './pdf-store.js?v=3123';
+import {initParser,parsePDF} from './parser.js?v=3123';
+import {createAutoBackup,getAutoBackupMeta,getFullBackupMeta,downloadDatabaseBackup,downloadCompleteBackup,restoreCompleteBackup,getArchiveStats,formatBytes,formatDate} from './backup.js?v=3123';
+import {exportSync,readSyncFile,previewMerge,applyMerge,getSyncMeta} from './sync.js?v=3123';
+import {regulationGroups} from './regulations.js?v=3123';
+import {currentMonthKey,monthLabel,quarterFromMonth,availablePeriodMonths,ensurePeriodState,periodStatusLabel,periodStatusIcon,applyGlobalMonth} from './periods.js?v=3123';
+import {cloudLogin,cloudLogout,cloudInfo,uploadLocalFirst,downloadAndMerge,syncNow,bootstrapLinkedCloud,queueCloudPush,getCloudMeta,isCloudLinked,getCloudSession,getCloudEmail,setCloudEmail,runCloudDiagnostics} from './cloud.js?v=3123';
+import {commissionsForPeriod} from './commissions.js?v=3123';
 
 let store=loadStore(),parsed=null,pendingPdf=null;
 applyGlobalMonth(store,store.settings.activeMonth||store.settings.currentMonth||currentMonthKey());
@@ -590,7 +590,7 @@ async function saveParsed(){
      ?[{agent:'Jacopo',share:.5},{agent:'Luciano',share:.5}]
      :[{agent,share:1}];
  const nowIso=new Date().toISOString();
- const contract={id:'C-'+Date.now(),createdAt:nowIso,updatedAt:nowIso,date:$('contractDate').value,offer:parsed.meta.offer,client:parsed.meta.client||'Da verificare',vat:parsed.meta.vat,customerCode:parsed.meta.customerCode||'',prospect,agent,includeAgency,teamAllocations,status:'Valido',pdfRef:parsed.filename,pdfStored:false,notes:'SmartTracker 3.12.2',services:[]};
+ const contract={id:'C-'+Date.now(),createdAt:nowIso,updatedAt:nowIso,date:$('contractDate').value,offer:parsed.meta.offer,client:parsed.meta.client||'Da verificare',vat:parsed.meta.vat,customerCode:parsed.meta.customerCode||'',prospect,agent,includeAgency,teamAllocations,status:'Valido',pdfRef:parsed.filename,pdfStored:false,notes:'SmartTracker 3.12.3',services:[]};
  for(const el of rows){
    const service=el.querySelector('.pr-service').value;
    const mnpEl=el.querySelector('.pr-mnp');
@@ -1026,85 +1026,53 @@ function openRegulation(id){
 
 
 function renderCommissions(){
- const summary=$('commissionsSummary'),list=$('commissionsList'),ruleBox=$('commissionsRules'),calendar=$('commissionsCalendar');
- if(!summary||!list||!ruleBox||!calendar)return;
+ const box=$('commissionsSummary'),list=$('commissionsList'),ruleBox=$('commissionsRules');
+ if(!box||!list||!ruleBox)return;
 
- store.settings.commissions=store.settings.commissions||{selectedAgent:'Francesco',selectedQuarter:'2026-Q3',agencyResults:{}};
- const agent=store.settings.commissions.selectedAgent||'Francesco';
- const q=store.settings.commissions.selectedQuarter||'2026-Q3';
- const data=commissionReport(store,agent,q);
+ const q=store.settings.agencyPeriod||{start:'2026-07-01',end:'2026-09-30'};
+ const data=commissionsForPeriod(store,q.start,q.end);
  const t=data.target;
 
- const agentSel=$('commissionAgent');
- if(agentSel){
-   agentSel.innerHTML=(store.settings.agents||['Francesco','Jacopo','Luciano']).map(a=>`<option ${a===agent?'selected':''}>${a}</option>`).join('');
-   agentSel.onchange=()=>{store.settings.commissions.selectedAgent=agentSel.value;persistStore();renderCommissions()};
- }
- const quarterSel=$('commissionQuarter');
- if(quarterSel){quarterSel.value=q;quarterSel.onchange=()=>{store.settings.commissions.selectedQuarter=quarterSel.value;persistStore();renderCommissions()}}
-
- const agencySel=$('commissionAgencyResult');
- if(agencySel){
-   agencySel.value=data.agency===true?'yes':data.agency===false?'no':'pending';
-   agencySel.onchange=()=>{
-     const v=agencySel.value==='yes'?true:agencySel.value==='no'?false:null;
-     setAgencyResult(store,agent,q,v);
-     persistStore();renderCommissions();
-   };
- }
-
- summary.innerHTML=`
+ box.innerHTML=`
  <div class="card commission-hero">
-   <small>${agent.toUpperCase()} · Q3 2026</small>
-   <strong>${money(data.certain)}</strong>
-   <div class="muted">Provvigioni maturate/certe secondo le regole già definite.</div>
+   <small>STIMA PROVVIGIONI · Q3 2026</small>
+   <strong>${money(data.estimated)}</strong>
+   <div class="muted">Base calcolabile + extra già determinabili. Non include ancora voci con regole incomplete o bonus esterni da confermare.</div>
  </div>
  <div class="grid commission-kpis">
-   <div class="card kpi"><small>Maturato certo</small><strong>${money(data.certain)}</strong></div>
-   <div class="card kpi"><small>T6/T12 potenziali</small><strong>${money(data.potential)}</strong></div>
-   <div class="card kpi"><small>Timing da confermare</small><strong>${money(data.unknownTiming)}</strong></div>
-   <div class="card kpi"><small>Voci manuali</small><strong>${data.manual.length}</strong></div>
+   <div class="card kpi"><small>Base calcolabile</small><strong>${money(data.base)}</strong></div>
+   <div class="card kpi"><small>Extra determinabili</small><strong>${money(data.deterministicExtra)}</strong></div>
+   <div class="card kpi"><small>Voci da completare</small><strong>${data.manualCount}</strong></div>
+   <div class="card kpi"><small>Target individuale</small><strong>${t.won?'Raggiunto':'In corso'}</strong></div>
  </div>`;
 
  ruleBox.innerHTML=`
  <div class="card commission-rules-card">
-   <h3>Regole Q3 2026 · ${agent}</h3>
-   <div class="commission-rule-row"><span>Accesso boost</span><b>≥ 250 € inflow/mese</b></div>
-   <div class="commission-rule-row"><span>Target individuale</span><b class="${t.won?'ok-text':'pending-text'}">${t.won?'Raggiunto':'In corso'}</b></div>
-   <div class="commission-rule-row"><span>40 SIM/Dati/Easy Rent + 500 € Core</span><b>${t.values.corePieces}/40 · ${money(t.values.coreInflow)}</b></div>
-   <div class="commission-rule-row"><span>ADSL/Fissa</span><b>${t.values.adsl}/8</b></div>
-   <div class="commission-rule-row"><span>ONU/ONA</span><b>${t.values.oneNet}/8</b></div>
-   <div class="commission-rule-row"><span>Inflow trimestrale</span><b>${money(t.values.totalInflow)} / 1.600 €</b></div>
+   <h3>Motore provvigionale — stato attuale</h3>
+   <div class="commission-rule-row"><span>Core / ADSL / One Net / Easy Deal</span><b class="ok-text">Calcolo base attivo</b></div>
+   <div class="commission-rule-row"><span>Prospect</span><b class="ok-text">Calcolato quando presente</b></div>
+   <div class="commission-rule-row"><span>Target individuale Q3</span><b>${t.won?'Applicato':'Non ancora applicato'}</b></div>
+   <div class="commission-rule-row"><span>Target Agenzia + Rush</span><b class="pending-text">Da confermare</b></div>
+   <div class="commission-rule-row"><span>Digital / Energy / Gas</span><b class="pending-text">Listino da completare</b></div>
+   <p class="muted" style="margin-top:12px">La prima versione evita di attribuire automaticamente importi non ancora supportati da una regola certa.</p>
  </div>`;
 
- const calEntries=Object.entries(data.calendar).sort(([a],[b])=>a.localeCompare(b));
- calendar.innerHTML=calEntries.length?`
- <div class="card"><h3>Calendario previsto</h3>
- ${calEntries.map(([m,x])=>`<div class="commission-calendar-row"><div><strong>${monthLabel(m)}</strong><div class="muted">${x.events.length} eventi</div></div><div><strong>${money(x.certain)}</strong>${x.potential?`<div class="muted">+ ${money(x.potential)} potenziali</div>`:''}</div></div>`).join('')}
- </div>`:'<div class="card"><h3>Calendario previsto</h3><div class="muted">Nessun evento con mese di pagamento calcolato.</div></div>';
-
- const rushRows=Object.entries(data.rush).sort(([a],[b])=>a.localeCompare(b));
- const rushHtml=rushRows.length?rushRows.map(([m,r])=>`
-   <div class="commission-rule-row"><span>Rush ${monthLabel(m)}</span><b class="${r.won?'ok-text':'pending-text'}">${r.won?'Raggiunto':'No'} · ${money(r.inflow)} · ${r.prospects} Prospect · ${r.energy} Energia/Gas</b></div>`).join(''):'<div class="muted">Nessun mese disponibile.</div>';
-
- const events=data.events;
- list.innerHTML=`
- <div class="card"><h3>Rush mensile</h3>${rushHtml}</div>
- ${events.length?events.map(e=>`
+ const rows=[...data.rows].sort((a,b)=>String(b.date).localeCompare(String(a.date)));
+ list.innerHTML=rows.length?rows.map(r=>`
    <div class="card commission-row">
      <div class="commission-row-head">
-       <div><strong>${e.label}</strong><div class="muted">${e.client||'—'}${e.service?' · '+e.service:''}${e.product&&e.product!==e.service?' · '+e.product:''}</div></div>
-       <div class="commission-amount">${money(e.amount)}</div>
+       <div><strong>${r.client}</strong><div class="muted">${r.date} · ${r.service}${r.product&&r.product!==r.service?' · '+r.product:''}</div></div>
+       <div class="commission-amount">${r.status==='calculated'?money(r.estimated):'—'}</div>
      </div>
-     <div class="commission-breakdown">
-       ${e.paymentMonth?`<span>Previsto ${monthLabel(e.paymentMonth)}</span>`:'<span>Pagamento da confermare</span>'}
-       ${e.inflow?`<span>Inflow ${money(e.inflow)}</span>`:''}
-       <span>${e.status==='potenziale'?'Potenziale':e.status==='timing-da-confermare'?'Timing da confermare':'Maturato'}</span>
-     </div>
-     ${e.note?`<div class="commission-pending">${e.note}</div>`:''}
-   </div>`).join(''):'<div class="card"><p class="muted">Nessuna provvigione calcolabile nel trimestre.</p></div>'}
- ${data.manual.length?`<div class="card"><h3>Da completare</h3>${data.manual.map(r=>`<div class="commission-rule-row"><span>${r.client} · ${r.product||r.service}</span><b class="pending-text">${r.note}</b></div>`).join('')}</div>`:''}`;
+     ${r.status==='calculated'
+       ?`<div class="commission-breakdown"><span>${r.rule==='Easy Rent'?'Gettone':'Base'} ${money(r.base)}</span><span>${r.rule==='Easy Rent'?(r.easyRentBand||'Easy Rent'):'Extra '+money(r.deterministicExtra)}</span><span>Inflow ${money(r.inflow)}</span></div>
+         ${r.rule==='Easy Rent'&&r.note?`<div class="commission-easyrent">${r.note}</div>`:''}
+         ${r.pending?.length?`<div class="commission-pending">Potenziali non conteggiati: ${r.pending.join(' · ')}</div>`:''}`
+       :`<div class="commission-pending">${r.note}</div>`}
+   </div>`).join('')
+   :'<div class="card"><p class="muted">Nessuna pratica nel trimestre selezionato.</p></div>';
 }
+
 function renderPeriodManager(){
  const select=$('globalMonthSelect');if(!select)return;
  const active=store.settings.activeMonth||store.settings.currentMonth||currentMonthKey();

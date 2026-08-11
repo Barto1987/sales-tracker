@@ -1151,23 +1151,12 @@ SMARTTRACKER 3.12.1 — MENU IPHONE
 - Eliminato lo scorrimento orizzontale del menu su iPhone.
 - Nessuna modifica ai dati, al Cloud AutoSync o al motore Provvigioni della 3.12.0.
 
-SMARTTRACKER 3.12.2 — PROVVIGIONI PER AGENTE / Q3 2026
-
-- Provvigioni separate per Francesco, Jacopo e Luciano tramite selettore agente.
-- Gare individuale e Agenzia separate.
-- Gara Agenzia: selettore manuale trimestrale Da definire / Sì / No per ogni agente.
-- CORE provvigionale whitelist: Mobile Extra, Mobile Comfort, Mobile Smart, Business XS, Dati Smart, Dati Comfort, Opzione Illimitati / Dati Extra Illimitati.
-- Easy Rent escluso dai boost CORE: resta gettone secco a 60 giorni; importo non inventato finché non viene inserito il listino corrente.
-- ADSL/Fissa whitelist: Fissa Smart, Fissa Comfort, Fissa Extra, Fissa Premium.
-- ONU/ONA: One Net Ufficio / One Net Azienda, incluse FWA 4G/5G, FTTC, FTTH; Prospect +2 solo sui link.
-- CORE: 2 canoni a 60 gg + 1 canone extra a ~90 gg; +2 Prospect a 90 gg; +1 individuale/+1 Agenzia a 90 gg da chiusura trimestre.
-- ADSL: 3 canoni base a 60 gg + boost previsti.
-- ONU/ONA: 2 canoni base a 60 gg + boost previsti.
-- Easy Deal: 1,5 base a 60 gg +0,5 extra a ~90 gg +2 Prospect.
-- Mini Easy Deal: 1,5 base a 60 gg +1 extra a ~90 gg +1 individuale +2 Prospect.
-- Rush mensile: 700 € inflow escluso Easy Deal + 3 clienti Prospect + 2 Energia/Gas; premio 30% inflow, previsto a 60 gg.
-- Soglia accesso boost: 250 € inflow nel mese.
-- Target individuale Q3 per agente: 1.600 € inflow, 40 SIM Voce/Dati+Easy Rent con 500 € Core, 8 ADSL, 8 ONU/ONA.
-- Override SE Francesco: +30% dell'inflow mensile di Jacopo e Luciano, pagamento a 60 gg.
-- Energia/Gas: importi Superboost calcolati; timing del pagamento base lasciato esplicitamente da confermare. T6/T12 mostrati come potenziali.
-- Calendario pagamenti previsto per mese.
+SMARTTRACKER 3.12.3 — EASY RENT LISTINO
+- Integrato lo sheet PROVVIGIONI del listino Easy Rent del 20/04/2026.
+- 297 profili censiti con fascia e gettone.
+- Easy Rent valorizzato automaticamente come gettone secco a 60 giorni.
+- Quantità multiple moltiplicano automaticamente il gettone.
+- Easy Rent escluso dalla normale remunerazione CORE a canoni.
+- Match tollerante a spazi, maiuscole, 'GB', suffisso V ed EE.
+- Se il profilo non è nel listino, nessun importo viene inventato.
+- I futuri listini saranno aggiunti come nuove versioni senza alterare lo storico.

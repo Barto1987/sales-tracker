@@ -16,12 +16,7 @@ export function emptyStore(){
       communityMonth:'2026-07',
       lastAutoMonth:'2026-07',
       lastAutoQuarter:'2026-Q3',
-      agents:['Francesco','Jacopo','Luciano'],
-      commissions:{
-        selectedAgent:'Francesco',
-        selectedQuarter:'2026-Q3',
-        agencyResults:{}
-      }
+      agents:['Francesco','Jacopo','Luciano']
     },
     officialCommunity:{vcoins:null,updatedAt:null},
     communityManualExtras:{},
@@ -44,8 +39,6 @@ export function loadStore(){
       store.periodStates=store.periodStates||{};
       store.settings.activeMonth=store.settings.activeMonth||store.settings.currentMonth||'2026-07';
       store.settings.agents=store.settings.agents||['Francesco','Jacopo','Luciano'];
-      store.settings.commissions=store.settings.commissions||{selectedAgent:'Francesco',selectedQuarter:'2026-Q3',agencyResults:{}};
-      store.settings.commissions.agencyResults=store.settings.commissions.agencyResults||{};
       store.settings.teamMonth=store.settings.teamMonth||store.settings.currentMonth||'2026-07';
       store.contracts=(store.contracts||[]).map(c=>({
         ...c,
