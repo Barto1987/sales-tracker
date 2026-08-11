@@ -1235,3 +1235,10 @@ SMARTTRACKER 3.13.0 — REGOLE PROVVIGIONALI VERSIONATE
 - Ogni contratto usa automaticamente il set di regole relativo alla propria data.
 - I futuri trimestri verranno aggiunti come nuove versioni senza modificare lo storico.
 - Nella sezione Provvigioni è visibile "Storico regole provvigionali", espandibile e in sola lettura.
+
+SMARTTRACKER 3.14.0 — CLOUD DOCUMENTS
+- Motore PDF Cloud su Supabase Storage.
+- Migrazione automatica dei PDF già presenti localmente.
+- Contatore PDF Cloud / mancanti.
+- Riferimento cloudPdf sincronizzato insieme al contratto.
+SETUP NECESSARIO: in Supabase creare un bucket PRIVATO chiamato contract-pdfs. Prima del primo upload vanno aggiunte le policy Storage per consentire all'utente autenticato accesso alla propria cartella.

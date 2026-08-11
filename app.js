@@ -1,3 +1,4 @@
+import {uploadContractPdf,openContractPdfCloud,PDF_BUCKET} from './cloud-pdf.js?v=3140';
 
 window.addEventListener('error',(e)=>{
  try{
@@ -20,16 +21,16 @@ window.addEventListener('unhandledrejection',(e)=>{
 });
 
 
-import {loadStore,saveStore,importBackupObject} from './storage.js?v=3130';
-import {TARGETS,generalStats,agencyStats,agencyBreakdown,excellentStats,excellentBreakdown,communityStats,communityBreakdown,teamStats,teamBreakdown,availableMonths,customerList,customerDashboard,customerKey,inflowOf,communityRulesForMonth} from './engines.js?v=3130';
-import {savePdf,openPdf,deletePdf,getPdf} from './pdf-store.js?v=3130';
-import {initParser,parsePDF} from './parser.js?v=3130';
-import {createAutoBackup,getAutoBackupMeta,getFullBackupMeta,downloadDatabaseBackup,downloadCompleteBackup,restoreCompleteBackup,getArchiveStats,formatBytes,formatDate} from './backup.js?v=3130';
-import {exportSync,readSyncFile,previewMerge,applyMerge,getSyncMeta} from './sync.js?v=3130';
-import {regulationGroups} from './regulations.js?v=3130';
-import {currentMonthKey,monthLabel,quarterFromMonth,availablePeriodMonths,ensurePeriodState,periodStatusLabel,periodStatusIcon,applyGlobalMonth} from './periods.js?v=3130';
-import {cloudLogin,cloudLogout,cloudInfo,uploadLocalFirst,downloadAndMerge,syncNow,bootstrapLinkedCloud,queueCloudPush,getCloudMeta,isCloudLinked,getCloudSession,getCloudEmail,setCloudEmail,runCloudDiagnostics} from './cloud.js?v=3130';
-import {commissionsForPeriod} from './commissions.js?v=3130';
+import {loadStore,saveStore,importBackupObject} from './storage.js?v=3140';
+import {TARGETS,generalStats,agencyStats,agencyBreakdown,excellentStats,excellentBreakdown,communityStats,communityBreakdown,teamStats,teamBreakdown,availableMonths,customerList,customerDashboard,customerKey,inflowOf,communityRulesForMonth} from './engines.js?v=3140';
+import {savePdf,openPdf,deletePdf,getPdf} from './pdf-store.js?v=3140';
+import {initParser,parsePDF} from './parser.js?v=3140';
+import {createAutoBackup,getAutoBackupMeta,getFullBackupMeta,downloadDatabaseBackup,downloadCompleteBackup,restoreCompleteBackup,getArchiveStats,formatBytes,formatDate} from './backup.js?v=3140';
+import {exportSync,readSyncFile,previewMerge,applyMerge,getSyncMeta} from './sync.js?v=3140';
+import {regulationGroups} from './regulations.js?v=3140';
+import {currentMonthKey,monthLabel,quarterFromMonth,availablePeriodMonths,ensurePeriodState,periodStatusLabel,periodStatusIcon,applyGlobalMonth} from './periods.js?v=3140';
+import {cloudLogin,cloudLogout,cloudInfo,uploadLocalFirst,downloadAndMerge,syncNow,bootstrapLinkedCloud,queueCloudPush,getCloudMeta,isCloudLinked,getCloudSession,getCloudEmail,setCloudEmail,runCloudDiagnostics} from './cloud.js?v=3140';
+import {commissionsForPeriod} from './commissions.js?v=3140';
 
 let store=loadStore(),parsed=null,pendingPdf=null;
 applyGlobalMonth(store,store.settings.activeMonth||store.settings.currentMonth||currentMonthKey());
@@ -590,7 +591,7 @@ async function saveParsed(){
      ?[{agent:'Jacopo',share:.5},{agent:'Luciano',share:.5}]
      :[{agent,share:1}];
  const nowIso=new Date().toISOString();
- const contract={id:'C-'+Date.now(),createdAt:nowIso,updatedAt:nowIso,date:$('contractDate').value,offer:parsed.meta.offer,client:parsed.meta.client||'Da verificare',vat:parsed.meta.vat,customerCode:parsed.meta.customerCode||'',prospect,agent,includeAgency,teamAllocations,status:'Valido',pdfRef:parsed.filename,pdfStored:false,notes:'SmartTracker 3.13.0',services:[]};
+ const contract={id:'C-'+Date.now(),createdAt:nowIso,updatedAt:nowIso,date:$('contractDate').value,offer:parsed.meta.offer,client:parsed.meta.client||'Da verificare',vat:parsed.meta.vat,customerCode:parsed.meta.customerCode||'',prospect,agent,includeAgency,teamAllocations,status:'Valido',pdfRef:parsed.filename,pdfStored:false,notes:'SmartTracker 3.14.0',services:[]};
  for(const el of rows){
    const service=el.querySelector('.pr-service').value;
    const mnpEl=el.querySelector('.pr-mnp');
@@ -1266,6 +1267,23 @@ function renderPeriodManager(){
  $('togglePeriodClosed').onclick=()=>{const x=ensurePeriodState(store,active);x.status=x.status==='closed'?'working':'closed';x.manual=true;x.updatedAt=new Date().toISOString();persistStore();renderAll()};
 }
 function selectedPeriodIsClosed(){const a=store.settings.activeMonth||store.settings.currentMonth;return ensurePeriodState(store,a).status==='closed'}
+
+async function pickCloudPdf(){return new Promise(resolve=>{const i=document.createElement('input');i.type='file';i.accept='application/pdf,.pdf';i.style.display='none';document.body.appendChild(i);i.onchange=()=>{const f=i.files?.[0]||null;i.remove();resolve(f)};i.oncancel=()=>{i.remove();resolve(null)};i.click()})}
+async function addPdfCloud(id){
+ const c=store.contracts.find(x=>x.id===id);if(!c)return;const f=await pickCloudPdf();if(!f)return;
+ try{const info=await uploadContractPdf(id,f);c.cloudPdf={bucket:PDF_BUCKET,...info};c.updatedAt=new Date().toISOString();persistStore();renderAll();alert('PDF caricato nel Cloud.')}
+ catch(e){console.error(e);alert('Upload PDF Cloud non riuscito: '+(e.message||e))}
+}
+async function migrateLocalPdfsToCloud(){
+ let found=0,uploaded=0,failed=0;
+ for(const c of (store.contracts||[]).filter(x=>!x.cloudPdf?.path)){
+  const local=await getPdf(c.id).catch(()=>null);if(!local)continue;found++;
+  try{const info=await uploadContractPdf(c.id,local);c.cloudPdf={bucket:PDF_BUCKET,...info};c.updatedAt=new Date().toISOString();uploaded++}catch(e){console.error(e);failed++}
+ }
+ if(uploaded)persistStore();renderAll();alert(`Recupero completato.\nPDF locali trovati: ${found}\nCaricati nel Cloud: ${uploaded}${failed?`\nErrori: ${failed}`:''}`)
+}
+function cloudPdfStats(){const a=(store.contracts||[]).filter(c=>c.status!=='deleted'),cloud=a.filter(c=>c.cloudPdf?.path).length;return {total:a.length,cloud,missing:a.length-cloud}}
+
 function renderAll(){renderPeriodManager();renderHome();renderAgency();renderExcellent();renderCommunity();renderTeam();renderCommissions();renderCustomers();renderRegulations();renderArchive();renderBackup()}
 document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>go(b.dataset.view));
 $('headerNewContract').onclick=()=>go('new');
@@ -1311,3 +1329,4 @@ setInterval(pullCloudChanges,15000);
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')pullCloudChanges()});
 window.addEventListener('focus',pullCloudChanges);
 window.addEventListener('pageshow',pullCloudChanges);
+window.smartTrackerCloudPdf={add:addPdfCloud,open:async id=>{try{await openContractPdfCloud(id)}catch(e){alert(e.message||e)}},migrate:migrateLocalPdfsToCloud};
