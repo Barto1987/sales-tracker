@@ -636,7 +636,7 @@ input:focus,select:focus,textarea:focus{
 .cloud-auto-note{margin-top:10px;padding:10px 12px;border-radius:12px;background:#edf9f1;color:#176b35;font-weight:800;font-size:12px}
 
 
-/* SmartTracker 3.12.3 — navigation active-state visibility */
+/* SmartTracker 3.12.4 — navigation active-state visibility */
 .app-nav{
   grid-template-columns:repeat(7,minmax(62px,1fr))!important;
   overflow-x:auto;
@@ -679,7 +679,7 @@ input:focus,select:focus,textarea:focus{
 }
 
 
-/* SmartTracker 3.12.3 — menu iPhone + pulsante Nuovo in testata */
+/* SmartTracker 3.12.4 — menu iPhone + pulsante Nuovo in testata */
 .smart-header{
   position:sticky;
   top:0;
@@ -766,3 +766,5 @@ input:focus,select:focus,textarea:focus{
   margin-top:10px;padding:9px 10px;border-radius:11px;
   background:#eef9f1;color:#176b35;font-size:11px;font-weight:800;
 }
+
+.er-reparse-btn{width:auto!important;font-size:11px!important;padding:9px 12px!important}

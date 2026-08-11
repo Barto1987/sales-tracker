@@ -1160,3 +1160,15 @@ SMARTTRACKER 3.12.3 — EASY RENT LISTINO
 - Match tollerante a spazi, maiuscole, 'GB', suffisso V ed EE.
 - Se il profilo non è nel listino, nessun importo viene inventato.
 - I futuri listini saranno aggiunti come nuove versioni senza alterare lo storico.
+
+SMARTTRACKER 3.12.4 — PROVVIGIONI / EASY RENT FIX
+- SIM Voce/Dati non vengono più scambiate per Easy Rent solo perché il nome commerciale contiene "Easy Rent".
+- CORE: 2 canoni base a 60 gg + 1 canone extra circa a 90 gg.
+- ONU/ONA: 2 canoni base a 60 gg.
+- ADSL: 3 canoni base a 60 gg.
+- Easy Deal/Mini Easy Deal: separata la quota base dalla quota dopo il "+".
+- Prospect resta extra separato a 90 gg.
+- Rush non viene più mostrato come +0,3 canone sul singolo contratto: l'inflow valido viene marcato come concorrente al premio Rush mensile.
+- Easy Rent: gettone secco a 60 gg e inflow valido per la soglia Rush.
+- Migliorato il parser delle offerte Mobile + Easy Rent per leggere il vero device Kasko.
+- Per Easy Rent storici non riconosciuti, se il PDF è presente localmente compare "Rileggi Easy Rent dal PDF", senza dover eliminare il contratto.

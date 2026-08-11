@@ -316,7 +316,11 @@ export async function parsePDF(file){
    if(base){
     if(isMnp)detectedMnp=true;
     add(rows,{service:'SIM Voce',product:'Mobile Comfort',category:'Mobile',qty:base.q,inflowUnit:base.v+(promo?promo.v:0),mnp:isMnp,calc:`SIM = canone base meno promo · ${isMnp?'MNP':'nuova attivazione'}`});
-    const dm=b.match(/([A-Za-z0-9+ ._-]{4,110}Kasko\s+(?:Smart|Comfort|Extra)\s+(?:24|30|36)m(?:\s+Voce)?)/i),desc=dm?dm[1].trim():'',er=findER(desc.replace(/\s+Voce$/i,''));
+    // Cerca il device Easy Rent nella stessa sezione, senza limitarsi ai soli caratteri ASCII:
+    // alcuni PDF spezzano/duplicano il nome dell'offerta Mobile prima della riga device.
+    const dm=b.match(/([^\n€]{4,140}?Kasko\s+(?:Smart|Comfort|Extra)\s+(?:24|30|36)m(?:\s+Voce)?)/i);
+    let desc=dm?dm[1].replace(/^.*?(?=(?:iPhone|iPad|Galaxy|Tab|Pixel|Motorola|Xiaomi|Honor|Oppo|OnePlus|Mac|Think|Surface|Watch))/i,'').replace(/\s+/g,' ').trim():'';
+    const er=findER(desc.replace(/\s+Voce$/i,''));
     add(rows,{service:'Easy Rent',product:desc||'Easy Rent',category:'Noleggio',qty:base.q,inflowUnit:er?er.inflow:0,mnp:false,confidence:er?er.confidence:'red',calc:er?`Listino ${er.plan} · ${er.tier}`:'Easy Rent non trovato: inserire inflow manualmente'});
    }
   }else if(/OFFERTA\s+Easy Rent/i.test(b)){

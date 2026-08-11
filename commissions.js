@@ -1,5 +1,5 @@
-import {matchEasyRent} from './easy-rent-listino.js?v=3123';
-// SmartTracker 3.12.3 — prima base del motore Provvigioni.
+import {matchEasyRent} from './easy-rent-listino.js?v=3124';
+// SmartTracker 3.12.4 — prima base del motore Provvigioni.
 // Q3 2026: calcoliamo solo le parti supportate dalle regole già raccolte.
 // Le voci ancora ambigue restano esplicitamente "da confermare".
 
@@ -11,7 +11,7 @@ function textOf(s){
   return `${s.service||''} ${s.product||''} ${s.category||''}`.toLowerCase();
 }
 function isMiniEasyDeal(s){return /mini\s*easy\s*deal/.test(textOf(s))}
-function isEasyRent(s){return s.service==='Easy Rent'||/\beasy\s*rent\b/.test(textOf(s))}
+function isEasyRent(s){return s.service==='Easy Rent'}
 function isDigital(s){return /solution|soluzioni digitali|digital|cloud|security|cyber|miia|7layers|7 layers|gdpr|nis2|movylo|sdm/.test(textOf(s))}
 function isEnergyGas(s){return ['Energia','Gas'].includes(s.service)}
 function isOneNetExcludedComponent(s){return /interno|uc phone|sempre serviti|device|attivazione|alcatel|cisco|adok/.test(textOf(s))}
@@ -43,15 +43,15 @@ export function individualAgencyTargetWon(store){
 }
 
 function ruleFor(s){
-  if(isEasyRent(s)) return {type:'Easy Rent',easyRent:true};
-  if(isMiniEasyDeal(s)) return {type:'Mini Easy Deal',baseCanons:2.5,individualCanons:1,prospectCanons:2,agencyCanons:0,rushCanons:0};
-  if(s.service==='Easy Deal') return {type:'Easy Deal',baseCanons:2,individualCanons:0,prospectCanons:2,agencyCanons:0,rushCanons:0};
-  if(s.service==='ADSL') return {type:'ADSL',baseCanons:3,individualCanons:1,prospectCanons:2,agencyCanons:1,rushCanons:.3};
+  if(isEasyRent(s)) return {type:'Easy Rent',easyRent:true,rushEligible:true};
+  if(isMiniEasyDeal(s)) return {type:'Mini Easy Deal',base60Canons:1.5,deferred90Canons:1,individualCanons:1,prospectCanons:2,agencyCanons:0,rushEligible:false};
+  if(s.service==='Easy Deal') return {type:'Easy Deal',base60Canons:1.5,deferred90Canons:.5,individualCanons:0,prospectCanons:2,agencyCanons:0,rushEligible:false};
+  if(s.service==='ADSL') return {type:'ADSL',base60Canons:3,deferred90Canons:0,individualCanons:1,prospectCanons:2,agencyCanons:1,rushEligible:true};
   if(['One Net Ufficio','One Net Azienda'].includes(s.service) && !isOneNetExcludedComponent(s))
-    return {type:s.service,baseCanons:2,individualCanons:1,prospectCanons:2,agencyCanons:1,rushCanons:.3};
+    return {type:s.service,base60Canons:2,deferred90Canons:0,individualCanons:1,prospectCanons:2,agencyCanons:1,rushEligible:true};
   if(['SIM Voce','SIM Dati'].includes(s.service))
-    return {type:'Core',baseCanons:3,individualCanons:1,prospectCanons:2,agencyCanons:1,rushCanons:.3};
-  if(isEnergyGas(s)) return {type:s.service,manual:true,reason:'Premio in euro con scaglioni/T6/T12: regola da confermare prima del calcolo automatico.'};
+    return {type:'Core',base60Canons:2,deferred90Canons:1,individualCanons:1,prospectCanons:2,agencyCanons:1,rushEligible:true};
+  if(isEnergyGas(s)) return {type:s.service,manual:true,rushEligible:true,reason:'Premio Energia/Gas da valorizzare con la regola dedicata; l’inflow resta valido per il Rush.'};
   if(isDigital(s)) return {type:'Digital',manual:true,reason:'Manca ancora il listino base completo; gli extra Digital verranno aggiunti con la prossima tabella provvigionale.'};
   return {type:s.service||'Altro',manual:true,reason:'Regola provvigionale non ancora censita.'};
 }
@@ -83,8 +83,8 @@ export function commissionsForPeriod(store,start,end){
             contractId:c.id,date:c.date,client:c.client||'Cliente',
             service:s.service||'Easy Rent',product:s.product||'',
             inflow,base:0,deterministicExtra:0,estimated:0,status:'manual',
-            rule:'Easy Rent',
-            note:'Profilo Easy Rent non trovato nel listino del 20/04/2026. Verificare il nome piano o caricare un listino più recente.'
+            rule:'Easy Rent',pdfStored:!!c.pdfStored,canReparse:!!c.pdfStored,
+            note:'Profilo Easy Rent non trovato nel listino del 20/04/2026. Se il PDF è salvato sul dispositivo, puoi farlo rileggere a SmartTracker.'
           });
         }
         continue;
@@ -98,19 +98,22 @@ export function commissionsForPeriod(store,start,end){
         continue;
       }
 
-      const base=inflow*Number(rule.baseCanons||0);
+      const base60=inflow*Number(rule.base60Canons||0);
+      const deferred90=inflow*Number(rule.deferred90Canons||0);
       const prospectExtra=c.prospect ? inflow*Number(rule.prospectCanons||0) : 0;
       const individualExtra=target.won ? inflow*Number(rule.individualCanons||0) : 0;
-      const deterministicExtra=prospectExtra+individualExtra;
+      const deterministicExtra=deferred90+prospectExtra+individualExtra;
 
       const pending=[];
       if(rule.individualCanons && !target.won)pending.push(`+${rule.individualCanons} canone target individuale`);
       if(rule.agencyCanons)pending.push(`+${rule.agencyCanons} canone target Agenzia`);
-      if(rule.rushCanons)pending.push(`+${rule.rushCanons} rush`);
       rows.push({
         contractId:c.id,date:c.date,client:c.client||'Cliente',service:s.service||'',product:s.product||'',
-        inflow,base,prospectExtra,individualExtra,deterministicExtra,estimated:base+deterministicExtra,
-        status:'calculated',rule:rule.type,pending
+        inflow,base:base60,base60,deferred90,prospectExtra,individualExtra,deterministicExtra,
+        estimated:base60+deterministicExtra,status:'calculated',rule:rule.type,pending,
+        rushEligible:!!rule.rushEligible,
+        note60:rule.base60Canons?`${rule.base60Canons} canoni base · pagamento a 60 gg dall’attivazione`:'',
+        note90:rule.deferred90Canons?`${rule.deferred90Canons} canone extra base · pagamento circa 90 gg dall’attivazione`:''
       });
     }
   }
