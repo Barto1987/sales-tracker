@@ -1,5 +1,5 @@
-import {matchEasyRent} from './easy-rent-listino.js?v=3125';
-// SmartTracker 3.12.5 — prima base del motore Provvigioni.
+import {matchEasyRent} from './easy-rent-listino.js?v=3126';
+// SmartTracker 3.12.6 — prima base del motore Provvigioni.
 // Q3 2026: calcoliamo solo le parti supportate dalle regole già raccolte.
 // Le voci ancora ambigue restano esplicitamente "da confermare".
 

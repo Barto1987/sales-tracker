@@ -1181,3 +1181,14 @@ SMARTTRACKER 3.12.5 — EASY RENT PDF REPAIR
 - Il nuovo inflow Easy Rent viene ricalcolato dal PDF selezionato.
 - Dopo il salvataggio la correzione passa nel normale AutoSync Cloud.
 - Nessuna modifica al listino Easy Rent o alle altre regole provvigionali della 3.12.4.
+
+SMARTTRACKER 3.12.6 — MIXED EASY RENT FIX
+- Corretto il parser dei bundle Mobile Smart / Mobile Comfort / Mobile Extra + Easy Rent.
+- Il caso OKTIMA ora riconosce:
+  SIM Voce Mobile Smart con inflow 10,00 €;
+  iPhone 17 256 GB Kasko Comfort 36m come Easy Rent;
+  inflow Easy Rent 16,32 € dal listino;
+  fascia GOLD / gettone 130 €.
+- Nei bundle misti l'inflow SIM viene ricavato dal Totale Netto Complessivo meno il canone commerciale del/dei device.
+- Il device Easy Rent usa invece l'inflow ufficiale del listino Easy Rent, non il canone pagato dal cliente.
+- La funzione "Carica e rileggi offerta PDF" può quindi correggere i contratti storici Mobile + Easy Rent.

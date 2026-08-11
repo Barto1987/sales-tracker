@@ -307,21 +307,84 @@ export async function parsePDF(file){
  for(const r of digitalResult.rows)add(rows,r);
  for(const b of blocks){
   if(digitalResult.processed.has(b))continue;
-  if(/Mobile Comfort - Easy Rent/i.test(b)){
-   const base=line(b,/Mobile Comfort - Easy Rent SoHo SME/i);
-   const isMnp=hasMnpLine(b)||/Promo\s+Mobile\s+Comfort\s+MNP\s*\+\s*Easy\s+Rent/i.test(b);
-   const promo=isMnp
-     ?line(b,/Promo Mobile Comfort MNP \+ Easy Rent/i)
-     :line(b,/Promo Mobile Comfort \+ Easy Rent/i);
+  if(/Mobile\s+(?:Smart|Comfort|Extra)\s*-\s*Easy Rent/i.test(b)){
+   const planMatch=b.match(/Mobile\s+(Smart|Comfort|Extra)\s*-\s*Easy Rent SoHo SME/i);
+   const mobilePlan=planMatch?`Mobile ${planMatch[1]}`:'Mobile';
+   const base=line(b,new RegExp(`${mobilePlan.replace(/\s+/g,'\\s+')}\\s*-\\s*Easy Rent SoHo SME`,'i'));
+   const isMnp=hasMnpLine(b)||/MNP/i.test(b);
    if(base){
     if(isMnp)detectedMnp=true;
-    add(rows,{service:'SIM Voce',product:'Mobile Comfort',category:'Mobile',qty:base.q,inflowUnit:base.v+(promo?promo.v:0),mnp:isMnp,calc:`SIM = canone base meno promo · ${isMnp?'MNP':'nuova attivazione'}`});
-    // Cerca il device Easy Rent nella stessa sezione, senza limitarsi ai soli caratteri ASCII:
-    // alcuni PDF spezzano/duplicano il nome dell'offerta Mobile prima della riga device.
-    const dm=b.match(/([^\n€]{4,140}?Kasko\s+(?:Smart|Comfort|Extra)\s+(?:24|30|36)m(?:\s+Voce)?)/i);
-    let desc=dm?dm[1].replace(/^.*?(?=(?:iPhone|iPad|Galaxy|Tab|Pixel|Motorola|Xiaomi|Honor|Oppo|OnePlus|Mac|Think|Surface|Watch))/i,'').replace(/\s+/g,' ').trim():'';
-    const er=findER(desc.replace(/\s+Voce$/i,''));
-    add(rows,{service:'Easy Rent',product:desc||'Easy Rent',category:'Noleggio',qty:base.q,inflowUnit:er?er.inflow:0,mnp:false,confidence:er?er.confidence:'red',calc:er?`Listino ${er.plan} · ${er.tier}`:'Easy Rent non trovato: inserire inflow manualmente'});
+
+    // Nei bundle Mobile + Easy Rent il totale netto comprende SIM + canone device.
+    // Per ricavare l'inflow SIM, sottraiamo dal Totale Netto Complessivo
+    // i canoni commerciali dei device Easy Rent presenti nella sezione.
+    const deviceRows=[];
+    const deviceRe=/((?:iPhone|iPad|iPadPro|Galaxy|Tab|Pixel|Motorola|Xiaomi|Honor|Oppo|OnePlus|Mac|MacBook|ThinkPad|Think|Surface|Watch)[^€]{2,120}?Kasko\s+(?:Smart|Comfort|Extra)\s+(?:24|30|36)m(?:\s+Voce)?)\s+(?:(\d+)\s*x\s*)?([0-9]{1,3}(?:\.[0-9]{3})*,\d{2}|[0-9]+[,.]\d{2})\s*€/gi;
+    let deviceCommercialTotal=0;
+    for(const m of b.matchAll(deviceRe)){
+      const desc=m[1].replace(/\s+/g,' ').trim();
+      const qty=Number(m[2]||1);
+      const customerMonthly=num(m[3]);
+      deviceCommercialTotal+=qty*customerMonthly;
+      deviceRows.push({desc,qty,customerMonthly});
+    }
+
+    const sectionNet=totalNetMonthly(b);
+    let simTotal=null;
+    if(sectionNet!=null && deviceRows.length){
+      simTotal=Math.max(sectionNet-deviceCommercialTotal,0);
+    }
+
+    // Fallback: se il totale sezione non è disponibile, usa canone base e
+    // somma gli sconti Mobile ricorrenti che compaiono prima del primo device.
+    if(simTotal==null){
+      const firstDeviceIndex=b.search(/Kasko\s+(?:Smart|Comfort|Extra)\s+(?:24|30|36)m/i);
+      const mobilePart=firstDeviceIndex>=0?b.slice(0,firstDeviceIndex):b;
+      let discounts=0;
+      for(const m of mobilePart.matchAll(/(?:Promo|Sconto)[^€]{0,100}?\s+(?:(\d+)\s*x\s*)?(-[0-9]+[,.]\d{2})\s*€/gi)){
+        discounts+=Number(m[1]||1)*num(m[2]);
+      }
+      simTotal=Math.max(base.q*base.v+discounts,0);
+    }
+
+    add(rows,{
+      service:'SIM Voce',
+      product:mobilePlan,
+      category:'Mobile',
+      qty:base.q,
+      inflowUnit:Math.round((simTotal/Math.max(base.q,1))*100)/100,
+      mnp:isMnp,
+      calc:`SIM bundle Easy Rent = Totale Netto sezione meno canone/i device · ${isMnp?'MNP':'nuova attivazione'}`
+    });
+
+    if(deviceRows.length){
+      for(const d of deviceRows){
+        const er=findER(d.desc.replace(/\s+Voce$/i,''));
+        add(rows,{
+          service:'Easy Rent',
+          product:d.desc,
+          category:'Noleggio',
+          qty:d.qty,
+          inflowUnit:er?Math.round(Number(er.inflow||0)*100)/100:0,
+          mnp:false,
+          confidence:er?er.confidence:'red',
+          calc:er
+            ?`Listino ufficiale Easy Rent: ${er.plan} · fascia ${er.tier}`
+            :'Easy Rent non trovato nel listino: inserire inflow manualmente'
+        });
+      }
+    }else{
+      add(rows,{
+        service:'Easy Rent',
+        product:'Easy Rent da verificare',
+        category:'Noleggio',
+        qty:base.q,
+        inflowUnit:0,
+        mnp:false,
+        confidence:'red',
+        calc:'Nessun device Easy Rent riconosciuto nella sezione Mobile + Easy Rent'
+      });
+    }
    }
   }else if(/OFFERTA\s+Easy Rent/i.test(b)){
    const erPattern=/(?:OFFERTA\s+Easy Rent|Vincolo\s+\d+\s+mesi)\s+(.+?Kasko\s+(?:Smart|Comfort|Extra)\s+(?:24|30|36)m)\s+(?:(\d+)\s*x\s*)?([0-9]{1,3}(?:\.[0-9]{3})*,\d{2}|[0-9]+[,.]\d{2})\s*€/gi;
