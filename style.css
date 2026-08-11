@@ -636,7 +636,7 @@ input:focus,select:focus,textarea:focus{
 .cloud-auto-note{margin-top:10px;padding:10px 12px;border-radius:12px;background:#edf9f1;color:#176b35;font-weight:800;font-size:12px}
 
 
-/* SmartTracker 3.12.8 — navigation active-state visibility */
+/* SmartTracker 3.12.9 — navigation active-state visibility */
 .app-nav{
   grid-template-columns:repeat(7,minmax(62px,1fr))!important;
   overflow-x:auto;
@@ -679,7 +679,7 @@ input:focus,select:focus,textarea:focus{
 }
 
 
-/* SmartTracker 3.12.8 — menu iPhone + pulsante Nuovo in testata */
+/* SmartTracker 3.12.9 — menu iPhone + pulsante Nuovo in testata */
 .smart-header{
   position:sticky;
   top:0;
@@ -793,3 +793,17 @@ input:focus,select:focus,textarea:focus{
 .commission-payment-title small{font-size:10px;font-weight:900;letter-spacing:.09em;color:#6b7280}
 .commission-payment-title h3{margin:2px 0 0;font-size:25px}
 .commission-payment-title>strong{font-size:25px}
+
+.commission-clickable{cursor:pointer;-webkit-tap-highlight-color:transparent}.commission-clickable:active{transform:scale(.99)}
+.commission-tap-hint{display:block;margin-top:7px;font-size:10px;font-weight:800;color:#6b7280}
+#commissionDrilldown{scroll-margin-top:92px}.commission-drill-card{margin:12px 0}
+.commission-drill-head{display:flex;justify-content:space-between;align-items:center;gap:10px}.commission-drill-head h3{margin:0}
+.commission-drill-head button{width:auto!important;margin:0!important;padding:7px 10px!important;font-size:11px!important}
+.commission-month-detail{border-top:1px solid #e5e7eb;padding:3px 0}
+.commission-month-detail>summary{list-style:none;display:flex;justify-content:space-between;align-items:center;padding:13px 2px;font-weight:900;cursor:pointer;text-transform:capitalize}
+.commission-month-detail>summary::-webkit-details-marker{display:none}.commission-month-types{background:#f7f8fa;border-radius:12px;padding:5px 11px}
+.commission-month-types>div{display:flex;justify-content:space-between;gap:12px;padding:8px 0;border-bottom:1px solid #e8eaee;font-size:11px}
+.commission-month-types>div:last-child{border-bottom:0}.commission-practice-detail{margin-top:8px}
+.commission-practice-detail>summary{font-size:11px;font-weight:800;padding:8px 2px;cursor:pointer}
+.commission-practice-line{display:flex;justify-content:space-between;gap:10px;padding:9px 2px;border-top:1px solid #eef0f2;font-size:11px}
+.commission-practice-line span{min-width:0;font-weight:750}.commission-practice-line small{display:block;color:#6b7280;font-weight:500;margin-top:2px}.commission-practice-line b{white-space:nowrap}

@@ -1218,3 +1218,9 @@ SMARTTRACKER 3.12.8 — PROVVIGIONI PER MESE DI PAGAMENTO
 - Mesi di produzione restano rappresentati finché generano movimenti futuri.
 - Soglia 250 € mensile: mese chiuso sotto soglia = BOOST KO definitivo; base invariata.
 - Mese corrente sotto soglia resta in corso con residuo.
+
+SMARTTRACKER 3.12.9 — DETTAGLIO PAGAMENTI
+- Stima Provvigioni, Base calcolabile ed Extra determinabili cliccabili.
+- Riepilogo per mese previsto di pagamento.
+- Mese espandibile per tipologia di pagamento.
+- Secondo livello con pratiche, cliente, prodotto, mese produzione e importo.

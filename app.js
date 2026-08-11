@@ -20,16 +20,16 @@ window.addEventListener('unhandledrejection',(e)=>{
 });
 
 
-import {loadStore,saveStore,importBackupObject} from './storage.js?v=3128';
-import {TARGETS,generalStats,agencyStats,agencyBreakdown,excellentStats,excellentBreakdown,communityStats,communityBreakdown,teamStats,teamBreakdown,availableMonths,customerList,customerDashboard,customerKey,inflowOf,communityRulesForMonth} from './engines.js?v=3128';
-import {savePdf,openPdf,deletePdf,getPdf} from './pdf-store.js?v=3128';
-import {initParser,parsePDF} from './parser.js?v=3128';
-import {createAutoBackup,getAutoBackupMeta,getFullBackupMeta,downloadDatabaseBackup,downloadCompleteBackup,restoreCompleteBackup,getArchiveStats,formatBytes,formatDate} from './backup.js?v=3128';
-import {exportSync,readSyncFile,previewMerge,applyMerge,getSyncMeta} from './sync.js?v=3128';
-import {regulationGroups} from './regulations.js?v=3128';
-import {currentMonthKey,monthLabel,quarterFromMonth,availablePeriodMonths,ensurePeriodState,periodStatusLabel,periodStatusIcon,applyGlobalMonth} from './periods.js?v=3128';
-import {cloudLogin,cloudLogout,cloudInfo,uploadLocalFirst,downloadAndMerge,syncNow,bootstrapLinkedCloud,queueCloudPush,getCloudMeta,isCloudLinked,getCloudSession,getCloudEmail,setCloudEmail,runCloudDiagnostics} from './cloud.js?v=3128';
-import {commissionsForPeriod} from './commissions.js?v=3128';
+import {loadStore,saveStore,importBackupObject} from './storage.js?v=3129';
+import {TARGETS,generalStats,agencyStats,agencyBreakdown,excellentStats,excellentBreakdown,communityStats,communityBreakdown,teamStats,teamBreakdown,availableMonths,customerList,customerDashboard,customerKey,inflowOf,communityRulesForMonth} from './engines.js?v=3129';
+import {savePdf,openPdf,deletePdf,getPdf} from './pdf-store.js?v=3129';
+import {initParser,parsePDF} from './parser.js?v=3129';
+import {createAutoBackup,getAutoBackupMeta,getFullBackupMeta,downloadDatabaseBackup,downloadCompleteBackup,restoreCompleteBackup,getArchiveStats,formatBytes,formatDate} from './backup.js?v=3129';
+import {exportSync,readSyncFile,previewMerge,applyMerge,getSyncMeta} from './sync.js?v=3129';
+import {regulationGroups} from './regulations.js?v=3129';
+import {currentMonthKey,monthLabel,quarterFromMonth,availablePeriodMonths,ensurePeriodState,periodStatusLabel,periodStatusIcon,applyGlobalMonth} from './periods.js?v=3129';
+import {cloudLogin,cloudLogout,cloudInfo,uploadLocalFirst,downloadAndMerge,syncNow,bootstrapLinkedCloud,queueCloudPush,getCloudMeta,isCloudLinked,getCloudSession,getCloudEmail,setCloudEmail,runCloudDiagnostics} from './cloud.js?v=3129';
+import {commissionsForPeriod} from './commissions.js?v=3129';
 
 let store=loadStore(),parsed=null,pendingPdf=null;
 applyGlobalMonth(store,store.settings.activeMonth||store.settings.currentMonth||currentMonthKey());
@@ -590,7 +590,7 @@ async function saveParsed(){
      ?[{agent:'Jacopo',share:.5},{agent:'Luciano',share:.5}]
      :[{agent,share:1}];
  const nowIso=new Date().toISOString();
- const contract={id:'C-'+Date.now(),createdAt:nowIso,updatedAt:nowIso,date:$('contractDate').value,offer:parsed.meta.offer,client:parsed.meta.client||'Da verificare',vat:parsed.meta.vat,customerCode:parsed.meta.customerCode||'',prospect,agent,includeAgency,teamAllocations,status:'Valido',pdfRef:parsed.filename,pdfStored:false,notes:'SmartTracker 3.12.8',services:[]};
+ const contract={id:'C-'+Date.now(),createdAt:nowIso,updatedAt:nowIso,date:$('contractDate').value,offer:parsed.meta.offer,client:parsed.meta.client||'Da verificare',vat:parsed.meta.vat,customerCode:parsed.meta.customerCode||'',prospect,agent,includeAgency,teamAllocations,status:'Valido',pdfRef:parsed.filename,pdfStored:false,notes:'SmartTracker 3.12.9',services:[]};
  for(const el of rows){
    const service=el.querySelector('.pr-service').value;
    const mnpEl=el.querySelector('.pr-mnp');
@@ -1027,6 +1027,51 @@ function openRegulation(id){
 
 let selectedCommissionAgent=localStorage.getItem('smartTrackerCommissionAgent')||'Francesco';
 
+
+function commissionPaymentBuckets(data){
+ const buckets={};
+ const add=(month,type,amount,row)=>{
+   amount=Number(amount||0); if(!month||!amount)return;
+   buckets[month]=buckets[month]||{total:0,items:[]};
+   buckets[month].total+=amount;buckets[month].items.push({type,amount,row});
+ };
+ const addMonths=(date,n)=>{const d=new Date(`${date}T12:00:00`);d.setMonth(d.getMonth()+n);return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`};
+ for(const r of data.rows||[]){
+   if(r.status!=='calculated')continue;
+   if(r.rule==='Easy Rent'){add(addMonths(r.date,2),'Easy Rent · gettone 60 gg',r.base,r);continue}
+   add(addMonths(r.date,2),r.rule==='M2M'?'M2M · 2 canoni 60 gg':'Base · 60 gg',r.base60??r.base,r);
+   add(addMonths(r.date,3),'Canone extra differito',r.deferred90,r);
+   add(addMonths(r.date,3),'Prospect · 90 gg',r.prospectExtra,r);
+   if(Number(r.individualExtra||0)>0){
+     const qm=Math.ceil(Number(String(r.date).slice(5,7))/3)*3;
+     let y=Number(String(r.date).slice(0,4)),m=qm+3;if(m>12){y++;m-=12}
+     add(`${y}-${String(m).padStart(2,'0')}`,'Gara individuale · 90 gg chiusura trimestre',r.individualExtra,r);
+   }
+ }
+ return buckets;
+}
+function monthLabelIT(k){const [y,m]=k.split('-').map(Number);return new Date(y,m-1,1).toLocaleDateString('it-IT',{month:'long',year:'numeric'})}
+function renderCommissionDrilldown(kind,data){
+ const host=$('commissionDrilldown');if(!host)return;
+ const buckets=commissionPaymentBuckets(data),months=Object.keys(buckets).sort();
+ let title='Stima provvigioni per mese di pagamento',filter=()=>true;
+ if(kind==='base'){title='Base calcolabile per mese di pagamento';filter=i=>/Base|Easy Rent|M2M/.test(i.type)}
+ if(kind==='extra'){title='Extra determinabili per mese di pagamento';filter=i=>!/Base|Easy Rent|M2M/.test(i.type)}
+ const blocks=[];
+ for(const month of months){
+   const items=buckets[month].items.filter(filter),total=items.reduce((a,i)=>a+i.amount,0);if(!items.length||!total)continue;
+   const groups={};for(const i of items)groups[i.type]=(groups[i.type]||0)+i.amount;
+   blocks.push(`<details class="commission-month-detail" ${blocks.length===0?'open':''}>
+    <summary><span>${monthLabelIT(month)}</span><strong>${money(total)}</strong></summary>
+    <div class="commission-month-types">${Object.entries(groups).map(([t,a])=>`<div><span>${t}</span><b>${money(a)}</b></div>`).join('')}</div>
+    <details class="commission-practice-detail"><summary>Vedi pratiche incluse (${items.length})</summary>
+    ${items.map(i=>`<div class="commission-practice-line"><span>${i.row.client}<small>${i.row.service}${i.row.product?' · '+i.row.product:''} · produzione ${String(i.row.date).slice(0,7)}</small></span><b>${money(i.amount)}</b></div>`).join('')}</details>
+   </details>`);
+ }
+ host.innerHTML=`<div class="card commission-drill-card"><div class="commission-drill-head"><h3>${title}</h3><button id="closeCommissionDrill" class="secondary">Chiudi</button></div>${blocks.join('')||'<p class="muted">Nessun pagamento determinabile.</p>'}</div>`;
+ host.scrollIntoView({behavior:'smooth',block:'start'});$('closeCommissionDrill').onclick=()=>host.innerHTML='';
+}
+
 function renderCommissions(){
  const box=$('commissionsSummary'),list=$('commissionsList'),ruleBox=$('commissionsRules');
  if(!box||!list||!ruleBox)return;
@@ -1047,17 +1092,21 @@ function renderCommissions(){
      ${(data.boostMonths||[]).map(x=>`<div class="commission-boost-chip ${x.unlocked?'unlocked':x.ko?'ko':'locked'}"><b>${x.month}</b><span>${money(x.inflow)} / € 250</span><strong>${x.unlocked?'✓ BOOST OK':x.ko?'✕ BOOST KO':'Mancano '+money(x.remaining)}</strong>${x.ko?'<small>Mese chiuso · nessun extra boost maturato</small>':''}</div>`).join('')||'<div class="muted">Nessun mese con inflow nel trimestre.</div>'}
    </div>
  </div>
- <div class="card commission-hero">
+ <div class="card commission-hero commission-clickable" data-commission-drill="all">
    <small>STIMA PROVVIGIONI · Q3 2026</small>
    <strong>${money(data.estimated)}</strong>
    <div class="muted">Base calcolabile + extra già determinabili. Non include ancora voci con regole incomplete o bonus esterni da confermare.</div>
  </div>
  <div class="grid commission-kpis">
-   <div class="card kpi"><small>Base calcolabile</small><strong>${money(data.base)}</strong></div>
-   <div class="card kpi"><small>Extra determinabili</small><strong>${money(data.deterministicExtra)}</strong></div>
+   <div class="card kpi commission-clickable" data-commission-drill="base"><small>Base calcolabile</small><strong>${money(data.base)}</strong><span class="commission-tap-hint">Dettaglio pagamenti ›</span></div>
+   <div class="card kpi commission-clickable" data-commission-drill="extra"><small>Extra determinabili</small><strong>${money(data.deterministicExtra)}</strong><span class="commission-tap-hint">Dettaglio pagamenti ›</span></div>
    <div class="card kpi"><small>Voci da completare</small><strong>${data.manualCount}</strong></div>
    <div class="card kpi"><small>Target individuale</small><strong>${t.won?'Raggiunto':'In corso'}</strong></div>
  </div>`;
+
+ let drill=$('commissionDrilldown');
+ if(!drill){drill=document.createElement('div');drill.id='commissionDrilldown';box.insertAdjacentElement('afterend',drill)}
+ document.querySelectorAll('[data-commission-drill]').forEach(el=>el.onclick=()=>renderCommissionDrilldown(el.dataset.commissionDrill,data));
 
  ruleBox.innerHTML=`
  <div class="card commission-rules-card">
