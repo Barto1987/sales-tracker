@@ -1224,3 +1224,14 @@ SMARTTRACKER 3.12.9 — DETTAGLIO PAGAMENTI
 - Riepilogo per mese previsto di pagamento.
 - Mese espandibile per tipologia di pagamento.
 - Secondo livello con pratiche, cliente, prodotto, mese produzione e importo.
+
+SMARTTRACKER 3.13.0 — REGOLE PROVVIGIONALI VERSIONATE
+
+- Target individuale: se ancora "In corso", mostra l'extra potenziale che verrebbe sbloccato sulle pratiche già caricate.
+- Il potenziale considera solo i mesi che hanno già superato la soglia mensile di accesso ai boost.
+- Toccando il riquadro Target individuale si apre il dettaglio delle pratiche che compongono il potenziale.
+- Creato il registro storico delle regole provvigionali per trimestre.
+- Q2 2026 salvato come versione storica; Q3 2026 salvato come versione attiva.
+- Ogni contratto usa automaticamente il set di regole relativo alla propria data.
+- I futuri trimestri verranno aggiunti come nuove versioni senza modificare lo storico.
+- Nella sezione Provvigioni è visibile "Storico regole provvigionali", espandibile e in sola lettura.

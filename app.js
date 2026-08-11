@@ -20,16 +20,16 @@ window.addEventListener('unhandledrejection',(e)=>{
 });
 
 
-import {loadStore,saveStore,importBackupObject} from './storage.js?v=3129';
-import {TARGETS,generalStats,agencyStats,agencyBreakdown,excellentStats,excellentBreakdown,communityStats,communityBreakdown,teamStats,teamBreakdown,availableMonths,customerList,customerDashboard,customerKey,inflowOf,communityRulesForMonth} from './engines.js?v=3129';
-import {savePdf,openPdf,deletePdf,getPdf} from './pdf-store.js?v=3129';
-import {initParser,parsePDF} from './parser.js?v=3129';
-import {createAutoBackup,getAutoBackupMeta,getFullBackupMeta,downloadDatabaseBackup,downloadCompleteBackup,restoreCompleteBackup,getArchiveStats,formatBytes,formatDate} from './backup.js?v=3129';
-import {exportSync,readSyncFile,previewMerge,applyMerge,getSyncMeta} from './sync.js?v=3129';
-import {regulationGroups} from './regulations.js?v=3129';
-import {currentMonthKey,monthLabel,quarterFromMonth,availablePeriodMonths,ensurePeriodState,periodStatusLabel,periodStatusIcon,applyGlobalMonth} from './periods.js?v=3129';
-import {cloudLogin,cloudLogout,cloudInfo,uploadLocalFirst,downloadAndMerge,syncNow,bootstrapLinkedCloud,queueCloudPush,getCloudMeta,isCloudLinked,getCloudSession,getCloudEmail,setCloudEmail,runCloudDiagnostics} from './cloud.js?v=3129';
-import {commissionsForPeriod} from './commissions.js?v=3129';
+import {loadStore,saveStore,importBackupObject} from './storage.js?v=3130';
+import {TARGETS,generalStats,agencyStats,agencyBreakdown,excellentStats,excellentBreakdown,communityStats,communityBreakdown,teamStats,teamBreakdown,availableMonths,customerList,customerDashboard,customerKey,inflowOf,communityRulesForMonth} from './engines.js?v=3130';
+import {savePdf,openPdf,deletePdf,getPdf} from './pdf-store.js?v=3130';
+import {initParser,parsePDF} from './parser.js?v=3130';
+import {createAutoBackup,getAutoBackupMeta,getFullBackupMeta,downloadDatabaseBackup,downloadCompleteBackup,restoreCompleteBackup,getArchiveStats,formatBytes,formatDate} from './backup.js?v=3130';
+import {exportSync,readSyncFile,previewMerge,applyMerge,getSyncMeta} from './sync.js?v=3130';
+import {regulationGroups} from './regulations.js?v=3130';
+import {currentMonthKey,monthLabel,quarterFromMonth,availablePeriodMonths,ensurePeriodState,periodStatusLabel,periodStatusIcon,applyGlobalMonth} from './periods.js?v=3130';
+import {cloudLogin,cloudLogout,cloudInfo,uploadLocalFirst,downloadAndMerge,syncNow,bootstrapLinkedCloud,queueCloudPush,getCloudMeta,isCloudLinked,getCloudSession,getCloudEmail,setCloudEmail,runCloudDiagnostics} from './cloud.js?v=3130';
+import {commissionsForPeriod} from './commissions.js?v=3130';
 
 let store=loadStore(),parsed=null,pendingPdf=null;
 applyGlobalMonth(store,store.settings.activeMonth||store.settings.currentMonth||currentMonthKey());
@@ -590,7 +590,7 @@ async function saveParsed(){
      ?[{agent:'Jacopo',share:.5},{agent:'Luciano',share:.5}]
      :[{agent,share:1}];
  const nowIso=new Date().toISOString();
- const contract={id:'C-'+Date.now(),createdAt:nowIso,updatedAt:nowIso,date:$('contractDate').value,offer:parsed.meta.offer,client:parsed.meta.client||'Da verificare',vat:parsed.meta.vat,customerCode:parsed.meta.customerCode||'',prospect,agent,includeAgency,teamAllocations,status:'Valido',pdfRef:parsed.filename,pdfStored:false,notes:'SmartTracker 3.12.9',services:[]};
+ const contract={id:'C-'+Date.now(),createdAt:nowIso,updatedAt:nowIso,date:$('contractDate').value,offer:parsed.meta.offer,client:parsed.meta.client||'Da verificare',vat:parsed.meta.vat,customerCode:parsed.meta.customerCode||'',prospect,agent,includeAgency,teamAllocations,status:'Valido',pdfRef:parsed.filename,pdfStored:false,notes:'SmartTracker 3.13.0',services:[]};
  for(const el of rows){
    const service=el.querySelector('.pr-service').value;
    const mnpEl=el.querySelector('.pr-mnp');
@@ -1101,15 +1101,27 @@ function renderCommissions(){
    <div class="card kpi commission-clickable" data-commission-drill="base"><small>Base calcolabile</small><strong>${money(data.base)}</strong><span class="commission-tap-hint">Dettaglio pagamenti ›</span></div>
    <div class="card kpi commission-clickable" data-commission-drill="extra"><small>Extra determinabili</small><strong>${money(data.deterministicExtra)}</strong><span class="commission-tap-hint">Dettaglio pagamenti ›</span></div>
    <div class="card kpi"><small>Voci da completare</small><strong>${data.manualCount}</strong></div>
-   <div class="card kpi"><small>Target individuale</small><strong>${t.won?'Raggiunto':'In corso'}</strong></div>
+   <div class="card kpi commission-target-card" data-commission-target>
+     <small>Target individuale</small>
+     <strong>${t.won?'Raggiunto':'In corso'}</strong>
+     ${t.won
+       ?`<span class="commission-target-value">Extra applicato: ${money(t.potentialIndividual||0)}</span>`
+       :`<span class="commission-target-value">Se raggiunto oggi: +${money(t.potentialIndividual||0)}</span>`}
+   </div>
  </div>`;
 
  let drill=$('commissionDrilldown');
  if(!drill){drill=document.createElement('div');drill.id='commissionDrilldown';box.insertAdjacentElement('afterend',drill)}
  document.querySelectorAll('[data-commission-drill]').forEach(el=>el.onclick=()=>renderCommissionDrilldown(el.dataset.commissionDrill,data));
 
+ const activeRule=data.ruleSet;
  ruleBox.innerHTML=`
  <div class="card commission-rules-card">
+   <div class="commission-rules-title">
+     <div><small>VERSIONE REGOLE APPLICATA</small><h3>${activeRule?.label||'Regole non disponibili'}</h3></div>
+     <span class="rule-version-badge">${activeRule?.id||'—'}</span>
+   </div>
+   <p class="muted">Ogni contratto usa automaticamente le regole valide nella propria data di produzione. Le versioni chiuse restano nello storico e non vengono sovrascritte.</p>
    <h3>Motore provvigionale — stato attuale</h3>
    <div class="commission-rule-row"><span>Core / ADSL / One Net / Easy Deal</span><b class="ok-text">Calcolo base attivo</b></div>
    <div class="commission-rule-row"><span>Prospect</span><b class="ok-text">Calcolato quando presente</b></div>
@@ -1117,6 +1129,19 @@ function renderCommissions(){
    <div class="commission-rule-row"><span>Target Agenzia + Rush</span><b class="pending-text">Da confermare</b></div>
    <div class="commission-rule-row"><span>Digital / Energy / Gas</span><b class="pending-text">Listino da completare</b></div>
    <p class="muted" style="margin-top:12px">La prima versione evita di attribuire automaticamente importi non ancora supportati da una regola certa.</p>
+   <div class="commission-rule-history">
+     <h3>Storico regole provvigionali</h3>
+     ${(data.ruleSets||[]).slice().reverse().map(rs=>`
+       <details class="rule-history-item" ${rs.status==='active'?'open':''}>
+         <summary><span>${rs.label}</span><b>${rs.status==='active'?'ATTIVA':'STORICO'}</b></summary>
+         <div class="rule-history-body">
+           <div><strong>Validità:</strong> ${rs.start} → ${rs.end}</div>
+           <div><strong>Soglia boost mensile:</strong> ${money(rs.monthlyBoostAccess||0)}</div>
+           <div><strong>Target individuale:</strong> ${rs.targetIndividual?.totalInflow?money(rs.targetIndividual.totalInflow)+' inflow · ':''}${rs.targetIndividual?.corePieces||0} Core / ${money(rs.targetIndividual?.coreInflow||0)} · ${rs.targetIndividual?.adsl||0} ADSL · ${rs.targetIndividual?.oneNet||0} One Net</div>
+           ${(rs.notes||[]).map(n=>`<div class="rule-note">• ${n}</div>`).join('')}
+         </div>
+       </details>`).join('')}
+   </div>
  </div>`;
 
  const paymentGroups=(data.paymentMonths||[]).filter(g=>g.rows.length);
@@ -1138,6 +1163,21 @@ function renderCommissions(){
      </div>`).join('')}
    </div>`).join('')
    :'<div class="card"><p class="muted">Nessun pagamento provvigionale calcolabile nel periodo.</p></div>';
+ const targetCard=document.querySelector('[data-commission-target]');
+ if(targetCard)targetCard.onclick=()=>{
+   let host=$('commissionDrilldown');
+   if(!host){host=document.createElement('div');host.id='commissionDrilldown';box.insertAdjacentElement('afterend',host)}
+   const rows=t.potentialRows||[];
+   host.innerHTML=`<div class="card commission-drill-card">
+     <div class="commission-drill-head"><h3>${t.won?'Extra target individuale applicato':'Potenziale target individuale'}</h3><button id="closeCommissionTarget" class="secondary">Chiudi</button></div>
+     <div class="commission-potential-total"><small>${t.won?'TOTALE APPLICATO':'SE IL TARGET FOSSE RAGGIUNTO OGGI'}</small><strong>${money(t.potentialIndividual||0)}</strong></div>
+     <p class="muted">Sono incluse solo le pratiche dei mesi che hanno già sbloccato la soglia mensile di accesso ai boost.</p>
+     ${rows.length?rows.map(r=>`<div class="commission-practice-line"><span>${r.client}<small>${r.service}${r.product?' · '+r.product:''} · ${r.date}</small></span><b>${money(r.amount)}</b></div>`).join(''):'<p class="muted">Nessun extra individuale potenziale sulle pratiche attualmente eleggibili.</p>'}
+   </div>`;
+   host.scrollIntoView({behavior:'smooth',block:'start'});
+   $('closeCommissionTarget').onclick=()=>host.innerHTML='';
+ };
+
  const commissionAgentSelect=$('commissionAgentSelect');
  if(commissionAgentSelect)commissionAgentSelect.onchange=()=>{
    selectedCommissionAgent=commissionAgentSelect.value;

@@ -636,7 +636,7 @@ input:focus,select:focus,textarea:focus{
 .cloud-auto-note{margin-top:10px;padding:10px 12px;border-radius:12px;background:#edf9f1;color:#176b35;font-weight:800;font-size:12px}
 
 
-/* SmartTracker 3.12.9 — navigation active-state visibility */
+/* SmartTracker 3.13.0 — navigation active-state visibility */
 .app-nav{
   grid-template-columns:repeat(7,minmax(62px,1fr))!important;
   overflow-x:auto;
@@ -679,7 +679,7 @@ input:focus,select:focus,textarea:focus{
 }
 
 
-/* SmartTracker 3.12.9 — menu iPhone + pulsante Nuovo in testata */
+/* SmartTracker 3.13.0 — menu iPhone + pulsante Nuovo in testata */
 .smart-header{
   position:sticky;
   top:0;
@@ -807,3 +807,19 @@ input:focus,select:focus,textarea:focus{
 .commission-practice-detail>summary{font-size:11px;font-weight:800;padding:8px 2px;cursor:pointer}
 .commission-practice-line{display:flex;justify-content:space-between;gap:10px;padding:9px 2px;border-top:1px solid #eef0f2;font-size:11px}
 .commission-practice-line span{min-width:0;font-weight:750}.commission-practice-line small{display:block;color:#6b7280;font-weight:500;margin-top:2px}.commission-practice-line b{white-space:nowrap}
+
+.commission-target-card{cursor:pointer}
+.commission-target-value{display:block;margin-top:7px;font-size:10px;font-weight:850;color:#8a1538}
+.commission-rules-title{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.commission-rules-title small{display:block;font-size:9px;font-weight:900;letter-spacing:.08em;color:#6b7280}
+.commission-rules-title h3{margin:3px 0 0}
+.rule-version-badge{background:#111827;color:#fff;border-radius:999px;padding:6px 9px;font-size:10px;font-weight:900;white-space:nowrap}
+.commission-rule-history{margin-top:18px;padding-top:14px;border-top:1px solid #e5e7eb}
+.rule-history-item{border-top:1px solid #eceef2}
+.rule-history-item>summary{display:flex;justify-content:space-between;gap:12px;padding:12px 0;cursor:pointer;font-size:12px;font-weight:850}
+.rule-history-item>summary b{font-size:9px;border-radius:999px;background:#f2f4f7;padding:4px 7px}
+.rule-history-body{padding:0 0 12px;font-size:11px;line-height:1.45;color:#374151}
+.rule-note{margin-top:4px;color:#6b7280}
+.commission-potential-total{background:#f7f8fa;border-radius:14px;padding:12px;margin:10px 0}
+.commission-potential-total small{display:block;font-size:9px;font-weight:900;color:#6b7280}
+.commission-potential-total strong{display:block;font-size:26px;margin-top:4px}

@@ -1,6 +1,7 @@
-import {matchEasyRent} from './easy-rent-listino.js?v=3129';
-import {recognizeM2MProduct} from './m2m-listino.js?v=3129';
-// SmartTracker 3.12.9 — prima base del motore Provvigioni.
+import {matchEasyRent} from './easy-rent-listino.js?v=3130';
+import {recognizeM2MProduct} from './m2m-listino.js?v=3130';
+import {COMMISSION_RULE_SETS,commissionRuleSetForDate,activeCommissionRuleSet} from './commission-rules.js?v=3130';
+// SmartTracker 3.13.0 — prima base del motore Provvigioni.
 // Q3 2026: calcoliamo solo le parti supportate dalle regole già raccolte.
 // Le voci ancora ambigue restano esplicitamente "da confermare".
 
@@ -37,9 +38,11 @@ function validMonthlyInflow(store,agent,month){
 }
 export function monthlyBoostAccess(store,agent,month){
   const inflow=validMonthlyInflow(store,agent,month);
-  const unlocked=inflow>=250;
+  const rs=commissionRuleSetForDate(`${month}-01`)||activeCommissionRuleSet();
+  const threshold=Number(rs?.monthlyBoostAccess||250);
+  const unlocked=inflow>=threshold;
   const closed=monthIsClosed(store,month);
-  return {agent,month,inflow,target:250,unlocked,closed,ko:closed&&!unlocked,inProgress:!closed&&!unlocked,remaining:Math.max(250-inflow,0)};
+  return {agent,month,inflow,target:threshold,unlocked,closed,ko:closed&&!unlocked,inProgress:!closed&&!unlocked,remaining:Math.max(threshold-inflow,0),ruleSetId:rs?.id||null};
 }
 
 function textOf(s){
@@ -51,9 +54,12 @@ function isDigital(s){return /solution|soluzioni digitali|digital|cloud|security
 function isEnergyGas(s){return ['Energia','Gas'].includes(s.service)}
 function isOneNetExcludedComponent(s){return /interno|uc phone|sempre serviti|device|attivazione|alcatel|cisco|adok/.test(textOf(s))}
 
-export function individualAgencyTargetWon(store,agent='Francesco'){
+export function individualAgencyTargetWon(store,agent='Francesco',periodStart=null){
   const p=store.settings?.agencyPeriod||{start:'2026-07-01',end:'2026-09-30'};
-  const rows=(store.contracts||[]).filter(c=>active(c)&&agentOf(c)===agent&&c.includeAgency!==false&&inRange(c.date,p.start,p.end))
+  const start=periodStart||p.start;
+  const rs=commissionRuleSetForDate(start)||activeCommissionRuleSet();
+  const period={start:rs?.start||p.start,end:rs?.end||p.end};
+  const rows=(store.contracts||[]).filter(c=>active(c)&&agentOf(c)===agent&&c.includeAgency!==false&&inRange(c.date,period.start,period.end))
     .flatMap(c=>(c.services||[]).map(s=>({c,s,inflow:inflowOf(s)})));
 
   const totalInflow=rows.reduce((a,r)=>a+r.inflow,0);
@@ -61,45 +67,77 @@ export function individualAgencyTargetWon(store,agent='Francesco'){
   const corePieces=core.reduce((a,r)=>a+Number(r.s.qty||0),0);
   const coreInflow=core.reduce((a,r)=>a+r.inflow,0);
   const adsl=rows.filter(r=>r.s.service==='ADSL').reduce((a,r)=>a+Number(r.s.qty||0),0);
-  const oneNet=rows.filter(r=>['One Net Ufficio','One Net Azienda'].includes(r.s.service) && !isOneNetExcludedComponent(r.s))
+  const oneNet=rows.filter(r=>['One Net Ufficio','One Net Azienda'].includes(r.s.service)&&!isOneNetExcludedComponent(r.s))
     .reduce((a,r)=>a+Number(r.s.qty||0),0);
 
+  const tr=rs?.targetIndividual||{};
   const checks={
-    totalInflow: totalInflow>=1600,
-    core: corePieces>=40 && coreInflow>=500,
-    adsl: adsl>=8,
-    oneNet: oneNet>=8
+    totalInflow:tr.totalInflow==null?true:totalInflow>=Number(tr.totalInflow),
+    core:corePieces>=Number(tr.corePieces||0)&&coreInflow>=Number(tr.coreInflow||0),
+    adsl:adsl>=Number(tr.adsl||0),
+    oneNet:oneNet>=Number(tr.oneNet||0)
   };
+
+  let potentialIndividual=0;
+  const potentialRows=[];
+  for(const r of rows){
+    const rule=ruleFor(r.s,r.c.date);
+    const access=monthlyBoostAccess(store,agent,monthKey(r.c.date));
+    const amount=access.unlocked?r.inflow*Number(rule.individualCanons||0):0;
+    if(amount>0){
+      potentialIndividual+=amount;
+      potentialRows.push({
+        contractId:r.c.id,client:r.c.client||'Cliente',date:r.c.date,
+        service:r.s.service||'',product:r.s.product||'',amount
+      });
+    }
+  }
+
   return {
     won:Object.values(checks).every(Boolean),
     checks,
-    values:{totalInflow,corePieces,coreInflow,adsl,oneNet}
+    values:{totalInflow,corePieces,coreInflow,adsl,oneNet},
+    thresholds:tr,
+    potentialIndividual,
+    potentialRows,
+    ruleSet:rs
   };
 }
 
-function ruleFor(s){
-  if(isEasyRent(s)) return {type:'Easy Rent',easyRent:true,rushEligible:true};
-  if(isMiniEasyDeal(s)) return {type:'Mini Easy Deal',base60Canons:1.5,deferred90Canons:1,individualCanons:1,prospectCanons:2,agencyCanons:0,rushEligible:false};
-  if(s.service==='Easy Deal') return {type:'Easy Deal',base60Canons:1.5,deferred90Canons:.5,individualCanons:0,prospectCanons:2,agencyCanons:0,rushEligible:false};
-  if(s.service==='ADSL') return {type:'ADSL',base60Canons:3,deferred90Canons:0,individualCanons:1,prospectCanons:2,agencyCanons:1,rushEligible:true};
-  if(['One Net Ufficio','One Net Azienda'].includes(s.service) && !isOneNetExcludedComponent(s))
-    return {type:s.service,base60Canons:2,deferred90Canons:0,individualCanons:1,prospectCanons:2,agencyCanons:1,rushEligible:true};
+function ruleFor(s,date='2026-07-01'){
+  const rs=commissionRuleSetForDate(date)||activeCommissionRuleSet();
+  const f=rs?.families||{};
+  const cv=x=>({
+    base60Canons:Number(x?.base60||0),
+    deferred90Canons:Number(x?.deferred90||0),
+    individualCanons:Number(x?.individual||0),
+    prospectCanons:Number(x?.prospect||0),
+    agencyCanons:Number(x?.agency||0),
+    rushEligible:!!x?.rush
+  });
+
+  if(isEasyRent(s)) return {type:'Easy Rent',easyRent:true,rushEligible:!!f.easyRent?.rush,ruleSetId:rs?.id};
+  if(isMiniEasyDeal(s)&&f.miniEasyDeal) return {type:'Mini Easy Deal',...cv(f.miniEasyDeal),ruleSetId:rs?.id};
+  if(s.service==='Easy Deal') return {type:'Easy Deal',...cv(f.easyDeal),ruleSetId:rs?.id};
+  if(s.service==='ADSL') return {type:'ADSL',...cv(f.adsl),ruleSetId:rs?.id};
+  if(['One Net Ufficio','One Net Azienda'].includes(s.service)&&!isOneNetExcludedComponent(s))
+    return {type:s.service,...cv(f.onet),ruleSetId:rs?.id};
   if(s.service==='SIM M2M')
-    return {type:'M2M',base60Canons:2,deferred90Canons:0,individualCanons:0,prospectCanons:0,agencyCanons:0,rushEligible:true,m2m:true};
+    return {type:'M2M',...cv(f.m2m),m2m:true,ruleSetId:rs?.id};
   if(['SIM Voce','SIM Dati'].includes(s.service))
-    return {type:'Core',base60Canons:2,deferred90Canons:1,individualCanons:1,prospectCanons:2,agencyCanons:1,rushEligible:true};
-  if(isEnergyGas(s)) return {type:s.service,manual:true,rushEligible:true,reason:'Premio Energia/Gas da valorizzare con la regola dedicata; l’inflow resta valido per il Rush.'};
-  if(isDigital(s)) return {type:'Digital',manual:true,reason:'Manca ancora il listino base completo; gli extra Digital verranno aggiunti con la prossima tabella provvigionale.'};
-  return {type:s.service||'Altro',manual:true,reason:'Regola provvigionale non ancora censita.'};
+    return {type:'Core',...cv(f.core),ruleSetId:rs?.id};
+  if(isEnergyGas(s)) return {type:s.service,manual:true,rushEligible:true,ruleSetId:rs?.id,reason:'Premio Energia/Gas da valorizzare con la regola dedicata; l’inflow resta valido per il Rush.'};
+  if(isDigital(s)) return {type:'Digital',manual:true,ruleSetId:rs?.id,reason:'Manca ancora il listino base completo; gli extra Digital verranno aggiunti con la prossima tabella provvigionale.'};
+  return {type:s.service||'Altro',manual:true,ruleSetId:rs?.id,reason:'Regola provvigionale non ancora censita.'};
 }
 
 export function commissionsForPeriod(store,start,end,agent='Francesco'){
-  const target=individualAgencyTargetWon(store,agent);
+  const target=individualAgencyTargetWon(store,agent,start);
   const rows=[];
   for(const c of (store.contracts||[]).filter(c=>active(c)&&agentOf(c)===agent&&inRange(c.date,start,end))){
     for(const s of c.services||[]){
       const inflow=inflowOf(s);
-      const rule=ruleFor(s);
+      const rule=ruleFor(s,c.date);
 
       if(rule.easyRent){
         const er=matchEasyRent(s);
@@ -164,6 +202,9 @@ export function commissionsForPeriod(store,start,end,agent='Francesco'){
     estimated:calculated.reduce((a,r)=>a+r.estimated,0),
     manualCount:rows.filter(r=>r.status==='manual').length,
     target,
+    potentialIndividual:target.potentialIndividual||0,
+    ruleSet:target.ruleSet||commissionRuleSetForDate(start)||activeCommissionRuleSet(),
+    ruleSets:COMMISSION_RULE_SETS,
     agent,
     boostMonths:[...new Set(rows.map(r=>r.productionMonth||monthKey(r.date)).filter(Boolean))].sort().map(m=>monthlyBoostAccess(store,agent,m)),
     paymentMonths:[...new Set(rows.map(r=>r.paymentMonth).filter(Boolean))].sort().map(month=>({month,rows:rows.filter(r=>r.paymentMonth===month),total:rows.filter(r=>r.paymentMonth===month&&r.status==='calculated').reduce((a,r)=>a+r.estimated,0)}))
