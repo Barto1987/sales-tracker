@@ -1172,3 +1172,12 @@ SMARTTRACKER 3.12.4 — PROVVIGIONI / EASY RENT FIX
 - Easy Rent: gettone secco a 60 gg e inflow valido per la soglia Rush.
 - Migliorato il parser delle offerte Mobile + Easy Rent per leggere il vero device Kasko.
 - Per Easy Rent storici non riconosciuti, se il PDF è presente localmente compare "Rileggi Easy Rent dal PDF", senza dover eliminare il contratto.
+
+SMARTTRACKER 3.12.5 — EASY RENT PDF REPAIR
+- Per un Easy Rent non riconosciuto compare "Carica e rileggi offerta PDF".
+- Il PDF può essere scelto direttamente da File/iCloud Drive anche se non era già salvato in SmartTracker.
+- La rilettura aggiorna solo le righe Easy Rent del contratto.
+- Restano invariati cliente, data, agente, Prospect e tutti gli altri prodotti già presenti.
+- Il nuovo inflow Easy Rent viene ricalcolato dal PDF selezionato.
+- Dopo il salvataggio la correzione passa nel normale AutoSync Cloud.
+- Nessuna modifica al listino Easy Rent o alle altre regole provvigionali della 3.12.4.

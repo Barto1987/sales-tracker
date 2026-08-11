@@ -20,16 +20,16 @@ window.addEventListener('unhandledrejection',(e)=>{
 });
 
 
-import {loadStore,saveStore,importBackupObject} from './storage.js?v=3124';
-import {TARGETS,generalStats,agencyStats,agencyBreakdown,excellentStats,excellentBreakdown,communityStats,communityBreakdown,teamStats,teamBreakdown,availableMonths,customerList,customerDashboard,customerKey,inflowOf,communityRulesForMonth} from './engines.js?v=3124';
-import {savePdf,openPdf,deletePdf,getPdf} from './pdf-store.js?v=3124';
-import {initParser,parsePDF} from './parser.js?v=3124';
-import {createAutoBackup,getAutoBackupMeta,getFullBackupMeta,downloadDatabaseBackup,downloadCompleteBackup,restoreCompleteBackup,getArchiveStats,formatBytes,formatDate} from './backup.js?v=3124';
-import {exportSync,readSyncFile,previewMerge,applyMerge,getSyncMeta} from './sync.js?v=3124';
-import {regulationGroups} from './regulations.js?v=3124';
-import {currentMonthKey,monthLabel,quarterFromMonth,availablePeriodMonths,ensurePeriodState,periodStatusLabel,periodStatusIcon,applyGlobalMonth} from './periods.js?v=3124';
-import {cloudLogin,cloudLogout,cloudInfo,uploadLocalFirst,downloadAndMerge,syncNow,bootstrapLinkedCloud,queueCloudPush,getCloudMeta,isCloudLinked,getCloudSession,getCloudEmail,setCloudEmail,runCloudDiagnostics} from './cloud.js?v=3124';
-import {commissionsForPeriod} from './commissions.js?v=3124';
+import {loadStore,saveStore,importBackupObject} from './storage.js?v=3125';
+import {TARGETS,generalStats,agencyStats,agencyBreakdown,excellentStats,excellentBreakdown,communityStats,communityBreakdown,teamStats,teamBreakdown,availableMonths,customerList,customerDashboard,customerKey,inflowOf,communityRulesForMonth} from './engines.js?v=3125';
+import {savePdf,openPdf,deletePdf,getPdf} from './pdf-store.js?v=3125';
+import {initParser,parsePDF} from './parser.js?v=3125';
+import {createAutoBackup,getAutoBackupMeta,getFullBackupMeta,downloadDatabaseBackup,downloadCompleteBackup,restoreCompleteBackup,getArchiveStats,formatBytes,formatDate} from './backup.js?v=3125';
+import {exportSync,readSyncFile,previewMerge,applyMerge,getSyncMeta} from './sync.js?v=3125';
+import {regulationGroups} from './regulations.js?v=3125';
+import {currentMonthKey,monthLabel,quarterFromMonth,availablePeriodMonths,ensurePeriodState,periodStatusLabel,periodStatusIcon,applyGlobalMonth} from './periods.js?v=3125';
+import {cloudLogin,cloudLogout,cloudInfo,uploadLocalFirst,downloadAndMerge,syncNow,bootstrapLinkedCloud,queueCloudPush,getCloudMeta,isCloudLinked,getCloudSession,getCloudEmail,setCloudEmail,runCloudDiagnostics} from './cloud.js?v=3125';
+import {commissionsForPeriod} from './commissions.js?v=3125';
 
 let store=loadStore(),parsed=null,pendingPdf=null;
 applyGlobalMonth(store,store.settings.activeMonth||store.settings.currentMonth||currentMonthKey());
@@ -590,7 +590,7 @@ async function saveParsed(){
      ?[{agent:'Jacopo',share:.5},{agent:'Luciano',share:.5}]
      :[{agent,share:1}];
  const nowIso=new Date().toISOString();
- const contract={id:'C-'+Date.now(),createdAt:nowIso,updatedAt:nowIso,date:$('contractDate').value,offer:parsed.meta.offer,client:parsed.meta.client||'Da verificare',vat:parsed.meta.vat,customerCode:parsed.meta.customerCode||'',prospect,agent,includeAgency,teamAllocations,status:'Valido',pdfRef:parsed.filename,pdfStored:false,notes:'SmartTracker 3.12.4',services:[]};
+ const contract={id:'C-'+Date.now(),createdAt:nowIso,updatedAt:nowIso,date:$('contractDate').value,offer:parsed.meta.offer,client:parsed.meta.client||'Da verificare',vat:parsed.meta.vat,customerCode:parsed.meta.customerCode||'',prospect,agent,includeAgency,teamAllocations,status:'Valido',pdfRef:parsed.filename,pdfStored:false,notes:'SmartTracker 3.12.5',services:[]};
  for(const el of rows){
    const service=el.querySelector('.pr-service').value;
    const mnpEl=el.querySelector('.pr-mnp');
@@ -1070,7 +1070,7 @@ function renderCommissions(){
          ${r.rule==='Easy Rent'&&r.note?`<div class="commission-easyrent">${r.note} · inflow valido Rush</div>`:''}
          ${r.pending?.length?`<div class="commission-pending">Potenziali non conteggiati: ${r.pending.join(' · ')}</div>`:''}`
        :`<div class="commission-pending">${r.note}</div>
-         ${r.canReparse?`<button class="secondary er-reparse-btn" data-er-reparse="${r.contractId}" style="margin-top:10px">Rileggi Easy Rent dal PDF</button>`:''}`}
+         ${r.canReparse?`<button class="secondary er-reparse-btn" data-er-reparse="${r.contractId}" style="margin-top:10px">Carica e rileggi offerta PDF</button>`:''}`}
    </div>`).join('')
    :'<div class="card"><p class="muted">Nessuna pratica nel trimestre selezionato.</p></div>';
 
@@ -1078,22 +1078,64 @@ function renderCommissions(){
    const id=btn.dataset.erReparse;
    const c=store.contracts.find(x=>x.id===id);
    if(!c)return;
-   const pdf=await getPdf(id).catch(()=>null);
-   if(!pdf){alert('Il PDF di questo contratto non è disponibile su questo dispositivo.');return}
-   btn.disabled=true;btn.textContent='Rilettura PDF…';
-   try{
-     const reparsed=await parsePDF(pdf);
-     const erRows=(reparsed.rows||[]).filter(x=>x.service==='Easy Rent' && x.product && !/da verificare/i.test(x.product));
-     if(!erRows.length){alert('Nel PDF non ho riconosciuto un device Easy Rent.');return}
-     const keep=(c.services||[]).filter(x=>x.service!=='Easy Rent');
-     c.services=[...keep,...erRows.map(x=>({...x,id:'S-'+Math.random().toString(36).slice(2)}))];
-     c.updatedAt=new Date().toISOString();
-     persistStore();
-     renderAll();
-     alert('Easy Rent riletto dal PDF e aggiornato.');
-   }catch(e){
-     console.error(e);alert('Rilettura PDF non riuscita: '+(e.message||e));
-   }finally{btn.disabled=false}
+
+   const input=document.createElement('input');
+   input.type='file';
+   input.accept='application/pdf,.pdf';
+   input.style.display='none';
+   document.body.appendChild(input);
+
+   input.onchange=async()=>{
+     const pdf=input.files?.[0];
+     input.remove();
+     if(!pdf)return;
+
+     btn.disabled=true;
+     const oldLabel=btn.textContent;
+     btn.textContent='Analisi offerta…';
+
+     try{
+       const reparsed=await parsePDF(pdf);
+       const erRows=(reparsed.rows||[]).filter(x=>
+         x.service==='Easy Rent' &&
+         x.product &&
+         !/da verificare/i.test(x.product)
+       );
+
+       if(!erRows.length){
+         alert('Nel PDF selezionato non ho riconosciuto un device Easy Rent.');
+         return;
+       }
+
+       // Aggiorniamo SOLO le righe Easy Rent.
+       // Cliente, data, agente, Prospect e le altre righe del contratto restano invariati.
+       const keep=(c.services||[]).filter(x=>x.service!=='Easy Rent');
+       const fixedRows=erRows.map(x=>({
+         ...x,
+         id:'S-'+Math.random().toString(36).slice(2)
+       }));
+
+       c.services=[...keep,...fixedRows];
+       c.updatedAt=new Date().toISOString();
+
+       // Se dal PDF viene letto un inflow Easy Rent valido, quello diventa il valore tecnico corretto.
+       // Non tocchiamo gli altri prodotti del contratto.
+       persistStore();
+       renderAll();
+
+       const found=fixedRows.map(x=>`${x.product} · inflow ${money((Number(x.inflowUnit||0)*Number(x.qty||1)))}`).join('\n');
+       alert('Offerta riletta e Easy Rent aggiornato:\n'+found);
+     }catch(e){
+       console.error(e);
+       alert('Rilettura PDF non riuscita: '+(e.message||e));
+     }finally{
+       btn.disabled=false;
+       btn.textContent=oldLabel;
+     }
+   };
+
+   input.oncancel=()=>input.remove();
+   input.click();
  });
 }
 

@@ -1,5 +1,5 @@
-import {matchEasyRent} from './easy-rent-listino.js?v=3124';
-// SmartTracker 3.12.4 — prima base del motore Provvigioni.
+import {matchEasyRent} from './easy-rent-listino.js?v=3125';
+// SmartTracker 3.12.5 — prima base del motore Provvigioni.
 // Q3 2026: calcoliamo solo le parti supportate dalle regole già raccolte.
 // Le voci ancora ambigue restano esplicitamente "da confermare".
 
@@ -83,8 +83,8 @@ export function commissionsForPeriod(store,start,end){
             contractId:c.id,date:c.date,client:c.client||'Cliente',
             service:s.service||'Easy Rent',product:s.product||'',
             inflow,base:0,deterministicExtra:0,estimated:0,status:'manual',
-            rule:'Easy Rent',pdfStored:!!c.pdfStored,canReparse:!!c.pdfStored,
-            note:'Profilo Easy Rent non trovato nel listino del 20/04/2026. Se il PDF è salvato sul dispositivo, puoi farlo rileggere a SmartTracker.'
+            rule:'Easy Rent',pdfStored:!!c.pdfStored,canReparse:true,
+            note:'Profilo Easy Rent non trovato nel listino del 20/04/2026. Puoi scegliere l’offerta PDF da File/iCloud Drive e farla rileggere a SmartTracker.'
           });
         }
         continue;
