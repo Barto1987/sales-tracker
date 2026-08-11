@@ -417,7 +417,7 @@ export async function parsePDF(file){
        calc:'Nessun device Easy Rent riconosciuto: inserire i dati manualmente'
      })
    }
-  }else if(/OFFERTA\s+(?:M2M|IoT)\b/i.test(b)){
+  }else if(/OFFERTA\s+(?:M2M|IoT)\b/i.test(b)||/\b(?:Mezzo|Due|Cinque|Venti|Cinquanta|Duecento|Cinquecento|Mille|Diecimila)\s+EU\b/i.test(b)||/\bFree\s+Call(?:\s+MAXI)?\b/i.test(b)){
    const head=b.match(/OFFERTA\s+([^\n€]{3,90})/i);
    const price=b.match(/(?:^|\s)((?:M2M|IoT)[^€]{1,80}?)\s+(?:(\d+)\s*x\s*)?([0-9]{1,3}(?:\.[0-9]{3})*,\d{2}|[0-9]+[,.]\d{2})\s*€/i);
    const qty=Number(price?.[2]||1);

@@ -1,11 +1,24 @@
-import {matchEasyRent} from './easy-rent-listino.js?v=3126';
-// SmartTracker 3.12.6 — prima base del motore Provvigioni.
+import {matchEasyRent} from './easy-rent-listino.js?v=3127';
+import {recognizeM2MProduct} from './m2m-listino.js?v=3127';
+// SmartTracker 3.12.7 — prima base del motore Provvigioni.
 // Q3 2026: calcoliamo solo le parti supportate dalle regole già raccolte.
 // Le voci ancora ambigue restano esplicitamente "da confermare".
 
 const active=c=>c.status!=='Annullato';
 const inflowOf=s=>Number(s.inflowUnit||0)*Number(s.qty||0);
 const inRange=(d,start,end)=>String(d||'')>=start&&String(d||'')<=end;
+const monthKey=d=>String(d||'').slice(0,7);
+const agentOf=c=>c.agent||'Francesco';
+function validMonthlyInflow(store,agent,month){
+  return (store.contracts||[])
+    .filter(c=>active(c)&&agentOf(c)===agent&&monthKey(c.date)===month)
+    .flatMap(c=>c.services||[])
+    .reduce((a,s)=>a+inflowOf(s),0);
+}
+export function monthlyBoostAccess(store,agent,month){
+  const inflow=validMonthlyInflow(store,agent,month);
+  return {agent,month,inflow,target:250,unlocked:inflow>=250,remaining:Math.max(250-inflow,0)};
+}
 
 function textOf(s){
   return `${s.service||''} ${s.product||''} ${s.category||''}`.toLowerCase();
@@ -16,9 +29,9 @@ function isDigital(s){return /solution|soluzioni digitali|digital|cloud|security
 function isEnergyGas(s){return ['Energia','Gas'].includes(s.service)}
 function isOneNetExcludedComponent(s){return /interno|uc phone|sempre serviti|device|attivazione|alcatel|cisco|adok/.test(textOf(s))}
 
-export function individualAgencyTargetWon(store){
+export function individualAgencyTargetWon(store,agent='Francesco'){
   const p=store.settings?.agencyPeriod||{start:'2026-07-01',end:'2026-09-30'};
-  const rows=(store.contracts||[]).filter(c=>active(c)&&c.includeAgency!==false&&inRange(c.date,p.start,p.end))
+  const rows=(store.contracts||[]).filter(c=>active(c)&&agentOf(c)===agent&&c.includeAgency!==false&&inRange(c.date,p.start,p.end))
     .flatMap(c=>(c.services||[]).map(s=>({c,s,inflow:inflowOf(s)})));
 
   const totalInflow=rows.reduce((a,r)=>a+r.inflow,0);
@@ -49,6 +62,8 @@ function ruleFor(s){
   if(s.service==='ADSL') return {type:'ADSL',base60Canons:3,deferred90Canons:0,individualCanons:1,prospectCanons:2,agencyCanons:1,rushEligible:true};
   if(['One Net Ufficio','One Net Azienda'].includes(s.service) && !isOneNetExcludedComponent(s))
     return {type:s.service,base60Canons:2,deferred90Canons:0,individualCanons:1,prospectCanons:2,agencyCanons:1,rushEligible:true};
+  if(s.service==='SIM M2M')
+    return {type:'M2M',base60Canons:2,deferred90Canons:0,individualCanons:0,prospectCanons:0,agencyCanons:0,rushEligible:true,m2m:true};
   if(['SIM Voce','SIM Dati'].includes(s.service))
     return {type:'Core',base60Canons:2,deferred90Canons:1,individualCanons:1,prospectCanons:2,agencyCanons:1,rushEligible:true};
   if(isEnergyGas(s)) return {type:s.service,manual:true,rushEligible:true,reason:'Premio Energia/Gas da valorizzare con la regola dedicata; l’inflow resta valido per il Rush.'};
@@ -56,10 +71,10 @@ function ruleFor(s){
   return {type:s.service||'Altro',manual:true,reason:'Regola provvigionale non ancora censita.'};
 }
 
-export function commissionsForPeriod(store,start,end){
-  const target=individualAgencyTargetWon(store);
+export function commissionsForPeriod(store,start,end,agent='Francesco'){
+  const target=individualAgencyTargetWon(store,agent);
   const rows=[];
-  for(const c of (store.contracts||[]).filter(c=>active(c)&&inRange(c.date,start,end))){
+  for(const c of (store.contracts||[]).filter(c=>active(c)&&agentOf(c)===agent&&inRange(c.date,start,end))){
     for(const s of c.services||[]){
       const inflow=inflowOf(s);
       const rule=ruleFor(s);
@@ -100,18 +115,23 @@ export function commissionsForPeriod(store,start,end){
 
       const base60=inflow*Number(rule.base60Canons||0);
       const deferred90=inflow*Number(rule.deferred90Canons||0);
-      const prospectExtra=c.prospect ? inflow*Number(rule.prospectCanons||0) : 0;
-      const individualExtra=target.won ? inflow*Number(rule.individualCanons||0) : 0;
+      const access=monthlyBoostAccess(store,agent,monthKey(c.date));
+      const prospectExtra=(access.unlocked&&c.prospect) ? inflow*Number(rule.prospectCanons||0) : 0;
+      const individualExtra=(access.unlocked&&target.won) ? inflow*Number(rule.individualCanons||0) : 0;
       const deterministicExtra=deferred90+prospectExtra+individualExtra;
 
       const pending=[];
-      if(rule.individualCanons && !target.won)pending.push(`+${rule.individualCanons} canone target individuale`);
-      if(rule.agencyCanons)pending.push(`+${rule.agencyCanons} canone target Agenzia`);
+      if(!access.unlocked && (rule.prospectCanons||rule.individualCanons||rule.agencyCanons)){
+        pending.push(`boost ${monthKey(c.date)} bloccati: ${access.inflow.toFixed(2)} € / 250 €`);
+      }
+      if(rule.individualCanons && access.unlocked && !target.won)pending.push(`+${rule.individualCanons} canone target individuale`);
+      if(rule.agencyCanons && access.unlocked)pending.push(`+${rule.agencyCanons} canone target Agenzia`);
       rows.push({
         contractId:c.id,date:c.date,client:c.client||'Cliente',service:s.service||'',product:s.product||'',
         inflow,base:base60,base60,deferred90,prospectExtra,individualExtra,deterministicExtra,
         estimated:base60+deterministicExtra,status:'calculated',rule:rule.type,pending,
-        rushEligible:!!rule.rushEligible,
+        rushEligible:!!rule.rushEligible,boostAccess:access,
+        m2mProduct:rule.m2m?recognizeM2MProduct(s.product||''):null,
         note60:rule.base60Canons?`${rule.base60Canons} canoni base · pagamento a 60 gg dall’attivazione`:'',
         note90:rule.deferred90Canons?`${rule.deferred90Canons} canone extra base · pagamento circa 90 gg dall’attivazione`:''
       });
@@ -125,6 +145,8 @@ export function commissionsForPeriod(store,start,end){
     deterministicExtra:calculated.reduce((a,r)=>a+r.deterministicExtra,0),
     estimated:calculated.reduce((a,r)=>a+r.estimated,0),
     manualCount:rows.filter(r=>r.status==='manual').length,
-    target
+    target,
+    agent,
+    boostMonths:[...new Set(rows.map(r=>monthKey(r.date)).filter(Boolean))].sort().map(m=>monthlyBoostAccess(store,agent,m))
   };
 }

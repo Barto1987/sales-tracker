@@ -1192,3 +1192,18 @@ SMARTTRACKER 3.12.6 — MIXED EASY RENT FIX
 - Nei bundle misti l'inflow SIM viene ricavato dal Totale Netto Complessivo meno il canone commerciale del/dei device.
 - Il device Easy Rent usa invece l'inflow ufficiale del listino Easy Rent, non il canone pagato dal cliente.
 - La funzione "Carica e rileggi offerta PDF" può quindi correggere i contratti storici Mobile + Easy Rent.
+
+SMARTTRACKER 3.12.7 — AGENTI / SOGLIA BOOST / M2M
+
+- Provvigioni ora filtrabili per agente: Francesco, Jacopo, Luciano.
+- Il filtro resta memorizzato sul dispositivo.
+- Soglia accesso boost calcolata per singolo agente e singolo mese: 250 € inflow.
+- Sotto 250 €: gli extra boost del mese non vengono conteggiati automaticamente.
+- Sopra 250 €: il motore può applicare Prospect / target individuale secondo le altre regole.
+- SIM M2M: 2 canoni secchi a 60 giorni dall’attivazione.
+- SIM M2M: inflow valido per la gara Rush.
+- SIM M2M: sempre escluse dai target SIM Voce / SIM Dati.
+- Integrato il portafoglio M2M Local 2026 fornito:
+  Mezzo EU, Due EU, Cinque EU, Venti EU, Cinquanta EU, Duecento EU,
+  Cinquecento EU, Mille EU, Diecimila EU, Free Call, Free Call MAXI.
+- Migliorato il riconoscimento parser dei nomi M2M ufficiali.

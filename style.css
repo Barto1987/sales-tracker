@@ -636,7 +636,7 @@ input:focus,select:focus,textarea:focus{
 .cloud-auto-note{margin-top:10px;padding:10px 12px;border-radius:12px;background:#edf9f1;color:#176b35;font-weight:800;font-size:12px}
 
 
-/* SmartTracker 3.12.6 — navigation active-state visibility */
+/* SmartTracker 3.12.7 — navigation active-state visibility */
 .app-nav{
   grid-template-columns:repeat(7,minmax(62px,1fr))!important;
   overflow-x:auto;
@@ -679,7 +679,7 @@ input:focus,select:focus,textarea:focus{
 }
 
 
-/* SmartTracker 3.12.6 — menu iPhone + pulsante Nuovo in testata */
+/* SmartTracker 3.12.7 — menu iPhone + pulsante Nuovo in testata */
 .smart-header{
   position:sticky;
   top:0;
@@ -775,3 +775,14 @@ input:focus,select:focus,textarea:focus{
   justify-content:center;
   gap:6px;
 }
+
+.commission-agent-card{margin-bottom:12px}
+.commission-agent-head{display:flex;align-items:center;justify-content:space-between;gap:14px}
+.commission-agent-head small{display:block;font-size:10px;font-weight:900;letter-spacing:.08em;color:#6b7280}
+.commission-agent-head strong{display:block;font-size:22px;margin-top:2px}
+.commission-agent-head select{max-width:170px;margin:0}
+.commission-boost-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px;margin-top:12px}
+.commission-boost-chip{border-radius:13px;padding:10px;display:flex;flex-direction:column;gap:3px;font-size:11px}
+.commission-boost-chip b{font-size:12px}.commission-boost-chip span{opacity:.8}
+.commission-boost-chip.unlocked{background:#eaf8ef;color:#176b35}
+.commission-boost-chip.locked{background:#fff4df;color:#8a5300}
