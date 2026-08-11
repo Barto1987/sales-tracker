@@ -20,16 +20,16 @@ window.addEventListener('unhandledrejection',(e)=>{
 });
 
 
-import {loadStore,saveStore,importBackupObject} from './storage.js?v=3127';
-import {TARGETS,generalStats,agencyStats,agencyBreakdown,excellentStats,excellentBreakdown,communityStats,communityBreakdown,teamStats,teamBreakdown,availableMonths,customerList,customerDashboard,customerKey,inflowOf,communityRulesForMonth} from './engines.js?v=3127';
-import {savePdf,openPdf,deletePdf,getPdf} from './pdf-store.js?v=3127';
-import {initParser,parsePDF} from './parser.js?v=3127';
-import {createAutoBackup,getAutoBackupMeta,getFullBackupMeta,downloadDatabaseBackup,downloadCompleteBackup,restoreCompleteBackup,getArchiveStats,formatBytes,formatDate} from './backup.js?v=3127';
-import {exportSync,readSyncFile,previewMerge,applyMerge,getSyncMeta} from './sync.js?v=3127';
-import {regulationGroups} from './regulations.js?v=3127';
-import {currentMonthKey,monthLabel,quarterFromMonth,availablePeriodMonths,ensurePeriodState,periodStatusLabel,periodStatusIcon,applyGlobalMonth} from './periods.js?v=3127';
-import {cloudLogin,cloudLogout,cloudInfo,uploadLocalFirst,downloadAndMerge,syncNow,bootstrapLinkedCloud,queueCloudPush,getCloudMeta,isCloudLinked,getCloudSession,getCloudEmail,setCloudEmail,runCloudDiagnostics} from './cloud.js?v=3127';
-import {commissionsForPeriod} from './commissions.js?v=3127';
+import {loadStore,saveStore,importBackupObject} from './storage.js?v=3128';
+import {TARGETS,generalStats,agencyStats,agencyBreakdown,excellentStats,excellentBreakdown,communityStats,communityBreakdown,teamStats,teamBreakdown,availableMonths,customerList,customerDashboard,customerKey,inflowOf,communityRulesForMonth} from './engines.js?v=3128';
+import {savePdf,openPdf,deletePdf,getPdf} from './pdf-store.js?v=3128';
+import {initParser,parsePDF} from './parser.js?v=3128';
+import {createAutoBackup,getAutoBackupMeta,getFullBackupMeta,downloadDatabaseBackup,downloadCompleteBackup,restoreCompleteBackup,getArchiveStats,formatBytes,formatDate} from './backup.js?v=3128';
+import {exportSync,readSyncFile,previewMerge,applyMerge,getSyncMeta} from './sync.js?v=3128';
+import {regulationGroups} from './regulations.js?v=3128';
+import {currentMonthKey,monthLabel,quarterFromMonth,availablePeriodMonths,ensurePeriodState,periodStatusLabel,periodStatusIcon,applyGlobalMonth} from './periods.js?v=3128';
+import {cloudLogin,cloudLogout,cloudInfo,uploadLocalFirst,downloadAndMerge,syncNow,bootstrapLinkedCloud,queueCloudPush,getCloudMeta,isCloudLinked,getCloudSession,getCloudEmail,setCloudEmail,runCloudDiagnostics} from './cloud.js?v=3128';
+import {commissionsForPeriod} from './commissions.js?v=3128';
 
 let store=loadStore(),parsed=null,pendingPdf=null;
 applyGlobalMonth(store,store.settings.activeMonth||store.settings.currentMonth||currentMonthKey());
@@ -590,7 +590,7 @@ async function saveParsed(){
      ?[{agent:'Jacopo',share:.5},{agent:'Luciano',share:.5}]
      :[{agent,share:1}];
  const nowIso=new Date().toISOString();
- const contract={id:'C-'+Date.now(),createdAt:nowIso,updatedAt:nowIso,date:$('contractDate').value,offer:parsed.meta.offer,client:parsed.meta.client||'Da verificare',vat:parsed.meta.vat,customerCode:parsed.meta.customerCode||'',prospect,agent,includeAgency,teamAllocations,status:'Valido',pdfRef:parsed.filename,pdfStored:false,notes:'SmartTracker 3.12.7',services:[]};
+ const contract={id:'C-'+Date.now(),createdAt:nowIso,updatedAt:nowIso,date:$('contractDate').value,offer:parsed.meta.offer,client:parsed.meta.client||'Da verificare',vat:parsed.meta.vat,customerCode:parsed.meta.customerCode||'',prospect,agent,includeAgency,teamAllocations,status:'Valido',pdfRef:parsed.filename,pdfStored:false,notes:'SmartTracker 3.12.8',services:[]};
  for(const el of rows){
    const service=el.querySelector('.pr-service').value;
    const mnpEl=el.querySelector('.pr-mnp');
@@ -1044,7 +1044,7 @@ function renderCommissions(){
      </select>
    </div>
    <div class="commission-boost-grid">
-     ${(data.boostMonths||[]).map(x=>`<div class="commission-boost-chip ${x.unlocked?'unlocked':'locked'}"><b>${x.month}</b><span>${money(x.inflow)} / € 250</span><strong>${x.unlocked?'Boost OK':'Mancano '+money(x.remaining)}</strong></div>`).join('')||'<div class="muted">Nessun mese con inflow nel trimestre.</div>'}
+     ${(data.boostMonths||[]).map(x=>`<div class="commission-boost-chip ${x.unlocked?'unlocked':x.ko?'ko':'locked'}"><b>${x.month}</b><span>${money(x.inflow)} / € 250</span><strong>${x.unlocked?'✓ BOOST OK':x.ko?'✕ BOOST KO':'Mancano '+money(x.remaining)}</strong>${x.ko?'<small>Mese chiuso · nessun extra boost maturato</small>':''}</div>`).join('')||'<div class="muted">Nessun mese con inflow nel trimestre.</div>'}
    </div>
  </div>
  <div class="card commission-hero">
@@ -1070,23 +1070,25 @@ function renderCommissions(){
    <p class="muted" style="margin-top:12px">La prima versione evita di attribuire automaticamente importi non ancora supportati da una regola certa.</p>
  </div>`;
 
- const rows=[...data.rows].sort((a,b)=>String(b.date).localeCompare(String(a.date)));
- list.innerHTML=rows.length?rows.map(r=>`
-   <div class="card commission-row">
-     <div class="commission-row-head">
-       <div><strong>${r.client}</strong><div class="muted">${r.date} · ${r.service}${r.product&&r.product!==r.service?' · '+r.product:''}</div></div>
-       <div class="commission-amount">${r.status==='calculated'?money(r.estimated):'—'}</div>
-     </div>
-     ${r.status==='calculated'
-       ?`<div class="commission-breakdown"><span>${r.rule==='Easy Rent'?'Gettone':'Base 60gg'} ${money(r.base)}</span><span>${r.rule==='Easy Rent'?(r.easyRentBand||'Easy Rent'):'Extra determinati '+money(r.deterministicExtra)}</span><span>Inflow ${money(r.inflow)}</span></div>
-         ${r.rule!=='Easy Rent'&&r.note60?`<div class="commission-easyrent">${r.rule==='M2M'?'M2M · ':''}${r.note60}${r.note90?' · '+r.note90:''}${r.rushEligible?' · inflow valido Rush':''}${r.rule==='M2M'?' · esclusa dai target SIM Voce/Dati':''}</div>`:''}
-         ${r.rule==='Easy Rent'&&r.note?`<div class="commission-easyrent">${r.note} · inflow valido Rush</div>`:''}
-         ${r.pending?.length?`<div class="commission-pending">Potenziali non conteggiati: ${r.pending.join(' · ')}</div>`:''}`
-       :`<div class="commission-pending">${r.note}</div>
-         ${r.canReparse?`<button class="secondary er-reparse-btn" data-er-reparse="${r.contractId}" style="margin-top:10px">Carica e rileggi offerta PDF</button>`:''}`}
+ const paymentGroups=(data.paymentMonths||[]).filter(g=>g.rows.length);
+ list.innerHTML=paymentGroups.length?paymentGroups.map(g=>`
+   <div class="commission-payment-month">
+     <div class="commission-payment-title"><div><small>MESE DI PAGAMENTO</small><h3>${g.month}</h3></div><strong>${money(g.total)}</strong></div>
+     ${g.rows.map(r=>`<div class="card commission-row">
+       <div class="commission-row-head">
+         <div><strong>${r.client}</strong><div class="muted">Produzione ${r.productionMonth||String(r.date).slice(0,7)} · ${r.service}${r.product&&r.product!==r.service?' · '+r.product:''}</div></div>
+         <div class="commission-amount">${r.status==='calculated'?money(r.estimated):'—'}</div>
+       </div>
+       ${r.status==='calculated'
+         ?`<div class="commission-breakdown"><span>${r.component||'Provvigione'}</span><span>Pagamento ${r.paymentMonth||'—'}</span><span>Inflow ${money(r.inflow)}</span></div>
+           ${r.note60?`<div class="commission-easyrent">${r.rule==='M2M'?'M2M · ':''}${r.note60}${r.rushEligible?' · inflow valido Rush':''}${r.rule==='M2M'?' · esclusa dai target SIM Voce/Dati':''}</div>`:''}
+           ${r.note90?`<div class="commission-easyrent">${r.note90}</div>`:''}
+           ${r.rule==='Easy Rent'&&r.note?`<div class="commission-easyrent">${r.note} · inflow valido Rush</div>`:''}
+           ${r.pending?.length?`<div class="commission-pending">${r.pending.join(' · ')}</div>`:''}`
+         :`<div class="commission-pending">${r.note}</div>${r.canReparse?`<button class="secondary er-reparse-btn" data-er-reparse="${r.contractId}" style="margin-top:10px">Carica e rileggi offerta PDF</button>`:''}`}
+     </div>`).join('')}
    </div>`).join('')
-   :'<div class="card"><p class="muted">Nessuna pratica nel trimestre selezionato.</p></div>';
-
+   :'<div class="card"><p class="muted">Nessun pagamento provvigionale calcolabile nel periodo.</p></div>';
  const commissionAgentSelect=$('commissionAgentSelect');
  if(commissionAgentSelect)commissionAgentSelect.onchange=()=>{
    selectedCommissionAgent=commissionAgentSelect.value;

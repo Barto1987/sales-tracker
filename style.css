@@ -636,7 +636,7 @@ input:focus,select:focus,textarea:focus{
 .cloud-auto-note{margin-top:10px;padding:10px 12px;border-radius:12px;background:#edf9f1;color:#176b35;font-weight:800;font-size:12px}
 
 
-/* SmartTracker 3.12.7 — navigation active-state visibility */
+/* SmartTracker 3.12.8 — navigation active-state visibility */
 .app-nav{
   grid-template-columns:repeat(7,minmax(62px,1fr))!important;
   overflow-x:auto;
@@ -679,7 +679,7 @@ input:focus,select:focus,textarea:focus{
 }
 
 
-/* SmartTracker 3.12.7 — menu iPhone + pulsante Nuovo in testata */
+/* SmartTracker 3.12.8 — menu iPhone + pulsante Nuovo in testata */
 .smart-header{
   position:sticky;
   top:0;
@@ -786,3 +786,10 @@ input:focus,select:focus,textarea:focus{
 .commission-boost-chip b{font-size:12px}.commission-boost-chip span{opacity:.8}
 .commission-boost-chip.unlocked{background:#eaf8ef;color:#176b35}
 .commission-boost-chip.locked{background:#fff4df;color:#8a5300}
+.commission-boost-chip.ko{background:#fde8e8;color:#a51616;border:1px solid #f5bcbc}
+.commission-boost-chip.ko small{font-size:10px;line-height:1.2;margin-top:3px}
+.commission-payment-month{margin:18px 0 28px}
+.commission-payment-title{display:flex;align-items:end;justify-content:space-between;gap:12px;margin:0 4px 10px}
+.commission-payment-title small{font-size:10px;font-weight:900;letter-spacing:.09em;color:#6b7280}
+.commission-payment-title h3{margin:2px 0 0;font-size:25px}
+.commission-payment-title>strong{font-size:25px}

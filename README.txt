@@ -1207,3 +1207,14 @@ SMARTTRACKER 3.12.7 — AGENTI / SOGLIA BOOST / M2M
   Mezzo EU, Due EU, Cinque EU, Venti EU, Cinquanta EU, Duecento EU,
   Cinquecento EU, Mille EU, Diecimila EU, Free Call, Free Call MAXI.
 - Migliorato il riconoscimento parser dei nomi M2M ufficiali.
+
+
+SMARTTRACKER 3.12.8 — PROVVIGIONI PER MESE DI PAGAMENTO
+- Provvigioni raggruppate per agente e mese di pagamento previsto.
+- Ogni movimento mostra mese produzione, componente, importo e mese pagamento.
+- Base/gettoni a 60 gg -> +2 mesi.
+- Extra base e Prospect a circa 90 gg -> +3 mesi.
+- Gara individuale trimestrale -> 3 mesi dopo la chiusura del trimestre.
+- Mesi di produzione restano rappresentati finché generano movimenti futuri.
+- Soglia 250 € mensile: mese chiuso sotto soglia = BOOST KO definitivo; base invariata.
+- Mese corrente sotto soglia resta in corso con residuo.

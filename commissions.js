@@ -1,6 +1,6 @@
-import {matchEasyRent} from './easy-rent-listino.js?v=3127';
-import {recognizeM2MProduct} from './m2m-listino.js?v=3127';
-// SmartTracker 3.12.7 — prima base del motore Provvigioni.
+import {matchEasyRent} from './easy-rent-listino.js?v=3128';
+import {recognizeM2MProduct} from './m2m-listino.js?v=3128';
+// SmartTracker 3.12.8 — prima base del motore Provvigioni.
 // Q3 2026: calcoliamo solo le parti supportate dalle regole già raccolte.
 // Le voci ancora ambigue restano esplicitamente "da confermare".
 
@@ -9,6 +9,26 @@ const inflowOf=s=>Number(s.inflowUnit||0)*Number(s.qty||0);
 const inRange=(d,start,end)=>String(d||'')>=start&&String(d||'')<=end;
 const monthKey=d=>String(d||'').slice(0,7);
 const agentOf=c=>c.agent||'Francesco';
+const monthStart=k=>`${k}-01`;
+function addMonthsToDate(date,months){
+  const [y,m,d]=String(date||'').split('-').map(Number);
+  if(!y||!m)return '';
+  const x=new Date(y,m-1+months,Math.min(d||1,28));
+  return `${x.getFullYear()}-${String(x.getMonth()+1).padStart(2,'0')}-${String(x.getDate()).padStart(2,'0')}`;
+}
+function paymentMonth(date,delayMonths){return monthKey(addMonthsToDate(date,delayMonths))}
+function quarterPaymentMonth(date){
+  const [y,m]=String(date||'').slice(0,7).split('-').map(Number);
+  if(!y||!m)return '';
+  const qEnd=Math.floor((m-1)/3)*3+3;
+  const x=new Date(y,qEnd+2,1); // 3 mesi dopo il mese di chiusura trimestre
+  return `${x.getFullYear()}-${String(x.getMonth()+1).padStart(2,'0')}`;
+}
+function monthIsClosed(store,k){
+  const st=store.periodStates?.[k]?.status;
+  if(st==='closed')return true;
+  return k<monthKey(new Date().toISOString());
+}
 function validMonthlyInflow(store,agent,month){
   return (store.contracts||[])
     .filter(c=>active(c)&&agentOf(c)===agent&&monthKey(c.date)===month)
@@ -17,7 +37,9 @@ function validMonthlyInflow(store,agent,month){
 }
 export function monthlyBoostAccess(store,agent,month){
   const inflow=validMonthlyInflow(store,agent,month);
-  return {agent,month,inflow,target:250,unlocked:inflow>=250,remaining:Math.max(250-inflow,0)};
+  const unlocked=inflow>=250;
+  const closed=monthIsClosed(store,month);
+  return {agent,month,inflow,target:250,unlocked,closed,ko:closed&&!unlocked,inProgress:!closed&&!unlocked,remaining:Math.max(250-inflow,0)};
 }
 
 function textOf(s){
@@ -91,7 +113,7 @@ export function commissionsForPeriod(store,start,end,agent='Francesco'){
             status:'calculated',rule:'Easy Rent',
             easyRentBand:er.fascia,easyRentPlan:er.piano,
             easyRentUnit:Number(er.provvigione||0),qty,pending:[],
-            note:`${er.fascia} · ${Number(er.provvigione||0).toLocaleString('it-IT',{style:'currency',currency:'EUR'})} a pezzo · gettone secco a 60 gg dall’attivazione`
+            paymentMonth:paymentMonth(c.date,2),productionMonth:monthKey(c.date),component:'Gettone Easy Rent',note:`${er.fascia} · ${Number(er.provvigione||0).toLocaleString('it-IT',{style:'currency',currency:'EUR'})} a pezzo · gettone secco a 60 gg dall’attivazione`
           });
         }else{
           rows.push({
@@ -126,15 +148,11 @@ export function commissionsForPeriod(store,start,end,agent='Francesco'){
       }
       if(rule.individualCanons && access.unlocked && !target.won)pending.push(`+${rule.individualCanons} canone target individuale`);
       if(rule.agencyCanons && access.unlocked)pending.push(`+${rule.agencyCanons} canone target Agenzia`);
-      rows.push({
-        contractId:c.id,date:c.date,client:c.client||'Cliente',service:s.service||'',product:s.product||'',
-        inflow,base:base60,base60,deferred90,prospectExtra,individualExtra,deterministicExtra,
-        estimated:base60+deterministicExtra,status:'calculated',rule:rule.type,pending,
-        rushEligible:!!rule.rushEligible,boostAccess:access,
-        m2mProduct:rule.m2m?recognizeM2MProduct(s.product||''):null,
-        note60:rule.base60Canons?`${rule.base60Canons} canoni base · pagamento a 60 gg dall’attivazione`:'',
-        note90:rule.deferred90Canons?`${rule.deferred90Canons} canone extra base · pagamento circa 90 gg dall’attivazione`:''
-      });
+      const common={contractId:c.id,date:c.date,productionMonth:monthKey(c.date),client:c.client||'Cliente',service:s.service||'',product:s.product||'',inflow,status:'calculated',rule:rule.type,pending,rushEligible:!!rule.rushEligible,boostAccess:access,m2mProduct:rule.m2m?recognizeM2MProduct(s.product||''):null};
+      if(base60>0)rows.push({...common,component:rule.type==='M2M'?'2 canoni M2M':'Base 60gg',paymentMonth:paymentMonth(c.date,2),base:base60,base60,deterministicExtra:0,estimated:base60,note60:rule.base60Canons?`${rule.base60Canons} canoni base · pagamento a 60 gg dall’attivazione`:''});
+      if(deferred90>0)rows.push({...common,component:'Extra base differito',paymentMonth:paymentMonth(c.date,3),base:0,base60:0,deferred90,deterministicExtra:deferred90,estimated:deferred90,note90:`${rule.deferred90Canons} canone extra base · pagamento circa 90 gg dall’attivazione`});
+      if(prospectExtra>0)rows.push({...common,component:'Premio Prospect',paymentMonth:paymentMonth(c.date,3),base:0,base60:0,prospectExtra,deterministicExtra:prospectExtra,estimated:prospectExtra});
+      if(individualExtra>0)rows.push({...common,component:'Gara individuale trimestrale',paymentMonth:quarterPaymentMonth(c.date),base:0,base60:0,individualExtra,deterministicExtra:individualExtra,estimated:individualExtra});
     }
   }
 
@@ -147,6 +165,7 @@ export function commissionsForPeriod(store,start,end,agent='Francesco'){
     manualCount:rows.filter(r=>r.status==='manual').length,
     target,
     agent,
-    boostMonths:[...new Set(rows.map(r=>monthKey(r.date)).filter(Boolean))].sort().map(m=>monthlyBoostAccess(store,agent,m))
+    boostMonths:[...new Set(rows.map(r=>r.productionMonth||monthKey(r.date)).filter(Boolean))].sort().map(m=>monthlyBoostAccess(store,agent,m)),
+    paymentMonths:[...new Set(rows.map(r=>r.paymentMonth).filter(Boolean))].sort().map(month=>({month,rows:rows.filter(r=>r.paymentMonth===month),total:rows.filter(r=>r.paymentMonth===month&&r.status==='calculated').reduce((a,r)=>a+r.estimated,0)}))
   };
 }
