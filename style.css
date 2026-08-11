@@ -636,7 +636,7 @@ input:focus,select:focus,textarea:focus{
 .cloud-auto-note{margin-top:10px;padding:10px 12px;border-radius:12px;background:#edf9f1;color:#176b35;font-weight:800;font-size:12px}
 
 
-/* SmartTracker 3.12.1 — navigation active-state visibility */
+/* SmartTracker 3.12.2 — navigation active-state visibility */
 .app-nav{
   grid-template-columns:repeat(7,minmax(62px,1fr))!important;
   overflow-x:auto;
@@ -679,7 +679,7 @@ input:focus,select:focus,textarea:focus{
 }
 
 
-/* SmartTracker 3.12.1 — menu iPhone + pulsante Nuovo in testata */
+/* SmartTracker 3.12.2 — menu iPhone + pulsante Nuovo in testata */
 .smart-header{
   position:sticky;
   top:0;
@@ -761,3 +761,17 @@ input:focus,select:focus,textarea:focus{
     min-height:44px;
   }
 }
+
+
+/* SmartTracker 3.12.2 — Provvigioni per agente */
+.commission-controls{margin-bottom:12px}
+.commission-calendar-row{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:14px;
+  padding:12px 0;
+  border-bottom:1px solid #eceef2;
+}
+.commission-calendar-row:last-child{border-bottom:0}
+.commission-calendar-row>div:last-child{text-align:right}
