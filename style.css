@@ -636,7 +636,7 @@ input:focus,select:focus,textarea:focus{
 .cloud-auto-note{margin-top:10px;padding:10px 12px;border-radius:12px;background:#edf9f1;color:#176b35;font-weight:800;font-size:12px}
 
 
-/* SmartTracker 3.14.3 — navigation active-state visibility */
+/* SmartTracker 3.14.4 — navigation active-state visibility */
 .app-nav{
   grid-template-columns:repeat(7,minmax(62px,1fr))!important;
   overflow-x:auto;
@@ -679,7 +679,7 @@ input:focus,select:focus,textarea:focus{
 }
 
 
-/* SmartTracker 3.14.3 — menu iPhone + pulsante Nuovo in testata */
+/* SmartTracker 3.14.4 — menu iPhone + pulsante Nuovo in testata */
 .smart-header{
   position:sticky;
   top:0;
@@ -841,13 +841,13 @@ input:focus,select:focus,textarea:focus{
 .pdf-diag-details pre{white-space:pre-wrap;word-break:break-word;background:#111827;color:#f9fafb;border-radius:10px;padding:10px;font-size:9px;max-height:300px;overflow:auto}
 
 .agency-outcome-card{margin-bottom:12px}
-.agency-outcome-head small{display:block;font-size:9px;font-weight:900;letter-spacing:.09em;color:#e60000}
-.agency-outcome-head strong{display:block;font-size:17px;margin-top:3px}
-.agency-outcome-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}
-.agency-outcome-grid label{display:block;background:#f7f8fa;border-radius:12px;padding:9px}
-.agency-outcome-grid label span{display:block;font-size:10px;font-weight:850;margin-bottom:6px}
+.agency-outcome-card small{font-size:9px;font-weight:900;letter-spacing:.08em;color:#e60000}
+.agency-outcome-card h3{margin:4px 0}
+.agency-outcome-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}
+.agency-outcome-grid label{background:#f7f8fa;border-radius:12px;padding:9px}
+.agency-outcome-grid span{display:block;font-size:10px;font-weight:850;margin-bottom:6px}
 .agency-outcome-grid select{width:100%;margin:0;padding:8px;font-size:10px}
-.commission-missing-row{padding:11px 0;border-top:1px solid #eceef2}
-.commission-missing-row strong{display:block;font-size:12px}
-.commission-missing-row small{display:block;color:#6b7280;font-size:10px;margin-top:2px}
+.commission-missing-row{padding:10px 0;border-top:1px solid #eceef2}
+.commission-missing-row strong{display:block}
+.commission-missing-row small{display:block;color:#6b7280;margin:3px 0}
 @media(max-width:600px){.agency-outcome-grid{grid-template-columns:1fr}}

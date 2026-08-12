@@ -1,4 +1,4 @@
-import {uploadPdfCloud,openPdfCloud,pdfCloudExists,pdfCloudProbe} from './cloud-pdf-minimal.js?v=3143';
+import {uploadPdfCloud,openPdfCloud,pdfCloudExists,pdfCloudProbe} from './cloud-pdf-minimal.js?v=3144';
 
 window.addEventListener('error',(e)=>{
  try{
@@ -21,16 +21,16 @@ window.addEventListener('unhandledrejection',(e)=>{
 });
 
 
-import {loadStore,saveStore,importBackupObject} from './storage.js?v=3143';
-import {TARGETS,generalStats,agencyStats,agencyBreakdown,excellentStats,excellentBreakdown,communityStats,communityBreakdown,teamStats,teamBreakdown,availableMonths,customerList,customerDashboard,customerKey,inflowOf,communityRulesForMonth} from './engines.js?v=3143';
-import {savePdf,openPdf,deletePdf,getPdf} from './pdf-store.js?v=3143';
-import {initParser,parsePDF} from './parser.js?v=3143';
-import {createAutoBackup,getAutoBackupMeta,getFullBackupMeta,downloadDatabaseBackup,downloadCompleteBackup,restoreCompleteBackup,getArchiveStats,formatBytes,formatDate} from './backup.js?v=3143';
-import {exportSync,readSyncFile,previewMerge,applyMerge,getSyncMeta} from './sync.js?v=3143';
-import {regulationGroups} from './regulations.js?v=3143';
-import {currentMonthKey,monthLabel,quarterFromMonth,availablePeriodMonths,ensurePeriodState,periodStatusLabel,periodStatusIcon,applyGlobalMonth} from './periods.js?v=3143';
-import {cloudLogin,cloudLogout,cloudInfo,uploadLocalFirst,downloadAndMerge,syncNow,bootstrapLinkedCloud,queueCloudPush,getCloudMeta,isCloudLinked,getCloudSession,getCloudEmail,setCloudEmail,runCloudDiagnostics,readPrimaryCloudStoreRaw} from './cloud.js?v=3143';
-import {commissionsForPeriod} from './commissions.js?v=3143';
+import {loadStore,saveStore,importBackupObject} from './storage.js?v=3144';
+import {TARGETS,generalStats,agencyStats,agencyBreakdown,excellentStats,excellentBreakdown,communityStats,communityBreakdown,teamStats,teamBreakdown,availableMonths,customerList,customerDashboard,customerKey,inflowOf,communityRulesForMonth} from './engines.js?v=3144';
+import {savePdf,openPdf,deletePdf,getPdf} from './pdf-store.js?v=3144';
+import {initParser,parsePDF} from './parser.js?v=3144';
+import {createAutoBackup,getAutoBackupMeta,getFullBackupMeta,downloadDatabaseBackup,downloadCompleteBackup,restoreCompleteBackup,getArchiveStats,formatBytes,formatDate} from './backup.js?v=3144';
+import {exportSync,readSyncFile,previewMerge,applyMerge,getSyncMeta} from './sync.js?v=3144';
+import {regulationGroups} from './regulations.js?v=3144';
+import {currentMonthKey,monthLabel,quarterFromMonth,availablePeriodMonths,ensurePeriodState,periodStatusLabel,periodStatusIcon,applyGlobalMonth} from './periods.js?v=3144';
+import {cloudLogin,cloudLogout,cloudInfo,uploadLocalFirst,downloadAndMerge,syncNow,bootstrapLinkedCloud,queueCloudPush,getCloudMeta,isCloudLinked,getCloudSession,getCloudEmail,setCloudEmail,runCloudDiagnostics,readPrimaryCloudStoreRaw} from './cloud.js?v=3144';
+import {commissionsForPeriod} from './commissions.js?v=3144';
 
 let store=loadStore(),parsed=null,pendingPdf=null;
 applyGlobalMonth(store,store.settings.activeMonth||store.settings.currentMonth||currentMonthKey());
@@ -725,7 +725,7 @@ async function saveParsed(){
      ?[{agent:'Jacopo',share:.5},{agent:'Luciano',share:.5}]
      :[{agent,share:1}];
  const nowIso=new Date().toISOString();
- const contract={id:'C-'+Date.now(),createdAt:nowIso,updatedAt:nowIso,date:$('contractDate').value,offer:parsed.meta.offer,client:parsed.meta.client||'Da verificare',vat:parsed.meta.vat,customerCode:parsed.meta.customerCode||'',prospect,agent,includeAgency,teamAllocations,status:'Valido',pdfRef:parsed.filename,pdfStored:false,notes:'SmartTracker 3.14.3',services:[]};
+ const contract={id:'C-'+Date.now(),createdAt:nowIso,updatedAt:nowIso,date:$('contractDate').value,offer:parsed.meta.offer,client:parsed.meta.client||'Da verificare',vat:parsed.meta.vat,customerCode:parsed.meta.customerCode||'',prospect,agent,includeAgency,teamAllocations,status:'Valido',pdfRef:parsed.filename,pdfStored:false,notes:'SmartTracker 3.14.4',services:[]};
  for(const el of rows){
    const service=el.querySelector('.pr-service').value;
    const mnpEl=el.querySelector('.pr-mnp');
@@ -1228,27 +1228,18 @@ function renderCommissions(){
    </div>
  </div>
  <div class="card agency-outcome-card">
-   <div class="agency-outcome-head">
-     <div><small>ESITO GARE AGENZIA · ${data.ruleSet?.id||'TRIMESTRE'}</small><strong>Conferma manuale trimestrale</strong></div>
-   </div>
-   <div class="agency-outcome-grid">
-     ${[
-       ['core','CORE'],
-       ['fixed','ADSL + One Net'],
-       ['digital','Digital']
-     ].map(([key,label])=>{
-       const qk=data.ruleSet?.id||'2026-Q3';
-       const v=store.settings.agencyQuarterResults?.[qk]?.[key]||'pending';
-       return `<label><span>${label}</span><select data-agency-outcome="${key}" data-quarter="${qk}">
-         <option value="pending" ${v==='pending'?'selected':''}>Da definire</option>
-         <option value="yes" ${v==='yes'?'selected':''}>Raggiunta ✓</option>
-         <option value="no" ${v==='no'?'selected':''}>Non raggiunta ✕</option>
-       </select></label>`;
-     }).join('')}
-   </div>
-   <p class="muted">L’esito viene salvato nello storico del trimestre e abilita solo gli extra della relativa famiglia.</p>
- </div>
- <div class="card commission-hero commission-clickable" data-commission-drill="all">
+<small>ESITO GARE AGENZIA · ${data.ruleSet?.id||'TRIMESTRE'}</small>
+<h3>Conferma manuale trimestrale</h3>
+<div class="agency-outcome-grid">
+${[['core','CORE'],['fixed','ADSL + One Net'],['digital','Digital']].map(([key,label])=>{
+ const qk=data.ruleSet?.id||'2026-Q3';
+ const v=store.settings.agencyQuarterResults?.[qk]?.[key]||'pending';
+ return `<label><span>${label}</span><select data-agency-outcome="${key}" data-quarter="${qk}">
+ <option value="pending" ${v==='pending'?'selected':''}>Da definire</option>
+ <option value="yes" ${v==='yes'?'selected':''}>Raggiunta</option>
+ <option value="no" ${v==='no'?'selected':''}>Non raggiunta</option>
+ </select></label>`}).join('')}
+</div></div><div class="card commission-hero commission-clickable" data-commission-drill="all">
    <small>STIMA PROVVIGIONI · Q3 2026</small>
    <strong>${money(data.estimated)}</strong>
    <div class="muted">Base calcolabile + extra già determinabili. Non include ancora voci con regole incomplete o bonus esterni da confermare.</div>
@@ -1256,7 +1247,10 @@ function renderCommissions(){
  <div class="grid commission-kpis">
    <div class="card kpi commission-clickable" data-commission-drill="base"><small>Base calcolabile</small><strong>${money(data.base)}</strong><span class="commission-tap-hint">Dettaglio pagamenti ›</span></div>
    <div class="card kpi commission-clickable" data-commission-drill="extra"><small>Extra determinabili</small><strong>${money(data.deterministicExtra)}</strong><span class="commission-tap-hint">Dettaglio pagamenti ›</span></div>
-   <div class="card kpi commission-clickable" data-commission-manual><small>Voci da completare</small><strong>${data.manualCount}</strong><span class="commission-tap-hint">${data.manualCount?'Vedi cosa manca ›':'Tutto valorizzato'}</span></div>
+   <div class="card kpi commission-clickable" data-commission-manual>
+<small>Voci da completare</small><strong>${data.manualCount}</strong>
+<span class="commission-tap-hint">${data.manualCount?'Vedi cosa manca >':'Tutto valorizzato'}</span>
+</div>
    <div class="card kpi commission-target-card" data-commission-target>
      <small>Target individuale</small>
      <strong>${t.won?'Raggiunto':'In corso'}</strong>
@@ -1282,9 +1276,8 @@ function renderCommissions(){
    <div class="commission-rule-row"><span>Core / ADSL / One Net / Easy Deal</span><b class="ok-text">Calcolo base attivo</b></div>
    <div class="commission-rule-row"><span>Prospect</span><b class="ok-text">Calcolato quando presente</b></div>
    <div class="commission-rule-row"><span>Target individuale Q3</span><b>${t.won?'Applicato':'Non ancora applicato'}</b></div>
-   <div class="commission-rule-row"><span>Gare Agenzia CORE / Fisso / Digital</span><b class="ok-text">Esito manuale per trimestre</b></div>
-   <div class="commission-rule-row"><span>M365 Business</span><b class="ok-text">2 canoni + 0,5 Gara Digital</b></div>
-   <div class="commission-rule-row"><span>Altri Digital / Energy / Gas</span><b class="pending-text">Regole da completare</b></div>
+   <div class="commission-rule-row"><span>Target Agenzia + Rush</span><b class="pending-text">Da confermare</b></div>
+   <div class="commission-rule-row"><span>Digital / Energy / Gas</span><b class="pending-text">Listino da completare</b></div>
    <p class="muted" style="margin-top:12px">La prima versione evita di attribuire automaticamente importi non ancora supportati da una regola certa.</p>
    <div class="commission-rule-history">
      <h3>Storico regole provvigionali</h3>
@@ -1325,27 +1318,17 @@ function renderCommissions(){
    let host=$('commissionDrilldown');
    if(!host){host=document.createElement('div');host.id='commissionDrilldown';box.insertAdjacentElement('afterend',host)}
    const missing=(data.rows||[]).filter(r=>r.status==='manual');
-   host.innerHTML=`<div class="card commission-drill-card">
-     <div class="commission-drill-head"><h3>Voci da completare</h3><button id="closeCommissionManual" class="secondary">Chiudi</button></div>
-     ${missing.length?missing.map(r=>`<div class="commission-missing-row">
-       <div><strong>${r.client}</strong><small>${r.service}${r.product?' · '+r.product:''} · inflow ${money(r.inflow)}</small></div>
-       <div class="commission-pending">${r.note||'Regola provvigionale mancante'}</div>
-     </div>`).join(''):'<p class="muted">Nessuna voce da completare.</p>'}
-   </div>`;
-   host.scrollIntoView({behavior:'smooth',block:'start'});
+   host.innerHTML=`<div class="card commission-drill-card"><div class="commission-drill-head"><h3>Voci da completare</h3><button id="closeCommissionManual" class="secondary">Chiudi</button></div>${missing.length?missing.map(r=>`<div class="commission-missing-row"><strong>${r.client}</strong><small>${r.service}${r.product?' · '+r.product:''} · inflow ${money(r.inflow)}</small><div>${r.note||'Regola provvigionale mancante'}</div></div>`).join(''):'<p class="muted">Nessuna voce da completare.</p>'}</div>`;
    $('closeCommissionManual').onclick=()=>host.innerHTML='';
  };
-
  document.querySelectorAll('[data-agency-outcome]').forEach(sel=>sel.onchange=()=>{
    const q=sel.dataset.quarter||'2026-Q3',key=sel.dataset.agencyOutcome;
    store.settings.agencyQuarterResults=store.settings.agencyQuarterResults||{};
    store.settings.agencyQuarterResults[q]=store.settings.agencyQuarterResults[q]||{core:'pending',fixed:'pending',digital:'pending',updatedAt:null};
    store.settings.agencyQuarterResults[q][key]=sel.value;
    store.settings.agencyQuarterResults[q].updatedAt=new Date().toISOString();
-   persistStore();
-   renderCommissions();
+   persistStore();renderCommissions();
  });
-
  const targetCard=document.querySelector('[data-commission-target]');
  if(targetCard)targetCard.onclick=()=>{
    let host=$('commissionDrilldown');
