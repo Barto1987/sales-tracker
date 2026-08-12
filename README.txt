@@ -1258,3 +1258,13 @@ SMARTTRACKER 3.14.2 — PDF CLOUD DIAGNOSTICA
 - Nessuna modifica a login o AutoSync.
 
 3.14.4: auth/cloud rollback to 3.14.2; M365 2 canoni +0.5 Digital; gare manuali CORE/Fisso/Digital; voci da completare cliccabili.
+
+SMARTTRACKER 3.14.5 — SYNC CONTRATTI + GARA AGENZIA
+- Sync contratti più robusto: merge per ID e updatedAt, mantiene anche i contratti presenti solo nel Cloud.
+- In caso di parità, preferisce la versione più ricca (es. cloudPdf / servizi).
+- Nessuna modifica al login/auth che nella 3.14.4 risultava stabile.
+- Gara Agenzia Piramis resta distinta dal target individuale.
+- Esiti manuali trimestrali separati: CORE / ADSL + One Net / Digital.
+- Se una pista Agenzia è raggiunta, gli extra sono generati con pagamento a 60 gg dalla chiusura trimestre.
+- Q3 luglio-settembre 2026: pagamento previsto novembre 2026.
+- Gli extra Gara Agenzia risultano visibili nel riepilogo del mese di pagamento.

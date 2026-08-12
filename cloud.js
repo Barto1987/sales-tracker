@@ -372,3 +372,17 @@ export async function readPrimaryCloudStoreRaw(){
   const rows=await res.json();
   return rows?.[0]||null;
 }
+
+
+function mergeContracts(local=[],remote=[],deletedContracts={}){
+  const map=new Map(),ts=v=>{const t=Date.parse(v||'');return Number.isFinite(t)?t:0};
+  const put=c=>{
+    if(!c?.id)return;
+    const tomb=ts(deletedContracts?.[c.id]),ct=ts(c.updatedAt||c.createdAt||c.date);
+    if(tomb&&tomb>=ct)return;
+    const p=map.get(c.id);
+    if(!p||ct>ts(p.updatedAt||p.createdAt||p.date))map.set(c.id,c);
+  };
+  (local||[]).forEach(put);(remote||[]).forEach(put);
+  return [...map.values()];
+}

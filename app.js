@@ -1,4 +1,4 @@
-import {uploadPdfCloud,openPdfCloud,pdfCloudExists,pdfCloudProbe} from './cloud-pdf-minimal.js?v=3144';
+import {uploadPdfCloud,openPdfCloud,pdfCloudExists,pdfCloudProbe} from './cloud-pdf-minimal.js?v=3145';
 
 window.addEventListener('error',(e)=>{
  try{
@@ -21,16 +21,16 @@ window.addEventListener('unhandledrejection',(e)=>{
 });
 
 
-import {loadStore,saveStore,importBackupObject} from './storage.js?v=3144';
-import {TARGETS,generalStats,agencyStats,agencyBreakdown,excellentStats,excellentBreakdown,communityStats,communityBreakdown,teamStats,teamBreakdown,availableMonths,customerList,customerDashboard,customerKey,inflowOf,communityRulesForMonth} from './engines.js?v=3144';
-import {savePdf,openPdf,deletePdf,getPdf} from './pdf-store.js?v=3144';
-import {initParser,parsePDF} from './parser.js?v=3144';
-import {createAutoBackup,getAutoBackupMeta,getFullBackupMeta,downloadDatabaseBackup,downloadCompleteBackup,restoreCompleteBackup,getArchiveStats,formatBytes,formatDate} from './backup.js?v=3144';
-import {exportSync,readSyncFile,previewMerge,applyMerge,getSyncMeta} from './sync.js?v=3144';
-import {regulationGroups} from './regulations.js?v=3144';
-import {currentMonthKey,monthLabel,quarterFromMonth,availablePeriodMonths,ensurePeriodState,periodStatusLabel,periodStatusIcon,applyGlobalMonth} from './periods.js?v=3144';
-import {cloudLogin,cloudLogout,cloudInfo,uploadLocalFirst,downloadAndMerge,syncNow,bootstrapLinkedCloud,queueCloudPush,getCloudMeta,isCloudLinked,getCloudSession,getCloudEmail,setCloudEmail,runCloudDiagnostics,readPrimaryCloudStoreRaw} from './cloud.js?v=3144';
-import {commissionsForPeriod} from './commissions.js?v=3144';
+import {loadStore,saveStore,importBackupObject} from './storage.js?v=3145';
+import {TARGETS,generalStats,agencyStats,agencyBreakdown,excellentStats,excellentBreakdown,communityStats,communityBreakdown,teamStats,teamBreakdown,availableMonths,customerList,customerDashboard,customerKey,inflowOf,communityRulesForMonth} from './engines.js?v=3145';
+import {savePdf,openPdf,deletePdf,getPdf} from './pdf-store.js?v=3145';
+import {initParser,parsePDF} from './parser.js?v=3145';
+import {createAutoBackup,getAutoBackupMeta,getFullBackupMeta,downloadDatabaseBackup,downloadCompleteBackup,restoreCompleteBackup,getArchiveStats,formatBytes,formatDate} from './backup.js?v=3145';
+import {exportSync,readSyncFile,previewMerge,applyMerge,getSyncMeta} from './sync.js?v=3145';
+import {regulationGroups} from './regulations.js?v=3145';
+import {currentMonthKey,monthLabel,quarterFromMonth,availablePeriodMonths,ensurePeriodState,periodStatusLabel,periodStatusIcon,applyGlobalMonth} from './periods.js?v=3145';
+import {cloudLogin,cloudLogout,cloudInfo,uploadLocalFirst,downloadAndMerge,syncNow,bootstrapLinkedCloud,queueCloudPush,getCloudMeta,isCloudLinked,getCloudSession,getCloudEmail,setCloudEmail,runCloudDiagnostics,readPrimaryCloudStoreRaw} from './cloud.js?v=3145';
+import {commissionsForPeriod} from './commissions.js?v=3145';
 
 let store=loadStore(),parsed=null,pendingPdf=null;
 applyGlobalMonth(store,store.settings.activeMonth||store.settings.currentMonth||currentMonthKey());
@@ -725,7 +725,7 @@ async function saveParsed(){
      ?[{agent:'Jacopo',share:.5},{agent:'Luciano',share:.5}]
      :[{agent,share:1}];
  const nowIso=new Date().toISOString();
- const contract={id:'C-'+Date.now(),createdAt:nowIso,updatedAt:nowIso,date:$('contractDate').value,offer:parsed.meta.offer,client:parsed.meta.client||'Da verificare',vat:parsed.meta.vat,customerCode:parsed.meta.customerCode||'',prospect,agent,includeAgency,teamAllocations,status:'Valido',pdfRef:parsed.filename,pdfStored:false,notes:'SmartTracker 3.14.4',services:[]};
+ const contract={id:'C-'+Date.now(),createdAt:nowIso,updatedAt:nowIso,date:$('contractDate').value,offer:parsed.meta.offer,client:parsed.meta.client||'Da verificare',vat:parsed.meta.vat,customerCode:parsed.meta.customerCode||'',prospect,agent,includeAgency,teamAllocations,status:'Valido',pdfRef:parsed.filename,pdfStored:false,notes:'SmartTracker 3.14.5',services:[]};
  for(const el of rows){
    const service=el.querySelector('.pr-service').value;
    const mnpEl=el.querySelector('.pr-mnp');
@@ -1195,7 +1195,7 @@ function renderCommissionDrilldown(kind,data){
  const blocks=[];
  for(const month of months){
    const items=buckets[month].items.filter(filter),total=items.reduce((a,i)=>a+i.amount,0);if(!items.length||!total)continue;
-   const groups={};for(const i of items)groups[i.type]=(groups[i.type]||0)+i.amount;
+   const groups={};for(const i of items){const key=i.type||'Altro';groups[key]=(groups[key]||0)+i.amount;}
    blocks.push(`<details class="commission-month-detail" ${blocks.length===0?'open':''}>
     <summary><span>${monthLabelIT(month)}</span><strong>${money(total)}</strong></summary>
     <div class="commission-month-types">${Object.entries(groups).map(([t,a])=>`<div><span>${t}</span><b>${money(a)}</b></div>`).join('')}</div>
@@ -1229,7 +1229,7 @@ function renderCommissions(){
  </div>
  <div class="card agency-outcome-card">
 <small>ESITO GARE AGENZIA · ${data.ruleSet?.id||'TRIMESTRE'}</small>
-<h3>Conferma manuale trimestrale</h3>
+<h3>Conferma manuale trimestrale</h3><p class="muted">Solo Gara Agenzia Piramis: distinta dal target individuale. Se una pista è raggiunta, i relativi extra vengono messi in pagamento a 60 gg dalla chiusura del trimestre (Q3 2026 → novembre 2026).</p>
 <div class="agency-outcome-grid">
 ${[['core','CORE'],['fixed','ADSL + One Net'],['digital','Digital']].map(([key,label])=>{
  const qk=data.ruleSet?.id||'2026-Q3';
