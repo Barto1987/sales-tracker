@@ -1,4 +1,4 @@
-import {storageFetch,cloudUser} from './cloud.js?v=3143';
+import {storageFetch,cloudUser} from './cloud.js?v=3144';
 export const PDF_BUCKET='contract-pdfs';
 const safe=v=>String(v||'').replace(/[^a-zA-Z0-9_-]/g,'_');
 async function uid(){const u=await cloudUser();if(!u?.id)throw new Error('Accedi a SmartTracker Cloud');return u.id}

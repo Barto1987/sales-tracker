@@ -1260,3 +1260,10 @@ SMARTTRACKER 3.14.3 — LOGIN HOTFIX
 - Corretto definitivamente il renderAll malformato: mancava il separatore tra renderBackup() e renderCloudDocuments().
 - Questo errore impediva l'esecuzione di app.js e quindi il pulsante Accedi non riceveva alcun handler.
 - PDF Cloud isolato: eventuali errori della sua UI non bloccano login o resto app.
+
+SMARTTRACKER 3.14.4 — RUNTIME LOGIN FIX
+- Individuato il vero blocco del login: una parola "async" isolata prima di renderCloudDocuments().
+- Era sintatticamente valida ma generava ReferenceError a runtime ("async is not defined").
+- Il modulo app.js si fermava prima di collegare il pulsante Accedi.
+- Rimossa la riga isolata e aggiunto controllo fallback sull'inizializzazione Cloud.
+- Nessuna modifica ai dati o alle credenziali.
