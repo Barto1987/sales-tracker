@@ -1242,3 +1242,9 @@ SMARTTRACKER 3.14.0 — MINIMAL PDF CLOUD
 - Nessuna migrazione automatica.
 - Solo in Archivio: Aggiungi PDF Cloud / Apri PDF Cloud sul singolo contratto.
 - Primo test consigliato su un solo contratto.
+
+SMARTTRACKER 3.14.1 — PDF REFERENCE SYNC
+- Dopo upload PDF, sincronizzazione immediata del contratto nel database Cloud.
+- In Archivio, una sola volta per sessione, controlla se nello Storage esistono PDF senza riferimento locale.
+- Se trova il PDF, ricostruisce cloudPdf e sincronizza il riferimento sugli altri dispositivi.
+- Login e AutoSync originali non modificati.

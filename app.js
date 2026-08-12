@@ -1,4 +1,4 @@
-import {uploadPdfCloud,openPdfCloud} from './cloud-pdf-minimal.js?v=3140';
+import {uploadPdfCloud,openPdfCloud,pdfCloudExists} from './cloud-pdf-minimal.js?v=3141';
 
 window.addEventListener('error',(e)=>{
  try{
@@ -21,16 +21,16 @@ window.addEventListener('unhandledrejection',(e)=>{
 });
 
 
-import {loadStore,saveStore,importBackupObject} from './storage.js?v=3140';
-import {TARGETS,generalStats,agencyStats,agencyBreakdown,excellentStats,excellentBreakdown,communityStats,communityBreakdown,teamStats,teamBreakdown,availableMonths,customerList,customerDashboard,customerKey,inflowOf,communityRulesForMonth} from './engines.js?v=3140';
-import {savePdf,openPdf,deletePdf,getPdf} from './pdf-store.js?v=3140';
-import {initParser,parsePDF} from './parser.js?v=3140';
-import {createAutoBackup,getAutoBackupMeta,getFullBackupMeta,downloadDatabaseBackup,downloadCompleteBackup,restoreCompleteBackup,getArchiveStats,formatBytes,formatDate} from './backup.js?v=3140';
-import {exportSync,readSyncFile,previewMerge,applyMerge,getSyncMeta} from './sync.js?v=3140';
-import {regulationGroups} from './regulations.js?v=3140';
-import {currentMonthKey,monthLabel,quarterFromMonth,availablePeriodMonths,ensurePeriodState,periodStatusLabel,periodStatusIcon,applyGlobalMonth} from './periods.js?v=3140';
-import {cloudLogin,cloudLogout,cloudInfo,uploadLocalFirst,downloadAndMerge,syncNow,bootstrapLinkedCloud,queueCloudPush,getCloudMeta,isCloudLinked,getCloudSession,getCloudEmail,setCloudEmail,runCloudDiagnostics} from './cloud.js?v=3140';
-import {commissionsForPeriod} from './commissions.js?v=3140';
+import {loadStore,saveStore,importBackupObject} from './storage.js?v=3141';
+import {TARGETS,generalStats,agencyStats,agencyBreakdown,excellentStats,excellentBreakdown,communityStats,communityBreakdown,teamStats,teamBreakdown,availableMonths,customerList,customerDashboard,customerKey,inflowOf,communityRulesForMonth} from './engines.js?v=3141';
+import {savePdf,openPdf,deletePdf,getPdf} from './pdf-store.js?v=3141';
+import {initParser,parsePDF} from './parser.js?v=3141';
+import {createAutoBackup,getAutoBackupMeta,getFullBackupMeta,downloadDatabaseBackup,downloadCompleteBackup,restoreCompleteBackup,getArchiveStats,formatBytes,formatDate} from './backup.js?v=3141';
+import {exportSync,readSyncFile,previewMerge,applyMerge,getSyncMeta} from './sync.js?v=3141';
+import {regulationGroups} from './regulations.js?v=3141';
+import {currentMonthKey,monthLabel,quarterFromMonth,availablePeriodMonths,ensurePeriodState,periodStatusLabel,periodStatusIcon,applyGlobalMonth} from './periods.js?v=3141';
+import {cloudLogin,cloudLogout,cloudInfo,uploadLocalFirst,downloadAndMerge,syncNow,bootstrapLinkedCloud,queueCloudPush,getCloudMeta,isCloudLinked,getCloudSession,getCloudEmail,setCloudEmail,runCloudDiagnostics} from './cloud.js?v=3141';
+import {commissionsForPeriod} from './commissions.js?v=3141';
 
 let store=loadStore(),parsed=null,pendingPdf=null;
 applyGlobalMonth(store,store.settings.activeMonth||store.settings.currentMonth||currentMonthKey());
@@ -479,11 +479,57 @@ async function choosePdfCloudFile(){
 async function addPdfCloudMinimal(id){
  const c=store.contracts.find(x=>x.id===id);if(!c)return;
  const f=await choosePdfCloudFile();if(!f)return;
- try{const info=await uploadPdfCloud(id,f);c.cloudPdf=info;c.updatedAt=new Date().toISOString();persistStore();renderArchive();alert('PDF caricato nel Cloud.')}
+ try{
+  const info=await uploadPdfCloud(id,f);
+  c.cloudPdf=info;
+  c.updatedAt=new Date().toISOString();
+  saveStore(store);createAutoBackup(store);
+  const device=localStorage.getItem('smartTrackerCloudDeviceName')||localStorage.getItem('salesTrackerDeviceName')||'Dispositivo';
+  try{
+    const synced=await syncNow(store,device,'local');
+    if(synced?.store){store=synced.store;saveStore(store)}
+  }catch(syncErr){
+    console.warn('PDF reference immediate sync',syncErr);
+    queueCloudPush(()=>store,device);
+  }
+  renderArchive();
+  alert('PDF caricato nel Cloud e riferimento sincronizzato.');
+}
  catch(e){console.error(e);alert('PDF Cloud: '+(e.message||e))}
 }
 async function openPdfCloudMinimal(id){
  try{await openPdfCloud(id)}catch(e){console.error(e);alert('PDF Cloud: '+(e.message||e))}
+}
+
+
+let pdfCloudReconcileRunning=false;
+let pdfCloudReconciledThisSession=false;
+async function reconcilePdfCloudRefs(){
+ if(pdfCloudReconcileRunning||pdfCloudReconciledThisSession||!isCloudLinked()||!getCloudSession()?.access_token)return;
+ pdfCloudReconcileRunning=true;
+ pdfCloudReconciledThisSession=true;
+ let changed=false;
+ try{
+   const missing=(store.contracts||[]).filter(c=>c.status!=='deleted'&&!c.cloudPdf?.path);
+   for(const c of missing){
+     try{
+       if(await pdfCloudExists(c.id)){
+         c.cloudPdf={bucket:'contract-pdfs',path:'storage-confirmed',reconciledAt:new Date().toISOString()};
+         c.updatedAt=new Date().toISOString();
+         changed=true;
+       }
+     }catch(e){console.warn('PDF Cloud reconcile',c.id,e)}
+   }
+   if(changed){
+     saveStore(store);createAutoBackup(store);
+     const device=localStorage.getItem('smartTrackerCloudDeviceName')||localStorage.getItem('salesTrackerDeviceName')||'Dispositivo';
+     try{
+       const synced=await syncNow(store,device,'local');
+       if(synced?.store){store=synced.store;saveStore(store)}
+     }catch(e){console.warn('PDF reconcile sync',e)}
+     renderArchive();
+   }
+ }finally{pdfCloudReconcileRunning=false}
 }
 
 function archiveItem(c){
@@ -540,7 +586,8 @@ function renderArchive(){
  document.querySelectorAll('[data-open-pdf]').forEach(b=>b.onclick=async()=>{if(!await openPdf(b.dataset.openPdf))alert('PDF non disponibile su questo dispositivo')});
  document.querySelectorAll('[data-add-cloud-pdf]').forEach(b=>b.onclick=()=>addPdfCloudMinimal(b.dataset.addCloudPdf));
  document.querySelectorAll('[data-open-cloud-pdf]').forEach(b=>b.onclick=()=>openPdfCloudMinimal(b.dataset.openCloudPdf));
- document.querySelectorAll('[data-edit]').forEach(b=>b.onclick=()=>editAttrs(b.dataset.edit))
+ document.querySelectorAll('[data-edit]').forEach(b=>b.onclick=()=>editAttrs(b.dataset.edit));
+ setTimeout(()=>reconcilePdfCloudRefs(),250);
 }
 function editAttrs(id){
  const c=store.contracts.find(x=>x.id===id);if(!c)return;
@@ -608,7 +655,7 @@ async function saveParsed(){
      ?[{agent:'Jacopo',share:.5},{agent:'Luciano',share:.5}]
      :[{agent,share:1}];
  const nowIso=new Date().toISOString();
- const contract={id:'C-'+Date.now(),createdAt:nowIso,updatedAt:nowIso,date:$('contractDate').value,offer:parsed.meta.offer,client:parsed.meta.client||'Da verificare',vat:parsed.meta.vat,customerCode:parsed.meta.customerCode||'',prospect,agent,includeAgency,teamAllocations,status:'Valido',pdfRef:parsed.filename,pdfStored:false,notes:'SmartTracker 3.14.0',services:[]};
+ const contract={id:'C-'+Date.now(),createdAt:nowIso,updatedAt:nowIso,date:$('contractDate').value,offer:parsed.meta.offer,client:parsed.meta.client||'Da verificare',vat:parsed.meta.vat,customerCode:parsed.meta.customerCode||'',prospect,agent,includeAgency,teamAllocations,status:'Valido',pdfRef:parsed.filename,pdfStored:false,notes:'SmartTracker 3.14.1',services:[]};
  for(const el of rows){
    const service=el.querySelector('.pr-service').value;
    const mnpEl=el.querySelector('.pr-mnp');
