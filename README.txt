@@ -1249,3 +1249,9 @@ SMARTTRACKER 3.14.1 — PDF CLOUD UI
 - Elenco contratti senza PDF Cloud.
 - Aggiunta manuale PDF da File/iCloud Drive.
 - Contatori PDF presenti/mancanti.
+
+SMARTTRACKER 3.14.2 — LOGIN FIX
+- Corretto errore di inizializzazione JavaScript introdotto dalla UI PDF Cloud.
+- Il pulsante Accedi a SmartTracker Cloud torna operativo.
+- La UI PDF Cloud non può più bloccare il resto dell'app in caso di errore.
+- Nessuna modifica ai dati locali o al database Cloud.
