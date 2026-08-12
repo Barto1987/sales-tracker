@@ -1,7 +1,7 @@
-import {matchEasyRent} from './easy-rent-listino.js?v=3146';
-import {recognizeM2MProduct} from './m2m-listino.js?v=3146';
-import {COMMISSION_RULE_SETS,commissionRuleSetForDate,activeCommissionRuleSet} from './commission-rules.js?v=3146';
-// SmartTracker 3.14.6 — prima base del motore Provvigioni.
+import {matchEasyRent} from './easy-rent-listino.js?v=3147';
+import {recognizeM2MProduct} from './m2m-listino.js?v=3147';
+import {COMMISSION_RULE_SETS,commissionRuleSetForDate,activeCommissionRuleSet} from './commission-rules.js?v=3147';
+// SmartTracker 3.14.7 — prima base del motore Provvigioni.
 // Q3 2026: calcoliamo solo le parti supportate dalle regole già raccolte.
 // Le voci ancora ambigue restano esplicitamente "da confermare".
 
@@ -33,6 +33,36 @@ function quarterPaymentMonth(date){
   const x=new Date(y,qEnd+2,1); // 3 mesi dopo il mese di chiusura trimestre
   return `${x.getFullYear()}-${String(x.getMonth()+1).padStart(2,'0')}`;
 }
+
+function addMonthsToMonth(month,n){
+  const [y,m]=String(month||'').split('-').map(Number);
+  if(!y||!m)return '';
+  const x=new Date(y,m-1+n,1,12,0,0);
+  return `${x.getFullYear()}-${String(x.getMonth()+1).padStart(2,'0')}`;
+}
+function communityPrizeExcellent(position){
+  const p=Number(position||0);
+  if(p===1)return 1700;
+  if(p===2)return 1400;
+  if(p===3)return 1200;
+  if(p>=4&&p<=7)return 1000;
+  if(p>=8&&p<=12)return 800;
+  if(p>=13&&p<=18)return 600;
+  if(p>=19&&p<=23)return 500;
+  return 0;
+}
+function receivableCategory(r){
+  const x=String(r.component||r.rule||'');
+  if(/Gara Agenzia/i.test(x))return 'Gara Agenzia';
+  if(/Gara individuale|Target individuale/i.test(x))return 'Target individuale';
+  if(/Rush/i.test(x))return 'Rush';
+  if(/Prospect/i.test(x))return 'Prospect';
+  if(/Community/i.test(x))return 'Community';
+  if(/Excellent/i.test(x))return 'Excellent';
+  if(/Extra base/i.test(x))return 'Extra base differito';
+  return 'Base';
+}
+
 function monthIsClosed(store,k){
   const st=store.periodStates?.[k]?.status;
   if(st==='closed')return true;
@@ -207,10 +237,57 @@ export function commissionsForPeriod(store,start,end,agent='Francesco'){
       if(deferred90>0)rows.push({...common,component:'Extra base differito',paymentMonth:paymentMonth(c.date,3),base:0,base60:0,deferred90,deterministicExtra:deferred90,estimated:deferred90,note90:`${rule.deferred90Canons} canone extra base · pagamento circa 90 gg dall’attivazione`});
       if(prospectExtra>0)rows.push({...common,component:'Premio Prospect',paymentMonth:paymentMonth(c.date,3),base:0,base60:0,prospectExtra,deterministicExtra:prospectExtra,estimated:prospectExtra});
       if(individualExtra>0)rows.push({...common,component:'Gara individuale trimestrale',paymentMonth:quarterPaymentMonth(c.date),base:0,base60:0,individualExtra,deterministicExtra:individualExtra,estimated:individualExtra});
+      if(agencyExtra>0)rows.push({...common,component:`Gara Agenzia ${agencyGroup==='digital'?'Digital':agencyGroup==='fixed'?'ADSL + One Net':'CORE'}`,paymentMonth:quarterAgencyPaymentMonth(c.date),base:0,base60:0,agencyExtra,deterministicExtra:agencyExtra,estimated:agencyExtra,noteAgency:`Gara Agenzia ${agencyGroup==='digital'?'Digital':agencyGroup==='fixed'?'ADSL + One Net':'CORE'} raggiunta · pagamento 60 gg dalla chiusura trimestre`});
     }
   }
 
+
+// Premi esterni/manuali già maturati
+if(agent==='Francesco'){
+  for(const [month,position] of Object.entries(store.settings?.communityRankings||{})){
+    const amount=communityPrizeExcellent(position);
+    if(amount>0 && month>=String(start).slice(0,7) && month<=String(end).slice(0,7)){
+      rows.push({
+        contractId:`community-${month}`,date:`${month}-01`,productionMonth:month,
+        client:`Community ${month}`,service:'Community',product:`Area Nord Est · posizione ${position}`,
+        inflow:0,base:0,deterministicExtra:amount,estimated:amount,status:'calculated',
+        rule:'Community',component:'Community mensile',
+        paymentMonth:addMonthsToMonth(month,3),pending:[]
+      });
+    }
+  }
+  for(const [quarter,amountRaw] of Object.entries(store.settings?.excellentAwards||{})){
+    const amount=Number(amountRaw||0);
+    const m=String(quarter).match(/^(\d{4})-Q([1-4])$/);
+    if(amount>0 && m){
+      const y=Number(m[1]),q=Number(m[2]),qStart=`${y}-${String((q-1)*3+1).padStart(2,'0')}-01`,qEndMonth=q*3;
+      const qEnd=`${y}-${String(qEndMonth).padStart(2,'0')}-30`;
+      if(qStart<=end && qEnd>=start){
+        rows.push({
+          contractId:`excellent-${quarter}`,date:qEnd,productionMonth:`${y}-${String(qEndMonth).padStart(2,'0')}`,
+          client:`Excellent ${quarter}`,service:'Excellent',product:'Premio trimestrale maturato',
+          inflow:0,base:0,deterministicExtra:amount,estimated:amount,status:'calculated',
+          rule:'Excellent',component:'Excellent trimestrale',
+          paymentMonth:addMonthsToMonth(`${y}-${String(qEndMonth).padStart(2,'0')}`,3),pending:[]
+        });
+      }
+    }
+  }
+}
+
   const calculated=rows.filter(r=>r.status==='calculated');
+
+const receivableRows=calculated.filter(r=>Number(r.estimated||0)>0&&r.paymentMonth);
+const receivableByMonth={};
+const receivableByCategory={};
+for(const r of receivableRows){
+  const category=receivableCategory(r);
+  const x={...r,receivableCategory:category};
+  (receivableByMonth[r.paymentMonth] ||= []).push(x);
+  (receivableByCategory[category] ||= []).push(x);
+}
+const receivableTotal=receivableRows.reduce((a,r)=>a+Number(r.estimated||0),0);
+
   return {
     rows,
     base:calculated.reduce((a,r)=>a+r.base,0),
@@ -221,6 +298,10 @@ export function commissionsForPeriod(store,start,end,agent='Francesco'){
     potentialIndividual:target.potentialIndividual||0,
     ruleSet:target.ruleSet||commissionRuleSetForDate(start)||activeCommissionRuleSet(),
     ruleSets:COMMISSION_RULE_SETS,
+    receivableRows,
+    receivableByMonth,
+    receivableByCategory,
+    receivableTotal,
     agent,
     boostMonths:[...new Set(rows.map(r=>r.productionMonth||monthKey(r.date)).filter(Boolean))].sort().map(m=>monthlyBoostAccess(store,agent,m)),
     paymentMonths:[...new Set(rows.map(r=>r.paymentMonth).filter(Boolean))].sort().map(month=>({month,rows:rows.filter(r=>r.paymentMonth===month),total:rows.filter(r=>r.paymentMonth===month&&r.status==='calculated').reduce((a,r)=>a+r.estimated,0)}))
