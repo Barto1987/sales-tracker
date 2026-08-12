@@ -1,7 +1,7 @@
-import {matchEasyRent} from './easy-rent-listino.js?v=3147';
-import {recognizeM2MProduct} from './m2m-listino.js?v=3147';
-import {COMMISSION_RULE_SETS,commissionRuleSetForDate,activeCommissionRuleSet} from './commission-rules.js?v=3147';
-// SmartTracker 3.14.7 — prima base del motore Provvigioni.
+import {matchEasyRent} from './easy-rent-listino.js?v=3148';
+import {recognizeM2MProduct} from './m2m-listino.js?v=3148';
+import {COMMISSION_RULE_SETS,commissionRuleSetForDate,activeCommissionRuleSet} from './commission-rules.js?v=3148';
+// SmartTracker 3.14.8 — prima base del motore Provvigioni.
 // Q3 2026: calcoliamo solo le parti supportate dalle regole già raccolte.
 // Le voci ancora ambigue restano esplicitamente "da confermare".
 
@@ -37,8 +37,8 @@ function quarterPaymentMonth(date){
 function addMonthsToMonth(month,n){
   const [y,m]=String(month||'').split('-').map(Number);
   if(!y||!m)return '';
-  const x=new Date(y,m-1+n,1,12,0,0);
-  return `${x.getFullYear()}-${String(x.getMonth()+1).padStart(2,'0')}`;
+  const d=new Date(y,m-1+n,1,12,0,0);
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
 }
 function communityPrizeExcellent(position){
   const p=Number(position||0);
@@ -62,7 +62,6 @@ function receivableCategory(r){
   if(/Extra base/i.test(x))return 'Extra base differito';
   return 'Base';
 }
-
 function monthIsClosed(store,k){
   const st=store.periodStates?.[k]?.status;
   if(st==='closed')return true;
@@ -242,34 +241,20 @@ export function commissionsForPeriod(store,start,end,agent='Francesco'){
   }
 
 
-// Premi esterni/manuali già maturati
 if(agent==='Francesco'){
   for(const [month,position] of Object.entries(store.settings?.communityRankings||{})){
     const amount=communityPrizeExcellent(position);
     if(amount>0 && month>=String(start).slice(0,7) && month<=String(end).slice(0,7)){
-      rows.push({
-        contractId:`community-${month}`,date:`${month}-01`,productionMonth:month,
-        client:`Community ${month}`,service:'Community',product:`Area Nord Est · posizione ${position}`,
-        inflow:0,base:0,deterministicExtra:amount,estimated:amount,status:'calculated',
-        rule:'Community',component:'Community mensile',
-        paymentMonth:addMonthsToMonth(month,3),pending:[]
-      });
+      rows.push({contractId:`community-${month}`,date:`${month}-01`,productionMonth:month,client:`Community ${month}`,service:'Community',product:`Area Nord Est · posizione ${position}`,inflow:0,base:0,deterministicExtra:amount,estimated:amount,status:'calculated',rule:'Community',component:'Community mensile',paymentMonth:addMonthsToMonth(month,3),pending:[]});
     }
   }
   for(const [quarter,amountRaw] of Object.entries(store.settings?.excellentAwards||{})){
-    const amount=Number(amountRaw||0);
-    const m=String(quarter).match(/^(\d{4})-Q([1-4])$/);
-    if(amount>0 && m){
-      const y=Number(m[1]),q=Number(m[2]),qStart=`${y}-${String((q-1)*3+1).padStart(2,'0')}-01`,qEndMonth=q*3;
-      const qEnd=`${y}-${String(qEndMonth).padStart(2,'0')}-30`;
-      if(qStart<=end && qEnd>=start){
-        rows.push({
-          contractId:`excellent-${quarter}`,date:qEnd,productionMonth:`${y}-${String(qEndMonth).padStart(2,'0')}`,
-          client:`Excellent ${quarter}`,service:'Excellent',product:'Premio trimestrale maturato',
-          inflow:0,base:0,deterministicExtra:amount,estimated:amount,status:'calculated',
-          rule:'Excellent',component:'Excellent trimestrale',
-          paymentMonth:addMonthsToMonth(`${y}-${String(qEndMonth).padStart(2,'0')}`,3),pending:[]
-        });
+    const amount=Number(amountRaw||0),m=String(quarter).match(/^(\d{4})-Q([1-4])$/);
+    if(amount>0&&m){
+      const y=Number(m[1]),q=Number(m[2]),startM=(q-1)*3+1,endM=q*3;
+      const qStart=`${y}-${String(startM).padStart(2,'0')}-01`,qEnd=`${y}-${String(endM).padStart(2,'0')}-30`;
+      if(qStart<=end&&qEnd>=start){
+        rows.push({contractId:`excellent-${quarter}`,date:qEnd,productionMonth:`${y}-${String(endM).padStart(2,'0')}`,client:`Excellent ${quarter}`,service:'Excellent',product:'Premio trimestrale maturato',inflow:0,base:0,deterministicExtra:amount,estimated:amount,status:'calculated',rule:'Excellent',component:'Excellent trimestrale',paymentMonth:addMonthsToMonth(`${y}-${String(endM).padStart(2,'0')}`,3),pending:[]});
       }
     }
   }
@@ -278,11 +263,9 @@ if(agent==='Francesco'){
   const calculated=rows.filter(r=>r.status==='calculated');
 
 const receivableRows=calculated.filter(r=>Number(r.estimated||0)>0&&r.paymentMonth);
-const receivableByMonth={};
-const receivableByCategory={};
+const receivableByMonth={},receivableByCategory={};
 for(const r of receivableRows){
-  const category=receivableCategory(r);
-  const x={...r,receivableCategory:category};
+  const category=receivableCategory(r),x={...r,receivableCategory:category};
   (receivableByMonth[r.paymentMonth] ||= []).push(x);
   (receivableByCategory[category] ||= []).push(x);
 }

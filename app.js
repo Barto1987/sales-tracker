@@ -1,4 +1,4 @@
-import {uploadPdfCloud,openPdfCloud,pdfCloudExists,pdfCloudProbe} from './cloud-pdf-minimal.js?v=3147';
+import {uploadPdfCloud,openPdfCloud,pdfCloudExists,pdfCloudProbe} from './cloud-pdf-minimal.js?v=3148';
 
 window.addEventListener('error',(e)=>{
  try{
@@ -21,16 +21,16 @@ window.addEventListener('unhandledrejection',(e)=>{
 });
 
 
-import {loadStore,saveStore,importBackupObject} from './storage.js?v=3147';
-import {TARGETS,generalStats,agencyStats,agencyBreakdown,excellentStats,excellentBreakdown,communityStats,communityBreakdown,teamStats,teamBreakdown,availableMonths,customerList,customerDashboard,customerKey,inflowOf,communityRulesForMonth} from './engines.js?v=3147';
-import {savePdf,openPdf,deletePdf,getPdf} from './pdf-store.js?v=3147';
-import {initParser,parsePDF} from './parser.js?v=3147';
-import {createAutoBackup,getAutoBackupMeta,getFullBackupMeta,downloadDatabaseBackup,downloadCompleteBackup,restoreCompleteBackup,getArchiveStats,formatBytes,formatDate} from './backup.js?v=3147';
-import {exportSync,readSyncFile,previewMerge,applyMerge,getSyncMeta} from './sync.js?v=3147';
-import {regulationGroups} from './regulations.js?v=3147';
-import {currentMonthKey,monthLabel,quarterFromMonth,availablePeriodMonths,ensurePeriodState,periodStatusLabel,periodStatusIcon,applyGlobalMonth} from './periods.js?v=3147';
-import {cloudLogin,cloudLogout,cloudInfo,uploadLocalFirst,downloadAndMerge,syncNow,bootstrapLinkedCloud,queueCloudPush,getCloudMeta,isCloudLinked,getCloudSession,getCloudEmail,setCloudEmail,runCloudDiagnostics,readPrimaryCloudStoreRaw} from './cloud.js?v=3147';
-import {commissionsForPeriod} from './commissions.js?v=3147';
+import {loadStore,saveStore,importBackupObject} from './storage.js?v=3148';
+import {TARGETS,generalStats,agencyStats,agencyBreakdown,excellentStats,excellentBreakdown,communityStats,communityBreakdown,teamStats,teamBreakdown,availableMonths,customerList,customerDashboard,customerKey,inflowOf,communityRulesForMonth} from './engines.js?v=3148';
+import {savePdf,openPdf,deletePdf,getPdf} from './pdf-store.js?v=3148';
+import {initParser,parsePDF} from './parser.js?v=3148';
+import {createAutoBackup,getAutoBackupMeta,getFullBackupMeta,downloadDatabaseBackup,downloadCompleteBackup,restoreCompleteBackup,getArchiveStats,formatBytes,formatDate} from './backup.js?v=3148';
+import {exportSync,readSyncFile,previewMerge,applyMerge,getSyncMeta} from './sync.js?v=3148';
+import {regulationGroups} from './regulations.js?v=3148';
+import {currentMonthKey,monthLabel,quarterFromMonth,availablePeriodMonths,ensurePeriodState,periodStatusLabel,periodStatusIcon,applyGlobalMonth} from './periods.js?v=3148';
+import {cloudLogin,cloudLogout,cloudInfo,uploadLocalFirst,downloadAndMerge,syncNow,bootstrapLinkedCloud,queueCloudPush,getCloudMeta,isCloudLinked,getCloudSession,getCloudEmail,setCloudEmail,runCloudDiagnostics,readPrimaryCloudStoreRaw} from './cloud.js?v=3148';
+import {commissionsForPeriod} from './commissions.js?v=3148';
 
 let store=loadStore(),parsed=null,pendingPdf=null;
 applyGlobalMonth(store,store.settings.activeMonth||store.settings.currentMonth||currentMonthKey());
@@ -205,6 +205,8 @@ function renderExcellent(){
    renderExcellent();
    window.scrollTo(0,0);
  })
+
+ renderExcellentPrizeInput();
 }
 
 
@@ -215,18 +217,6 @@ const excellentDetailLabels={
  linkInflow:'Pratiche incluse nel Link inflow',
  solutionInflow:'Pratiche incluse nel Solution inflow',
  easyRentPieces:'Pratiche incluse nel Noleggio operativo'
-
-const excellentQ=periodKey(store.settings.excellentPeriod)||'2026-Q3';
-const excellentAward=store.settings.excellentAwards?.[excellentQ]||'';
-const exHost=$('excellentSummary');
-if(exHost)exHost.insertAdjacentHTML('beforeend',`<div class="card excellent-award-card">
-  <small class="commission-section-eyebrow">PREMIO EXCELLENT</small><h3>Premio trimestrale maturato</h3>
-  <p class="muted">Inserisci l’importo effettivo quando il trimestre è definito. Pagamento a 90 gg dalla chiusura.</p>
-  <div class="row"><label>Importo ${excellentQ}<input id="excellentAwardAmount" type="number" min="0" step="0.01" value="${excellentAward}" placeholder="0,00"></label>
-  <button id="saveExcellentAward" class="secondary">Salva premio</button></div>
-</div>`);
-if($('saveExcellentAward'))$('saveExcellentAward').onclick=()=>{store.settings.excellentAwards=store.settings.excellentAwards||{};const v=Number($('excellentAwardAmount').value||0);if(v>0)store.settings.excellentAwards[excellentQ]=v;else delete store.settings.excellentAwards[excellentQ];persistStore();renderExcellent();renderCommissions();};
-
 };
 
 function bindMetricDetails(section){
@@ -439,6 +429,22 @@ function communityAbilityRow(label,value,key){
  const clickable=Number(value)>0;
  return `<tr class="${clickable?'metric-table-row':''}"${clickable?` data-community-detail="${key}" role="button" tabindex="0"`:''}><td>${label}</td><td>${money(value)}${clickable?' ›':''}</td></tr>`;
 }
+
+function renderCommunityPrizeInput(){
+  const host=$('communitySummary'); if(!host)return;
+  const month=communityPeriodInfo(store.settings.communityPeriod).start.slice(0,7);
+  const current=store.settings.communityRankings?.[month]||'';
+  host.insertAdjacentHTML('beforeend',`<div class="card community-rank-card"><small class="commission-section-eyebrow">PREMIO COMMUNITY</small><h3>Classifica Area Nord Est</h3><p class="muted">Inserisci la posizione quando viene pubblicata. Per Francesco viene usata la colonna Premio Agente Excellent.</p><div class="row"><label>Posizione ${month}<input id="communityRankPosition" type="number" min="1" value="${current}" placeholder="Es. 6"></label><button id="saveCommunityRank" class="secondary">Salva posizione</button></div></div>`);
+  $('saveCommunityRank').onclick=()=>{store.settings.communityRankings=store.settings.communityRankings||{};const v=Number($('communityRankPosition').value||0);if(v>0)store.settings.communityRankings[month]=v;else delete store.settings.communityRankings[month];persistStore();renderCommunity();renderCommissions();};
+}
+function renderExcellentPrizeInput(){
+  const host=$('excellentSummary'); if(!host)return;
+  const q=periodKey(store.settings.excellentPeriod);
+  const current=store.settings.excellentAwards?.[q]||'';
+  host.insertAdjacentHTML('beforeend',`<div class="card excellent-award-card"><small class="commission-section-eyebrow">PREMIO EXCELLENT</small><h3>Premio trimestrale maturato</h3><p class="muted">Inserisci l’importo effettivo quando il trimestre è definito. Pagamento a 90 gg dalla chiusura.</p><div class="row"><label>Importo ${q}<input id="excellentAwardAmount" type="number" min="0" step="0.01" value="${current}" placeholder="0,00"></label><button id="saveExcellentAward" class="secondary">Salva premio</button></div></div>`);
+  $('saveExcellentAward').onclick=()=>{store.settings.excellentAwards=store.settings.excellentAwards||{};const v=Number($('excellentAwardAmount').value||0);if(v>0)store.settings.excellentAwards[q]=v;else delete store.settings.excellentAwards[q];persistStore();renderExcellent();renderCommissions();};
+}
+
 function renderCommunity(){
  const c=communityStats(store);
  const communityMonth=store.settings.communityMonth||store.settings.activeMonth;
@@ -450,17 +456,6 @@ function renderCommunity(){
  ${communityAbilityRow(`Link minimo ${rules.abilityLinkInflow} €`,c.link,'link')}
  <tr><td>${courseStatus}</td><td>${rules.mandatoryCourses?'Da verificare':'✓'}</td></tr>
  </table></div>`;
-
-const communityRankMonth=communityMonth;
-const communityRank=store.settings.communityRankings?.[communityRankMonth]||'';
-$('communitySummary').insertAdjacentHTML('beforeend',`<div class="card community-rank-card">
-  <small class="commission-section-eyebrow">PREMIO COMMUNITY</small><h3>Classifica Area Nord Est</h3>
-  <p class="muted">Inserisci la posizione quando viene pubblicata. Per Francesco viene usata la colonna Premio Agente Excellent.</p>
-  <div class="row"><label>Posizione ${communityRankMonth}<input id="communityRankPosition" type="number" min="1" value="${communityRank}" placeholder="Es. 6"></label>
-  <button id="saveCommunityRank" class="secondary">Salva posizione</button></div>
-</div>`);
-$('saveCommunityRank').onclick=()=>{store.settings.communityRankings=store.settings.communityRankings||{};const v=Number($('communityRankPosition').value||0);if(v>0)store.settings.communityRankings[communityRankMonth]=v;else delete store.settings.communityRankings[communityRankMonth];persistStore();renderCommunity();renderCommissions();};
-
  $('communityBoosts').innerHTML=`<div class="card"><h3>V-Coin e boost</h3><table class="table-like">
  ${communityRow('V-Coin base',c.inflow,'baseVcoins')}
  ${communityRow('Boost MNP',c.boosts.mnp,'mnp','+')}
@@ -493,6 +488,8 @@ $('saveCommunityRank').onclick=()=>{store.settings.communityRankings=store.setti
  };
  bindMetricDetails('community');
  $('saveOfficial').onclick=()=>{store.officialCommunity.vcoins=Number($('officialVcoins').value||0);store.officialCommunity.updatedAt=new Date().toISOString();persistStore();renderCommunity()}
+
+ renderCommunityPrizeInput();
 }
 
 async function choosePdfCloudFile(){
@@ -748,7 +745,7 @@ async function saveParsed(){
      ?[{agent:'Jacopo',share:.5},{agent:'Luciano',share:.5}]
      :[{agent,share:1}];
  const nowIso=new Date().toISOString();
- const contract={id:'C-'+Date.now(),createdAt:nowIso,updatedAt:nowIso,date:$('contractDate').value,offer:parsed.meta.offer,client:parsed.meta.client||'Da verificare',vat:parsed.meta.vat,customerCode:parsed.meta.customerCode||'',prospect,agent,includeAgency,teamAllocations,status:'Valido',pdfRef:parsed.filename,pdfStored:false,notes:'SmartTracker 3.14.7',services:[]};
+ const contract={id:'C-'+Date.now(),createdAt:nowIso,updatedAt:nowIso,date:$('contractDate').value,offer:parsed.meta.offer,client:parsed.meta.client||'Da verificare',vat:parsed.meta.vat,customerCode:parsed.meta.customerCode||'',prospect,agent,includeAgency,teamAllocations,status:'Valido',pdfRef:parsed.filename,pdfStored:false,notes:'SmartTracker 3.14.8',services:[]};
  for(const el of rows){
    const service=el.querySelector('.pr-service').value;
    const mnpEl=el.querySelector('.pr-mnp');
@@ -1265,7 +1262,7 @@ ${[['core','CORE'],['fixed','ADSL + One Net'],['digital','Digital']].map(([key,l
 </div></div><div class="card commission-hero commission-clickable" data-commission-drill="all">
    <small>PROVVIGIONI DA RICEVERE · Q3 2026</small>
    <strong>${money(data.receivableTotal??data.estimated)}</strong>
-   <div class="muted">Totale delle provvigioni già maturate e pianificate. Premi potenziali o ancora da confermare restano separati.</div>
+   <div class="muted">Totale delle provvigioni già maturate e pianificate. Premi potenziali o da confermare restano separati.</div>
  </div>
  <div class="grid commission-kpis">
    <div class="card kpi commission-clickable" data-commission-drill="base"><small>Base calcolabile</small><strong>${money(data.base)}</strong><span class="commission-tap-hint">Dettaglio pagamenti ›</span></div>
@@ -1284,23 +1281,18 @@ ${[['core','CORE'],['fixed','ADSL + One Net'],['digital','Digital']].map(([key,l
 
 </div>
 <div class="card commission-receivables-card">
-  <small class="commission-section-eyebrow">DA RICEVERE</small>
-  <h3>Per mese di pagamento</h3>
+  <small class="commission-section-eyebrow">DA RICEVERE</small><h3>Per mese di pagamento</h3>
   ${Object.entries(data.receivableByMonth||{}).sort(([a],[b])=>a.localeCompare(b)).map(([month,items])=>{
     const mt=items.reduce((n,r)=>n+Number(r.estimated||0),0);
     const cats=items.reduce((g,r)=>{(g[r.receivableCategory] ||= []).push(r);return g},{});
-    return `<details class="receivable-group">
-      <summary><span>${month}</span><b>${money(mt)}</b></summary>
-      ${Object.entries(cats).map(([cat,rows])=>`<details class="receivable-subgroup">
-        <summary><span>${cat}</span><b>${money(rows.reduce((n,r)=>n+Number(r.estimated||0),0))}</b></summary>
+    return `<details class="receivable-group"><summary><span>${month}</span><b>${money(mt)}</b></summary>
+      ${Object.entries(cats).map(([cat,rows])=>`<details class="receivable-subgroup"><summary><span>${cat}</span><b>${money(rows.reduce((n,r)=>n+Number(r.estimated||0),0))}</b></summary>
         ${rows.map(r=>`<div class="receivable-line"><div><strong>${r.client}</strong><small>${r.component||r.rule}${r.product?' · '+r.product:''}</small></div><b>${money(r.estimated||0)}</b></div>`).join('')}
-      </details>`).join('')}
-    </details>`;
+      </details>`).join('')}</details>`;
   }).join('')||'<p class="muted">Nessun pagamento certo pianificato.</p>'}
 </div>
 <div class="card commission-receivables-card">
-  <small class="commission-section-eyebrow">BOOST E GARE</small>
-  <h3>Per tipologia</h3>
+  <small class="commission-section-eyebrow">BOOST E GARE</small><h3>Per tipologia</h3>
   ${Object.entries(data.receivableByCategory||{}).sort(([a],[b])=>a.localeCompare(b)).map(([cat,items])=>{
     const total=items.reduce((n,r)=>n+Number(r.estimated||0),0);
     return `<details class="receivable-group"><summary><span>${cat}</span><b>${money(total)}</b></summary>
@@ -1357,8 +1349,7 @@ let drill=$('commissionDrilldown');
            ${r.note60?`<div class="commission-easyrent">${r.rule==='M2M'?'M2M · ':''}${r.note60}${r.rushEligible?' · inflow valido Rush':''}${r.rule==='M2M'?' · esclusa dai target SIM Voce/Dati':''}</div>`:''}
            ${r.note90?`<div class="commission-easyrent">${r.note90}</div>`:''}
            ${r.rule==='Easy Rent'&&r.note?`<div class="commission-easyrent">${r.note} · inflow valido Rush</div>`:''}
-           ${r.noteAgency?`<div class="commission-easyrent">${r.noteAgency}</div>`:''}
-           ${r.pending?.length?`<div class="commission-pending">${r.pending.join(' · ')}</div>`:''}`
+           ${r.noteAgency?`<div class="commission-easyrent">${r.noteAgency}</div>`:''}${r.pending?.length?`<div class="commission-pending">${r.pending.join(' · ')}</div>`:''}`
          :`<div class="commission-pending">${r.note}</div>${r.canReparse?`<button class="secondary er-reparse-btn" data-er-reparse="${r.contractId}" style="margin-top:10px">Carica e rileggi offerta PDF</button>`:''}`}
      </div>`).join('')}
    </div>`).join('')
