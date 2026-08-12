@@ -1,7 +1,7 @@
-import {matchEasyRent} from './easy-rent-listino.js?v=3144';
-import {recognizeM2MProduct} from './m2m-listino.js?v=3144';
-import {COMMISSION_RULE_SETS,commissionRuleSetForDate,activeCommissionRuleSet} from './commission-rules.js?v=3144';
-// SmartTracker 3.14.4 — prima base del motore Provvigioni.
+import {matchEasyRent} from './easy-rent-listino.js?v=3130';
+import {recognizeM2MProduct} from './m2m-listino.js?v=3130';
+import {COMMISSION_RULE_SETS,commissionRuleSetForDate,activeCommissionRuleSet} from './commission-rules.js?v=3130';
+// SmartTracker 3.13.0 — prima base del motore Provvigioni.
 // Q3 2026: calcoliamo solo le parti supportate dalle regole già raccolte.
 // Le voci ancora ambigue restano esplicitamente "da confermare".
 
