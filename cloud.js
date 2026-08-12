@@ -9,6 +9,7 @@ const ROW_ID='primary';
 
 let bootstrapped=false;
 let syncTimer=null;
+let refreshInFlight=null;
 
 const nowIso=()=>new Date().toISOString();
 const parse=(v,f=null)=>{try{return JSON.parse(v)}catch{return f}};
@@ -45,25 +46,57 @@ async function rawAuth(path,options={}){
 }
 
 async function refreshSession(){
-  const s=getSession();
-  if(!s?.refresh_token)throw new Error('Sessione Cloud non disponibile');
-  const res=await rawAuth('/auth/v1/token?grant_type=refresh_token',{
-    method:'POST',
-    body:JSON.stringify({refresh_token:s.refresh_token})
-  });
-  const body=await res.json().catch(()=>({}));
-  if(!res.ok)throw new Error(body?.msg||body?.message||body?.error_description||'Refresh sessione fallito');
-  const next={
-    access_token:body.access_token,
-    refresh_token:body.refresh_token||s.refresh_token,
-    expires_at:Math.floor(Date.now()/1000)+Number(body.expires_in||3600),
-    user:body.user||s.user
-  };
-  setSession(next);
-  return next;
+  if(refreshInFlight)return refreshInFlight;
+  refreshInFlight=(async()=>{
+    const original=getSession();
+    if(!original?.refresh_token)throw new Error('Sessione Cloud non disponibile');
+
+    const doRefresh=async token=>{
+      const res=await rawAuth('/auth/v1/token?grant_type=refresh_token',{
+        method:'POST',
+        body:JSON.stringify({refresh_token:token})
+      });
+      const body=await res.json().catch(()=>({}));
+      return {res,body};
+    };
+
+    let {res,body}=await doRefresh(original.refresh_token);
+
+    // Se un altro flusso ha già ruotato il token, riprova una volta col token più recente salvato.
+    if(!res.ok){
+      const latest=getSession();
+      if(latest?.refresh_token && latest.refresh_token!==original.refresh_token){
+        ({res,body}=await doRefresh(latest.refresh_token));
+      }
+    }
+
+    if(!res.ok){
+      const msg=body?.msg||body?.message||body?.error_description||body?.error||'Refresh sessione fallito';
+      if(/refresh token|invalid refresh|not found|already used/i.test(String(msg))){
+        clearSession();
+        setCloudLinked(false);
+        bootstrapped=false;
+        throw new Error('Sessione Cloud scaduta: effettua nuovamente l’accesso.');
+      }
+      throw new Error(msg);
+    }
+
+    const current=getSession()||original;
+    const next={
+      access_token:body.access_token,
+      refresh_token:body.refresh_token||current.refresh_token,
+      expires_at:Math.floor(Date.now()/1000)+Number(body.expires_in||3600),
+      user:body.user||current.user
+    };
+    setSession(next);
+    return next;
+  })();
+
+  try{return await refreshInFlight}
+  finally{refreshInFlight=null}
 }
 
-async function validSession(){
+async function validSessionasync function validSession(){
   let s=getSession();
   if(!s?.access_token)return null;
   if(Number(s.expires_at||0)-60<=Math.floor(Date.now()/1000))s=await refreshSession();
@@ -169,6 +202,7 @@ export async function runCloudDiagnostics(email,password){
     };
     setSession(s);
     setCloudEmail(email);
+    bootstrapped=false;
     return {ok:true,steps,session:s};
   }catch(e){
     push(false,'Login Auth',e.name==='AbortError'?'Timeout di rete':(e.message||String(e)));
@@ -310,7 +344,12 @@ export async function cloudInfo(){
     const row=await cloudRow();
     return {loggedIn:true,linked:isCloudLinked(),row,meta:getMeta(),user:getSession()?.user};
   }catch(e){
-    return {loggedIn:true,linked:isCloudLinked(),row:null,meta:{...getMeta(),lastError:e.message},user:s.user,error:e.message};
+    const current=getSession();
+    if(!current?.access_token){
+      setCloudLinked(false);
+      return {loggedIn:false,linked:false,row:null,meta:{...getMeta(),lastError:e.message},user:null,error:e.message};
+    }
+    return {loggedIn:true,linked:isCloudLinked(),row:null,meta:{...getMeta(),lastError:e.message},user:current.user||s.user,error:e.message};
   }
 }
 export async function bootstrapLinkedCloud(localStore,deviceName='Dispositivo'){

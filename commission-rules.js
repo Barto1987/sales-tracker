@@ -25,7 +25,8 @@ export const COMMISSION_RULE_SETS = [
       easyDeal:{base60:1.5,deferred90:1,individual:0,agency:0,prospect:1,rush:false},
       miniEasyDeal:null,
       m2m:{base60:2,deferred90:0,individual:0,agency:0,prospect:0,rush:true},
-      easyRent:{gettone:true,rush:true}
+      easyRent:{gettone:true,rush:true},
+      m365:{base60:2,agency:.5}
     },
     notes:[
       'Snapshot storico Q2: non modificare retroattivamente.',
@@ -56,7 +57,8 @@ export const COMMISSION_RULE_SETS = [
       easyDeal:{base60:1.5,deferred90:.5,individual:0,agency:0,prospect:2,rush:false},
       miniEasyDeal:{base60:1.5,deferred90:1,individual:1,agency:0,prospect:2,rush:false},
       m2m:{base60:2,deferred90:0,individual:0,agency:0,prospect:0,rush:true},
-      easyRent:{gettone:true,rush:true}
+      easyRent:{gettone:true,rush:true},
+      m365:{base60:2,agency:.5}
     },
     notes:[
       'Soglia accesso boost: 250 € inflow per agente e per mese.',
@@ -64,7 +66,8 @@ export const COMMISSION_RULE_SETS = [
       'Prospect: pagamento a 90 gg.',
       'Gara individuale e Gara Agenzia: extra distinti, pagamento a 90 gg dalla chiusura trimestre.',
       'M2M: 2 canoni secchi a 60 gg, inflow valido Rush, escluse dai target SIM Voce/Dati.',
-      'Easy Rent: gettone secco a 60 gg, listino versionato separatamente.'
+      'Easy Rent: gettone secco a 60 gg, listino versionato separatamente.',
+      'M365 Business Basic/Standard/Premium: 2 canoni a 60 gg; +0,5 canone se Gara Agenzia Digital raggiunta.'
     ]
   }
 ];

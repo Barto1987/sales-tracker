@@ -1256,3 +1256,24 @@ SMARTTRACKER 3.14.2 — PDF CLOUD DIAGNOSTICA
   2) PDF realmente presente in Supabase Storage;
   3) cloudPdf presente nello stesso contratto nel database Cloud.
 - Nessuna modifica a login o AutoSync.
+
+SMARTTRACKER 3.14.3 — CLOUD SESSION + DIGITAL + GARE AGENZIA
+CLOUD
+- Refresh token serializzato: impedisce refresh contemporanei che possono invalidarsi a vicenda su iPad/PWA.
+- Se un refresh token è realmente scaduto/non valido, SmartTracker pulisce la sessione fantasma e richiede un nuovo login.
+- Dopo il nuovo login la sessione parte pulita.
+
+PROVVIGIONI DIGITAL
+- M365 Business Basic / Standard / Premium: 2 canoni a 60 gg.
+- Gara Agenzia Digital raggiunta: +0,5 canone, pagamento 90 gg dalla chiusura trimestre.
+- Gli altri prodotti Digital restano "da completare" finché non hanno una regola specifica.
+
+GARE AGENZIA
+- Esito manuale trimestrale separato: CORE, ADSL + One Net, Digital.
+- Stati: Da definire / Raggiunta / Non raggiunta.
+- Gli esiti vengono salvati nello store e sincronizzati.
+- CORE e ADSL/One Net applicano l'extra Agenzia solo se è rispettato anche l'accesso mensile ai boost.
+- Digital applica il +0,5 in base all'esito Gara Digital.
+
+UI
+- "Voci da completare" è cliccabile e mostra cliente, prodotto, inflow e regola mancante.

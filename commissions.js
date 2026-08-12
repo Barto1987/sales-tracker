@@ -1,7 +1,7 @@
-import {matchEasyRent} from './easy-rent-listino.js?v=3142';
-import {recognizeM2MProduct} from './m2m-listino.js?v=3142';
-import {COMMISSION_RULE_SETS,commissionRuleSetForDate,activeCommissionRuleSet} from './commission-rules.js?v=3142';
-// SmartTracker 3.14.2 — prima base del motore Provvigioni.
+import {matchEasyRent} from './easy-rent-listino.js?v=3143';
+import {recognizeM2MProduct} from './m2m-listino.js?v=3143';
+import {COMMISSION_RULE_SETS,commissionRuleSetForDate,activeCommissionRuleSet} from './commission-rules.js?v=3143';
+// SmartTracker 3.14.3 — prima base del motore Provvigioni.
 // Q3 2026: calcoliamo solo le parti supportate dalle regole già raccolte.
 // Le voci ancora ambigue restano esplicitamente "da confermare".
 
@@ -50,7 +50,17 @@ function textOf(s){
 }
 function isMiniEasyDeal(s){return /mini\s*easy\s*deal/.test(textOf(s))}
 function isEasyRent(s){return s.service==='Easy Rent'}
-function isDigital(s){return /solution|soluzioni digitali|digital|cloud|security|cyber|miia|7layers|7 layers|gdpr|nis2|movylo|sdm/.test(textOf(s))}
+function isDigital(s){return /solution|soluzioni digitali|digital|cloud|security|cyber|miia|7layers|7 layers|gdpr|nis2|movylo|sdm|m365|microsoft 365/.test(textOf(s))}
+function isM365(s){return /m365\s+business\s+(?:basic|standard|premium)|microsoft\s*365\s+business\s+(?:basic|standard|premium)/i.test(`${s.product||''} ${s.service||''}`)}
+function quarterKeyFromDate(date){
+  const [y,m]=String(date||'').slice(0,7).split('-').map(Number);
+  if(!y||!m)return '';
+  return `${y}-Q${Math.ceil(m/3)}`;
+}
+function agencyResult(store,date,key){
+  const q=quarterKeyFromDate(date);
+  return store.settings?.agencyQuarterResults?.[q]?.[key]||'pending';
+}
 function isEnergyGas(s){return ['Energia','Gas'].includes(s.service)}
 function isOneNetExcludedComponent(s){return /interno|uc phone|sempre serviti|device|attivazione|alcatel|cisco|adok/.test(textOf(s))}
 
@@ -127,7 +137,8 @@ function ruleFor(s,date='2026-07-01'){
   if(['SIM Voce','SIM Dati'].includes(s.service))
     return {type:'Core',...cv(f.core),ruleSetId:rs?.id};
   if(isEnergyGas(s)) return {type:s.service,manual:true,rushEligible:true,ruleSetId:rs?.id,reason:'Premio Energia/Gas da valorizzare con la regola dedicata; l’inflow resta valido per il Rush.'};
-  if(isDigital(s)) return {type:'Digital',manual:true,ruleSetId:rs?.id,reason:'Manca ancora il listino base completo; gli extra Digital verranno aggiunti con la prossima tabella provvigionale.'};
+  if(isM365(s)) return {type:'M365',base60Canons:Number(f.m365?.base60||2),deferred90Canons:0,individualCanons:0,prospectCanons:0,agencyCanons:Number(f.m365?.agency||.5),agencyGroup:'digital',rushEligible:false,ruleSetId:rs?.id};
+  if(isDigital(s)) return {type:'Digital',manual:true,ruleSetId:rs?.id,reason:'Prodotto Digital riconosciuto, ma manca ancora la specifica regola provvigionale base per questo prodotto.'};
   return {type:s.service||'Altro',manual:true,ruleSetId:rs?.id,reason:'Regola provvigionale non ancora censita.'};
 }
 
@@ -178,19 +189,26 @@ export function commissionsForPeriod(store,start,end,agent='Francesco'){
       const access=monthlyBoostAccess(store,agent,monthKey(c.date));
       const prospectExtra=(access.unlocked&&c.prospect) ? inflow*Number(rule.prospectCanons||0) : 0;
       const individualExtra=(access.unlocked&&target.won) ? inflow*Number(rule.individualCanons||0) : 0;
-      const deterministicExtra=deferred90+prospectExtra+individualExtra;
+
+      const agencyGroup=rule.agencyGroup||(rule.type==='Core'?'core':(['ADSL','One Net Ufficio','One Net Azienda'].includes(rule.type)?'fixed':null));
+      const agencyState=agencyGroup?agencyResult(store,c.date,agencyGroup):'pending';
+      const agencyAccessOk=agencyGroup==='digital'?true:access.unlocked;
+      const agencyExtra=(agencyAccessOk&&agencyState==='yes') ? inflow*Number(rule.agencyCanons||0) : 0;
+      const deterministicExtra=deferred90+prospectExtra+individualExtra+agencyExtra;
 
       const pending=[];
-      if(!access.unlocked && (rule.prospectCanons||rule.individualCanons||rule.agencyCanons)){
+      if(!access.unlocked && (rule.prospectCanons||rule.individualCanons||(rule.agencyCanons&&agencyGroup!=='digital'))){
         pending.push(`boost ${monthKey(c.date)} bloccati: ${access.inflow.toFixed(2)} € / 250 €`);
       }
       if(rule.individualCanons && access.unlocked && !target.won)pending.push(`+${rule.individualCanons} canone target individuale`);
-      if(rule.agencyCanons && access.unlocked)pending.push(`+${rule.agencyCanons} canone target Agenzia`);
-      const common={contractId:c.id,date:c.date,productionMonth:monthKey(c.date),client:c.client||'Cliente',service:s.service||'',product:s.product||'',inflow,status:'calculated',rule:rule.type,pending,rushEligible:!!rule.rushEligible,boostAccess:access,m2mProduct:rule.m2m?recognizeM2MProduct(s.product||''):null};
+      if(rule.agencyCanons && agencyState==='pending')pending.push(`Gara Agenzia ${agencyGroup==='digital'?'Digital':agencyGroup==='fixed'?'ADSL + One Net':'CORE'} da confermare (+${rule.agencyCanons} canone)`);
+      if(rule.agencyCanons && agencyState==='no')pending.push(`Gara Agenzia ${agencyGroup==='digital'?'Digital':agencyGroup==='fixed'?'ADSL + One Net':'CORE'}: non raggiunta`);
+      const common={contractId:c.id,date:c.date,productionMonth:monthKey(c.date),client:c.client||'Cliente',service:s.service||'',product:s.product||'',inflow,status:'calculated',rule:rule.type,pending,rushEligible:!!rule.rushEligible,boostAccess:access,m2mProduct:rule.m2m?recognizeM2MProduct(s.product||''):null,agencyGroup,agencyState};
       if(base60>0)rows.push({...common,component:rule.type==='M2M'?'2 canoni M2M':'Base 60gg',paymentMonth:paymentMonth(c.date,2),base:base60,base60,deterministicExtra:0,estimated:base60,note60:rule.base60Canons?`${rule.base60Canons} canoni base · pagamento a 60 gg dall’attivazione`:''});
       if(deferred90>0)rows.push({...common,component:'Extra base differito',paymentMonth:paymentMonth(c.date,3),base:0,base60:0,deferred90,deterministicExtra:deferred90,estimated:deferred90,note90:`${rule.deferred90Canons} canone extra base · pagamento circa 90 gg dall’attivazione`});
       if(prospectExtra>0)rows.push({...common,component:'Premio Prospect',paymentMonth:paymentMonth(c.date,3),base:0,base60:0,prospectExtra,deterministicExtra:prospectExtra,estimated:prospectExtra});
       if(individualExtra>0)rows.push({...common,component:'Gara individuale trimestrale',paymentMonth:quarterPaymentMonth(c.date),base:0,base60:0,individualExtra,deterministicExtra:individualExtra,estimated:individualExtra});
+      if(agencyExtra>0)rows.push({...common,component:`Gara Agenzia ${agencyGroup==='digital'?'Digital':agencyGroup==='fixed'?'ADSL + One Net':'CORE'}`,paymentMonth:quarterPaymentMonth(c.date),base:0,base60:0,agencyExtra,deterministicExtra:agencyExtra,estimated:agencyExtra});
     }
   }
 
