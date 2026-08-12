@@ -1248,3 +1248,11 @@ SMARTTRACKER 3.14.1 — PDF REFERENCE SYNC
 - In Archivio, una sola volta per sessione, controlla se nello Storage esistono PDF senza riferimento locale.
 - Se trova il PDF, ricostruisce cloudPdf e sincronizza il riferimento sugli altri dispositivi.
 - Login e AutoSync originali non modificati.
+
+SMARTTRACKER 3.14.2 — PDF CLOUD DIAGNOSTICA
+- Pulsante "Diagnostica PDF" in Archivio.
+- Verifica tre livelli sul singolo contratto:
+  1) cloudPdf nel contratto locale;
+  2) PDF realmente presente in Supabase Storage;
+  3) cloudPdf presente nello stesso contratto nel database Cloud.
+- Nessuna modifica a login o AutoSync.

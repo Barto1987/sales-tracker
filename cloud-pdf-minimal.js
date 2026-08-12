@@ -1,4 +1,4 @@
-import {cloudStorageRequest,currentCloudUser} from './cloud.js?v=3141';
+import {cloudStorageRequest,currentCloudUser} from './cloud.js?v=3142';
 const BUCKET='contract-pdfs',safe=v=>String(v||'').replace(/[^a-zA-Z0-9_-]/g,'_');
 async function pathFor(id){const u=await currentCloudUser();if(!u?.id)throw new Error('Sessione Cloud non disponibile');return `${u.id}/${safe(id)}/offerta.pdf`}
 export async function uploadPdfCloud(id,file){
@@ -26,4 +26,15 @@ export async function pdfCloudExists(id){
  if(res.ok)return true;
  if(res.status===400||res.status===404)return false;
  return false;
+}
+
+export async function pdfCloudProbe(id){
+  const path=await pathFor(id);
+  const res=await cloudStorageRequest(`/object/sign/${BUCKET}/${path}`,{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({expiresIn:60})
+  });
+  const body=await res.json().catch(()=>({}));
+  return {exists:res.ok,status:res.status,path,response:body};
 }

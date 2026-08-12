@@ -636,7 +636,7 @@ input:focus,select:focus,textarea:focus{
 .cloud-auto-note{margin-top:10px;padding:10px 12px;border-radius:12px;background:#edf9f1;color:#176b35;font-weight:800;font-size:12px}
 
 
-/* SmartTracker 3.14.1 — navigation active-state visibility */
+/* SmartTracker 3.14.2 — navigation active-state visibility */
 .app-nav{
   grid-template-columns:repeat(7,minmax(62px,1fr))!important;
   overflow-x:auto;
@@ -679,7 +679,7 @@ input:focus,select:focus,textarea:focus{
 }
 
 
-/* SmartTracker 3.14.1 — menu iPhone + pulsante Nuovo in testata */
+/* SmartTracker 3.14.2 — menu iPhone + pulsante Nuovo in testata */
 .smart-header{
   position:sticky;
   top:0;
@@ -823,3 +823,19 @@ input:focus,select:focus,textarea:focus{
 .commission-potential-total{background:#f7f8fa;border-radius:14px;padding:12px;margin:10px 0}
 .commission-potential-total small{display:block;font-size:9px;font-weight:900;color:#6b7280}
 .commission-potential-total strong{display:block;font-size:26px;margin-top:4px}
+
+#pdfDiagnosticPanel{margin:10px 0}
+.pdf-diag-card{border-left:4px solid #111827}
+.pdf-diag-head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}
+.pdf-diag-head small{font-size:9px;font-weight:900;letter-spacing:.1em;color:#6b7280}
+.pdf-diag-head h3{margin:3px 0}
+.pdf-diag-head button{width:auto!important;margin:0!important;padding:7px 10px!important;font-size:10px!important}
+.pdf-diag-grid{display:grid;grid-template-columns:1fr;gap:8px;margin-top:12px}
+.pdf-diag-grid>div{border-radius:12px;padding:10px}
+.pdf-diag-grid b{display:block;font-size:11px}
+.pdf-diag-grid span{display:block;margin-top:3px;font-size:10px}
+.diag-ok{background:#eaf8ef;color:#176b35}
+.diag-ko{background:#fff0f0;color:#a61b1b}
+.pdf-diag-details{margin-top:10px}
+.pdf-diag-details summary{font-size:10px;font-weight:800;cursor:pointer}
+.pdf-diag-details pre{white-space:pre-wrap;word-break:break-word;background:#111827;color:#f9fafb;border-radius:10px;padding:10px;font-size:9px;max-height:300px;overflow:auto}

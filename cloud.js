@@ -345,3 +345,30 @@ export async function cloudStorageRequest(path,options={}){
  return res;
 }
 export async function currentCloudUser(){const s=await validSession();return s?.user||null}
+
+export async function readPrimaryCloudStoreRaw(){
+  let s=await validSession();
+  if(!s)throw new Error('Accedi prima a SmartTracker Cloud');
+  const mkHeaders=session=>({
+    apikey:PUBLISHABLE_KEY,
+    Authorization:`Bearer ${session.access_token}`,
+    Accept:'application/json'
+  });
+  let res=await timedFetch(
+    PROJECT_URL+'/rest/v1/smarttracker_data?id=eq.primary&select=data,updated_at',
+    {headers:mkHeaders(s)},30000
+  );
+  if(res.status===401){
+    s=await refreshSession();
+    res=await timedFetch(
+      PROJECT_URL+'/rest/v1/smarttracker_data?id=eq.primary&select=data,updated_at',
+      {headers:mkHeaders(s)},30000
+    );
+  }
+  if(!res.ok){
+    const x=await res.json().catch(()=>({}));
+    throw new Error(x.message||x.error||`Cloud DB HTTP ${res.status}`);
+  }
+  const rows=await res.json();
+  return rows?.[0]||null;
+}
