@@ -636,7 +636,7 @@ input:focus,select:focus,textarea:focus{
 .cloud-auto-note{margin-top:10px;padding:10px 12px;border-radius:12px;background:#edf9f1;color:#176b35;font-weight:800;font-size:12px}
 
 
-/* SmartTracker 3.14.0 — navigation active-state visibility */
+/* SmartTracker 3.14.1 — navigation active-state visibility */
 .app-nav{
   grid-template-columns:repeat(7,minmax(62px,1fr))!important;
   overflow-x:auto;
@@ -679,7 +679,7 @@ input:focus,select:focus,textarea:focus{
 }
 
 
-/* SmartTracker 3.14.0 — menu iPhone + pulsante Nuovo in testata */
+/* SmartTracker 3.14.1 — menu iPhone + pulsante Nuovo in testata */
 .smart-header{
   position:sticky;
   top:0;
@@ -827,3 +827,13 @@ input:focus,select:focus,textarea:focus{
 .cloud-doc-card{margin-top:12px}.cloud-doc-head{display:flex;justify-content:space-between;gap:12px}.cloud-doc-head small{font-size:9px;font-weight:900;letter-spacing:.08em;color:#6b7280}
 .cloud-doc-head h3{margin:3px 0}.cloud-doc-head>span{font-size:22px;font-weight:950}.cloud-doc-stats{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0}
 .cloud-doc-stats>div{background:#f7f8fa;border-radius:12px;padding:10px}.cloud-doc-stats b{display:block;font-size:20px}.cloud-doc-stats small{font-size:10px;color:#6b7280}
+
+#cloudDocuments{margin:18px 0}.cloud-doc-card,.cloud-doc-missing-card{border-left:4px solid var(--brand)}
+.cloud-doc-head{display:flex;justify-content:space-between;gap:12px}.cloud-doc-head small{font-size:10px;font-weight:900;letter-spacing:.1em;color:var(--brand)}
+.cloud-doc-head h2{margin:4px 0}.cloud-doc-head>span{font-size:22px;font-weight:900}
+.cloud-doc-stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:14px 0}.cloud-doc-stats>div{background:#f7f8fa;border-radius:14px;padding:12px}
+.cloud-doc-stats b{display:block;font-size:22px}.cloud-doc-stats small{font-size:10px;color:#6b7280}
+.cloud-doc-ok{margin-top:12px;background:#eaf8ef;color:#176b35;border-radius:12px;padding:10px;font-size:11px;font-weight:800}
+.cloud-doc-row{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:11px 0;border-top:1px solid #eceef2}
+.cloud-doc-row strong{display:block;font-size:12px}.cloud-doc-row small{display:block;font-size:10px;color:#6b7280;margin-top:2px}
+.cloud-pdf-mini{width:auto!important;padding:8px 10px!important;font-size:10px!important}

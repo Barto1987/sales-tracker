@@ -1242,3 +1242,10 @@ SMARTTRACKER 3.14.0 — CLOUD DOCUMENTS
 - Contatore PDF Cloud / mancanti.
 - Riferimento cloudPdf sincronizzato insieme al contratto.
 SETUP NECESSARIO: in Supabase creare un bucket PRIVATO chiamato contract-pdfs. Prima del primo upload vanno aggiunte le policy Storage per consentire all'utente autenticato accesso alla propria cartella.
+
+SMARTTRACKER 3.14.1 — PDF CLOUD UI
+- Sezione PDF Cloud visibile nella schermata Cloud.
+- Caricamento automatico dei PDF locali già presenti.
+- Elenco contratti senza PDF Cloud.
+- Aggiunta manuale PDF da File/iCloud Drive.
+- Contatori PDF presenti/mancanti.
