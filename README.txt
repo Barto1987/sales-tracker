@@ -1235,3 +1235,10 @@ SMARTTRACKER 3.13.0 — REGOLE PROVVIGIONALI VERSIONATE
 - Ogni contratto usa automaticamente il set di regole relativo alla propria data.
 - I futuri trimestri verranno aggiunti come nuove versioni senza modificare lo storico.
 - Nella sezione Provvigioni è visibile "Storico regole provvigionali", espandibile e in sola lettura.
+
+SMARTTRACKER 3.14.0 — MINIMAL PDF CLOUD
+- Ricostruita direttamente dalla 3.13.0 stabile.
+- Login e AutoSync non modificati.
+- Nessuna migrazione automatica.
+- Solo in Archivio: Aggiungi PDF Cloud / Apri PDF Cloud sul singolo contratto.
+- Primo test consigliato su un solo contratto.

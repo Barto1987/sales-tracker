@@ -336,3 +336,12 @@ export function queueCloudPush(getStore,deviceName='Dispositivo'){
     catch(e){setMeta({...getMeta(),lastError:e.message,lastAction:'offline'})}
   },900);
 }
+
+export async function cloudStorageRequest(path,options={}){
+ let s=await validSession();if(!s)throw new Error('Accedi prima a SmartTracker Cloud');
+ const headers=x=>({apikey:PUBLISHABLE_KEY,Authorization:`Bearer ${x.access_token}`,...(options.headers||{})});
+ let res=await timedFetch(PROJECT_URL+'/storage/v1'+path,{...options,headers:headers(s)},30000);
+ if(res.status===401){s=await refreshSession();res=await timedFetch(PROJECT_URL+'/storage/v1'+path,{...options,headers:headers(s)},30000)}
+ return res;
+}
+export async function currentCloudUser(){const s=await validSession();return s?.user||null}
