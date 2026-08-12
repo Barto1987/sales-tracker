@@ -1267,11 +1267,7 @@ SMARTTRACKER 3.14.6 — LOGIN STABILE + GARA AGENZIA
 - Q3 luglio-settembre 2026 -> novembre 2026.
 - Digital/M365 e selettori CORE / ADSL+One Net / Digital restano presenti.
 
-SMARTTRACKER 3.14.8 — RECOVERY + PROVVIGIONI
-- Ricostruita dalla 3.14.6 stabile: Cloud/login/AutoSync non modificati.
-- Corretto il bug che bloccava app/login nella 3.14.7.
-- Gara Agenzia confermata genera movimento separato nel mese corretto.
-- Totale nero = provvigioni maturate/pianificate da ricevere.
-- Viste per mese e per tipologia boost/gara.
-- Community: posizione manuale mensile Area NE, premio automatico colonna Excellent, pagamento +90 gg.
-- Excellent: premio trimestrale manuale, pagamento +90 gg.
+SMARTTRACKER 3.14.9 — RECOVERY STABLE
+- Copia funzionale della 3.14.6 stabile.
+- Nessuna modifica a login, Cloud, AutoSync o motore dati.
+- Solo bump versione/cache per sostituire in modo pulito la 3.14.8 difettosa.

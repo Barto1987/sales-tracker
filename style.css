@@ -636,7 +636,7 @@ input:focus,select:focus,textarea:focus{
 .cloud-auto-note{margin-top:10px;padding:10px 12px;border-radius:12px;background:#edf9f1;color:#176b35;font-weight:800;font-size:12px}
 
 
-/* SmartTracker 3.14.8 — navigation active-state visibility */
+/* SmartTracker 3.14.9 — navigation active-state visibility */
 .app-nav{
   grid-template-columns:repeat(7,minmax(62px,1fr))!important;
   overflow-x:auto;
@@ -679,7 +679,7 @@ input:focus,select:focus,textarea:focus{
 }
 
 
-/* SmartTracker 3.14.8 — menu iPhone + pulsante Nuovo in testata */
+/* SmartTracker 3.14.9 — menu iPhone + pulsante Nuovo in testata */
 .smart-header{
   position:sticky;
   top:0;
@@ -851,9 +851,3 @@ input:focus,select:focus,textarea:focus{
 .commission-missing-row strong{display:block}
 .commission-missing-row small{display:block;color:#6b7280;margin:3px 0}
 @media(max-width:600px){.agency-outcome-grid{grid-template-columns:1fr}}
-
-.commission-receivables-card{margin-top:12px}.commission-section-eyebrow{display:block;font-size:9px;font-weight:900;letter-spacing:.1em;color:#e60000}
-.receivable-group,.receivable-subgroup{border-top:1px solid #eceef2}.receivable-group>summary,.receivable-subgroup>summary{display:flex;justify-content:space-between;gap:12px;padding:11px 0;cursor:pointer;font-size:12px;font-weight:850}
-.receivable-subgroup{margin-left:8px}.receivable-line{display:flex;justify-content:space-between;gap:12px;padding:9px 0;border-top:1px dashed #eceef2}
-.receivable-line strong{display:block;font-size:11px}.receivable-line small{display:block;font-size:9px;color:#6b7280;margin-top:2px}
-.community-rank-card,.excellent-award-card{margin-top:12px}
