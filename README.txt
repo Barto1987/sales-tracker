@@ -1255,3 +1255,8 @@ SMARTTRACKER 3.14.2 — LOGIN FIX
 - Il pulsante Accedi a SmartTracker Cloud torna operativo.
 - La UI PDF Cloud non può più bloccare il resto dell'app in caso di errore.
 - Nessuna modifica ai dati locali o al database Cloud.
+
+SMARTTRACKER 3.14.3 — LOGIN HOTFIX
+- Corretto definitivamente il renderAll malformato: mancava il separatore tra renderBackup() e renderCloudDocuments().
+- Questo errore impediva l'esecuzione di app.js e quindi il pulsante Accedi non riceveva alcun handler.
+- PDF Cloud isolato: eventuali errori della sua UI non bloccano login o resto app.
