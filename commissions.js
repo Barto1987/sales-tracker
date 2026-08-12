@@ -1,7 +1,7 @@
-import {matchEasyRent} from './easy-rent-listino.js?v=3145';
-import {recognizeM2MProduct} from './m2m-listino.js?v=3145';
-import {COMMISSION_RULE_SETS,commissionRuleSetForDate,activeCommissionRuleSet} from './commission-rules.js?v=3145';
-// SmartTracker 3.14.5 — prima base del motore Provvigioni.
+import {matchEasyRent} from './easy-rent-listino.js?v=3146';
+import {recognizeM2MProduct} from './m2m-listino.js?v=3146';
+import {COMMISSION_RULE_SETS,commissionRuleSetForDate,activeCommissionRuleSet} from './commission-rules.js?v=3146';
+// SmartTracker 3.14.6 — prima base del motore Provvigioni.
 // Q3 2026: calcoliamo solo le parti supportate dalle regole già raccolte.
 // Le voci ancora ambigue restano esplicitamente "da confermare".
 
@@ -20,8 +20,8 @@ function addMonthsToDate(date,months){
 function paymentMonth(date,delayMonths){return monthKey(addMonthsToDate(date,delayMonths))}
 function quarterAgencyPaymentMonth(date){
   const d=new Date(`${date}T12:00:00`);
-  const qEndMonth=Math.ceil((d.getMonth()+1)/3)*3; // 3,6,9,12
-  let y=d.getFullYear(),m=qEndMonth+2; // payment 60 gg after quarter end
+  const qEndMonth=Math.ceil((d.getMonth()+1)/3)*3;
+  let y=d.getFullYear(),m=qEndMonth+2;
   if(m>12){y+=1;m-=12}
   return `${y}-${String(m).padStart(2,'0')}`;
 }
@@ -207,7 +207,6 @@ export function commissionsForPeriod(store,start,end,agent='Francesco'){
       if(deferred90>0)rows.push({...common,component:'Extra base differito',paymentMonth:paymentMonth(c.date,3),base:0,base60:0,deferred90,deterministicExtra:deferred90,estimated:deferred90,note90:`${rule.deferred90Canons} canone extra base · pagamento circa 90 gg dall’attivazione`});
       if(prospectExtra>0)rows.push({...common,component:'Premio Prospect',paymentMonth:paymentMonth(c.date,3),base:0,base60:0,prospectExtra,deterministicExtra:prospectExtra,estimated:prospectExtra});
       if(individualExtra>0)rows.push({...common,component:'Gara individuale trimestrale',paymentMonth:quarterPaymentMonth(c.date),base:0,base60:0,individualExtra,deterministicExtra:individualExtra,estimated:individualExtra});
-      if(agencyExtra>0)rows.push({...common,component:`Gara Agenzia ${agencyGroup==='digital'?'Digital':agencyGroup==='fixed'?'ADSL + One Net':'CORE'}`,paymentMonth:quarterAgencyPaymentMonth(c.date),base:0,base60:0,agencyExtra,deterministicExtra:agencyExtra,estimated:agencyExtra});
     }
   }
 
