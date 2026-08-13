@@ -1271,3 +1271,19 @@ SMARTTRACKER 3.14.9 — RECOVERY STABLE
 - Copia funzionale della 3.14.6 stabile.
 - Nessuna modifica a login, Cloud, AutoSync o motore dati.
 - Solo bump versione/cache per sostituire in modo pulito la 3.14.8 difettosa.
+
+SMARTTRACKER 3.15.0 — PROVVIGIONI DA RICEVERE
+BASE SICURA: 3.14.9. Cloud/login/AutoSync non modificati.
+
+- Gara Agenzia: quando una pista manuale è Raggiunta genera finalmente un movimento economico separato.
+- Gara Agenzia Q3 2026 -> pagamento novembre 2026 (60 gg dalla chiusura trimestre).
+- Totale nero = provvigioni già maturate e non ancora previste come liquidate.
+- Nuove viste: per mese di pagamento e per tipologia di premio/boost, con dettaglio clienti/pratiche.
+- Excellent: nessun importo manuale. Usa lo storico e i target già presenti nell'app.
+  Q2 2026: 2.450 EUR -> settembre 2026 entra automaticamente tra le provvigioni da ricevere.
+  Il trimestre corrente entra automaticamente quando i target risultano tutti raggiunti.
+- Community: si inserisce manualmente SOLO la posizione mensile Area Nord Est.
+  Il premio viene calcolato automaticamente usando la fascia “Premio Agente Excellent”:
+  1=1700; 2=1400; 3=1200; 4-7=1000; 8-12=800; 13-18=600; 19-23=500.
+  Resta un premio Community; pagamento a 90 gg dalla chiusura del mese.
+- Sync iPad lasciato invariato per affrontarlo separatamente.

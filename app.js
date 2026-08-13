@@ -1,4 +1,5 @@
-import {uploadPdfCloud,openPdfCloud,pdfCloudExists,pdfCloudProbe} from './cloud-pdf-minimal.js?v=3149';
+import {uploadPdfCloud,openPdfCloud,pdfCloudExists,pdfCloudProbe} from './cloud-pdf-minimal.js?v=3150';
+import {buildReceivables,receivablesHtml,communityPrizeForPosition} from './receivables.js?v=3150';
 
 window.addEventListener('error',(e)=>{
  try{
@@ -21,16 +22,16 @@ window.addEventListener('unhandledrejection',(e)=>{
 });
 
 
-import {loadStore,saveStore,importBackupObject} from './storage.js?v=3149';
-import {TARGETS,generalStats,agencyStats,agencyBreakdown,excellentStats,excellentBreakdown,communityStats,communityBreakdown,teamStats,teamBreakdown,availableMonths,customerList,customerDashboard,customerKey,inflowOf,communityRulesForMonth} from './engines.js?v=3149';
-import {savePdf,openPdf,deletePdf,getPdf} from './pdf-store.js?v=3149';
-import {initParser,parsePDF} from './parser.js?v=3149';
-import {createAutoBackup,getAutoBackupMeta,getFullBackupMeta,downloadDatabaseBackup,downloadCompleteBackup,restoreCompleteBackup,getArchiveStats,formatBytes,formatDate} from './backup.js?v=3149';
-import {exportSync,readSyncFile,previewMerge,applyMerge,getSyncMeta} from './sync.js?v=3149';
-import {regulationGroups} from './regulations.js?v=3149';
-import {currentMonthKey,monthLabel,quarterFromMonth,availablePeriodMonths,ensurePeriodState,periodStatusLabel,periodStatusIcon,applyGlobalMonth} from './periods.js?v=3149';
-import {cloudLogin,cloudLogout,cloudInfo,uploadLocalFirst,downloadAndMerge,syncNow,bootstrapLinkedCloud,queueCloudPush,getCloudMeta,isCloudLinked,getCloudSession,getCloudEmail,setCloudEmail,runCloudDiagnostics,readPrimaryCloudStoreRaw} from './cloud.js?v=3149';
-import {commissionsForPeriod} from './commissions.js?v=3149';
+import {loadStore,saveStore,importBackupObject} from './storage.js?v=3150';
+import {TARGETS,generalStats,agencyStats,agencyBreakdown,excellentStats,excellentBreakdown,communityStats,communityBreakdown,teamStats,teamBreakdown,availableMonths,customerList,customerDashboard,customerKey,inflowOf,communityRulesForMonth} from './engines.js?v=3150';
+import {savePdf,openPdf,deletePdf,getPdf} from './pdf-store.js?v=3150';
+import {initParser,parsePDF} from './parser.js?v=3150';
+import {createAutoBackup,getAutoBackupMeta,getFullBackupMeta,downloadDatabaseBackup,downloadCompleteBackup,restoreCompleteBackup,getArchiveStats,formatBytes,formatDate} from './backup.js?v=3150';
+import {exportSync,readSyncFile,previewMerge,applyMerge,getSyncMeta} from './sync.js?v=3150';
+import {regulationGroups} from './regulations.js?v=3150';
+import {currentMonthKey,monthLabel,quarterFromMonth,availablePeriodMonths,ensurePeriodState,periodStatusLabel,periodStatusIcon,applyGlobalMonth} from './periods.js?v=3150';
+import {cloudLogin,cloudLogout,cloudInfo,uploadLocalFirst,downloadAndMerge,syncNow,bootstrapLinkedCloud,queueCloudPush,getCloudMeta,isCloudLinked,getCloudSession,getCloudEmail,setCloudEmail,runCloudDiagnostics,readPrimaryCloudStoreRaw} from './cloud.js?v=3150';
+import {commissionsForPeriod} from './commissions.js?v=3150';
 
 let store=loadStore(),parsed=null,pendingPdf=null;
 applyGlobalMonth(store,store.settings.activeMonth||store.settings.currentMonth||currentMonthKey());
@@ -437,7 +438,24 @@ function renderCommunity(){
  ${communityAbilityRow(`Inflow minimo ${rules.abilityInflow} €`,c.inflow,'inflow')}
  ${communityAbilityRow(`Link minimo ${rules.abilityLinkInflow} €`,c.link,'link')}
  <tr><td>${courseStatus}</td><td>${rules.mandatoryCourses?'Da verificare':'✓'}</td></tr>
- </table></div>`;
+
+</table></div>`;
+const communityRank=store.settings.communityRankings?.[communityMonth]||'';
+const communityPrize=communityPrizeForPosition(communityRank);
+$('communitySummary').insertAdjacentHTML('beforeend',`<div class="card community-rank-card">
+  <div class="muted">Premio Community mensile</div>
+  <h3>Posizione Area Nord Est</h3>
+  <p class="muted">Inserisci solo la posizione quando esce la classifica. La fascia economica usata è quella “Agente Excellent”, ma il premio resta Community.</p>
+  <div class="row"><label>Posizione ${monthLabel(communityMonth)}<input id="communityRankPosition" type="number" min="1" value="${communityRank}" placeholder="Es. 6"></label>
+  <button id="saveCommunityRank" class="secondary">Salva posizione</button></div>
+  <div class="note" style="margin-top:10px">Premio calcolato: <strong>${money(communityPrize)}</strong> · pagamento previsto +90 gg dalla chiusura mese</div>
+</div>`);
+$('saveCommunityRank').onclick=()=>{
+  store.settings.communityRankings=store.settings.communityRankings||{};
+  const v=Number($('communityRankPosition').value||0);
+  if(v>0)store.settings.communityRankings[communityMonth]=v;else delete store.settings.communityRankings[communityMonth];
+  persistStore();renderCommunity();renderCommissions();
+};
  $('communityBoosts').innerHTML=`<div class="card"><h3>V-Coin e boost</h3><table class="table-like">
  ${communityRow('V-Coin base',c.inflow,'baseVcoins')}
  ${communityRow('Boost MNP',c.boosts.mnp,'mnp','+')}
@@ -725,7 +743,7 @@ async function saveParsed(){
      ?[{agent:'Jacopo',share:.5},{agent:'Luciano',share:.5}]
      :[{agent,share:1}];
  const nowIso=new Date().toISOString();
- const contract={id:'C-'+Date.now(),createdAt:nowIso,updatedAt:nowIso,date:$('contractDate').value,offer:parsed.meta.offer,client:parsed.meta.client||'Da verificare',vat:parsed.meta.vat,customerCode:parsed.meta.customerCode||'',prospect,agent,includeAgency,teamAllocations,status:'Valido',pdfRef:parsed.filename,pdfStored:false,notes:'SmartTracker 3.14.9',services:[]};
+ const contract={id:'C-'+Date.now(),createdAt:nowIso,updatedAt:nowIso,date:$('contractDate').value,offer:parsed.meta.offer,client:parsed.meta.client||'Da verificare',vat:parsed.meta.vat,customerCode:parsed.meta.customerCode||'',prospect,agent,includeAgency,teamAllocations,status:'Valido',pdfRef:parsed.filename,pdfStored:false,notes:'SmartTracker 3.15.0',services:[]};
  for(const el of rows){
    const service=el.querySelector('.pr-service').value;
    const mnpEl=el.querySelector('.pr-mnp');
@@ -1214,6 +1232,10 @@ function renderCommissions(){
  const q=store.settings.agencyPeriod||{start:'2026-07-01',end:'2026-09-30'};
  const data=commissionsForPeriod(store,q.start,q.end,selectedCommissionAgent);
  const t=data.target;
+ const excellentForCommission=selectedCommissionAgent==='Francesco'
+   ?excellentStats({...store,settings:{...store.settings,excellentPeriod:{start:q.start,end:q.end}}})
+   :null;
+ const receivables=buildReceivables(store,data,excellentForCommission,q.start);
 
  box.innerHTML=`
  <div class="card commission-agent-card">
@@ -1240,9 +1262,9 @@ ${[['core','CORE'],['fixed','ADSL + One Net'],['digital','Digital']].map(([key,l
  <option value="no" ${v==='no'?'selected':''}>Non raggiunta</option>
  </select></label>`}).join('')}
 </div></div><div class="card commission-hero commission-clickable" data-commission-drill="all">
-   <small>STIMA PROVVIGIONI · Q3 2026</small>
-   <strong>${money(data.estimated)}</strong>
-   <div class="muted">Base calcolabile + extra già determinabili. Non include ancora voci con regole incomplete o bonus esterni da confermare.</div>
+   <small>PROVVIGIONI DA RICEVERE · ${data.ruleSet?.id||'TRIMESTRE'}</small>
+   <strong>${money(receivables.total)}</strong>
+   <div class="muted">Tutto ciò che risulta già maturato e non ancora previsto come liquidato. Premi potenziali o da confermare restano separati.</div>
  </div>
  <div class="grid commission-kpis">
    <div class="card kpi commission-clickable" data-commission-drill="base"><small>Base calcolabile</small><strong>${money(data.base)}</strong><span class="commission-tap-hint">Dettaglio pagamenti ›</span></div>
@@ -1259,6 +1281,7 @@ ${[['core','CORE'],['fixed','ADSL + One Net'],['digital','Digital']].map(([key,l
        :`<span class="commission-target-value">Se raggiunto oggi: +${money(t.potentialIndividual||0)}</span>`}
    </div>
  </div>`;
+ box.insertAdjacentHTML('beforeend',receivablesHtml(receivables));
 
  let drill=$('commissionDrilldown');
  if(!drill){drill=document.createElement('div');drill.id='commissionDrilldown';box.insertAdjacentElement('afterend',drill)}
@@ -1308,6 +1331,7 @@ ${[['core','CORE'],['fixed','ADSL + One Net'],['digital','Digital']].map(([key,l
            ${r.note60?`<div class="commission-easyrent">${r.rule==='M2M'?'M2M · ':''}${r.note60}${r.rushEligible?' · inflow valido Rush':''}${r.rule==='M2M'?' · esclusa dai target SIM Voce/Dati':''}</div>`:''}
            ${r.note90?`<div class="commission-easyrent">${r.note90}</div>`:''}
            ${r.rule==='Easy Rent'&&r.note?`<div class="commission-easyrent">${r.note} · inflow valido Rush</div>`:''}
+           ${r.noteAgency?`<div class="commission-easyrent">${r.noteAgency}</div>`:''}
            ${r.pending?.length?`<div class="commission-pending">${r.pending.join(' · ')}</div>`:''}`
          :`<div class="commission-pending">${r.note}</div>${r.canReparse?`<button class="secondary er-reparse-btn" data-er-reparse="${r.contractId}" style="margin-top:10px">Carica e rileggi offerta PDF</button>`:''}`}
      </div>`).join('')}

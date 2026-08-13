@@ -1,7 +1,7 @@
-import {matchEasyRent} from './easy-rent-listino.js?v=3149';
-import {recognizeM2MProduct} from './m2m-listino.js?v=3149';
-import {COMMISSION_RULE_SETS,commissionRuleSetForDate,activeCommissionRuleSet} from './commission-rules.js?v=3149';
-// SmartTracker 3.14.9 — prima base del motore Provvigioni.
+import {matchEasyRent} from './easy-rent-listino.js?v=3150';
+import {recognizeM2MProduct} from './m2m-listino.js?v=3150';
+import {COMMISSION_RULE_SETS,commissionRuleSetForDate,activeCommissionRuleSet} from './commission-rules.js?v=3150';
+// SmartTracker 3.15.0 — prima base del motore Provvigioni.
 // Q3 2026: calcoliamo solo le parti supportate dalle regole già raccolte.
 // Le voci ancora ambigue restano esplicitamente "da confermare".
 
@@ -207,6 +207,7 @@ export function commissionsForPeriod(store,start,end,agent='Francesco'){
       if(deferred90>0)rows.push({...common,component:'Extra base differito',paymentMonth:paymentMonth(c.date,3),base:0,base60:0,deferred90,deterministicExtra:deferred90,estimated:deferred90,note90:`${rule.deferred90Canons} canone extra base · pagamento circa 90 gg dall’attivazione`});
       if(prospectExtra>0)rows.push({...common,component:'Premio Prospect',paymentMonth:paymentMonth(c.date,3),base:0,base60:0,prospectExtra,deterministicExtra:prospectExtra,estimated:prospectExtra});
       if(individualExtra>0)rows.push({...common,component:'Gara individuale trimestrale',paymentMonth:quarterPaymentMonth(c.date),base:0,base60:0,individualExtra,deterministicExtra:individualExtra,estimated:individualExtra});
+      if(agencyExtra>0)rows.push({...common,component:`Gara Agenzia ${agencyGroup==='digital'?'Digital':agencyGroup==='fixed'?'ADSL + One Net':'CORE'}`,paymentMonth:quarterAgencyPaymentMonth(c.date),base:0,base60:0,agencyExtra,deterministicExtra:agencyExtra,estimated:agencyExtra,noteAgency:`Gara Agenzia ${agencyGroup==='digital'?'Digital':agencyGroup==='fixed'?'ADSL + One Net':'CORE'} raggiunta · pagamento 60 gg dalla chiusura trimestre`});
     }
   }
 

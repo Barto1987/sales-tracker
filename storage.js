@@ -16,7 +16,7 @@ export function emptyStore(){
       communityMonth:'2026-07',
       lastAutoMonth:'2026-07',
       lastAutoQuarter:'2026-Q3',
-      agents:['Francesco','Jacopo','Luciano'],agencyQuarterResults:{'2026-Q3':{core:'pending',fixed:'pending',digital:'pending',updatedAt:null}}
+      agents:['Francesco','Jacopo','Luciano'],agencyQuarterResults:{'2026-Q3':{core:'pending',fixed:'pending',digital:'pending',updatedAt:null}},communityRankings:{}
     },
     officialCommunity:{vcoins:null,updatedAt:null},
     communityManualExtras:{},
@@ -38,7 +38,7 @@ export function loadStore(){
       store.communityManualExtras=store.communityManualExtras||{};
       store.periodStates=store.periodStates||{};
       store.settings.activeMonth=store.settings.activeMonth||store.settings.currentMonth||'2026-07';
-      store.settings.agents=store.settings.agents||['Francesco','Jacopo','Luciano'];store.settings.agencyQuarterResults=store.settings.agencyQuarterResults||{};store.settings.agencyQuarterResults['2026-Q3']=store.settings.agencyQuarterResults['2026-Q3']||{core:'pending',fixed:'pending',digital:'pending',updatedAt:null};
+      store.settings.agents=store.settings.agents||['Francesco','Jacopo','Luciano'];store.settings.agencyQuarterResults=store.settings.agencyQuarterResults||{};store.settings.agencyQuarterResults['2026-Q3']=store.settings.agencyQuarterResults['2026-Q3']||{core:'pending',fixed:'pending',digital:'pending',updatedAt:null};store.settings.communityRankings=store.settings.communityRankings||{};
       store.settings.teamMonth=store.settings.teamMonth||store.settings.currentMonth||'2026-07';
       store.contracts=(store.contracts||[]).map(c=>({
         ...c,
