@@ -196,6 +196,43 @@ export const REGULATIONS=[
       }
     ]
   }
+,
+{
+  id:'community-prizes-fixed',
+  type:'Community',
+  title:'Premi Community – Classifica Area Nord Est',
+  periodLabel:'Tabella premi fissa',
+  start:'2026-01-01',
+  end:'2099-12-31',
+  status:'active',
+  cadence:'Riferimento',
+  summary:'Premio mensile Community per Francesco in base alla posizione Area Nord Est. La fascia economica utilizzata è la colonna “Premio Agente Excellent”, ma resta un premio Community.',
+  sections:[
+    {
+      title:'Classifica premi',
+      items:[
+        '1° posto: 1.700 €',
+        '2° posto: 1.400 €',
+        '3° posto: 1.200 €',
+        '4°–7° posto: 1.000 €',
+        '8°–12° posto: 800 €',
+        '13°–18° posto: 600 €',
+        '19°–23° posto: 500 €',
+        'Oltre il 23° posto: 0 €'
+      ]
+    },
+    {
+      title:'Regola provvigionale',
+      items:[
+        'La posizione viene inserita manualmente nella Community del mese quando viene pubblicata la classifica.',
+        'Il premio viene calcolato automaticamente da SmartTracker.',
+        'Il pagamento è previsto a 90 giorni dalla chiusura del mese di competenza.',
+        'Questo premio spetta solo a Francesco e non viene generato per Jacopo o Luciano.'
+      ]
+    }
+  ]
+}
+
 ];
 
 export function regulationGroups(){

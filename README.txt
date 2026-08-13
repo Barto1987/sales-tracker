@@ -1287,3 +1287,11 @@ BASE SICURA: 3.14.9. Cloud/login/AutoSync non modificati.
   1=1700; 2=1400; 3=1200; 4-7=1000; 8-12=800; 13-18=600; 19-23=500.
   Resta un premio Community; pagamento a 90 gg dalla chiusura del mese.
 - Sync iPad lasciato invariato per affrontarlo separatamente.
+
+SMARTTRACKER 3.15.1 — GARE + COMMUNITY
+- Community ed Excellent provvigionali solo per Francesco.
+- Gara Agenzia trimestrale: chiusura con conferma, blocco esiti, data chiusura e riapertura esplicita.
+- Regolamenti: classifica premi Community Area Nord Est fissa.
+- Community mensile: posizione salvata cliccabile verso il regolamento premi.
+- Provvigioni > Tipologia > Community: premio cliccabile verso lo stesso regolamento.
+- Cloud/login/AutoSync non modificati.
