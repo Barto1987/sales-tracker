@@ -386,6 +386,74 @@ export async function parsePDF(file){
       });
     }
    }
+
+}else if(/Dati\s+(?:Smart|Comfort|Extra)\s*-\s*Easy Rent/i.test(b)){
+ // Bundle SIM Dati + Easy Rent.
+ // Il Totale Netto Complessivo può includere sconti sul device: non va attribuito interamente alla SIM.
+ const planMatch=b.match(/Dati\s+(Smart|Comfort|Extra)\s*-\s*Easy Rent SoHo SME/i);
+ const dataPlan=planMatch?`Dati ${planMatch[1]}`:'Dati';
+ const base=line(b,new RegExp(`${dataPlan.replace(/\s+/g,'\\s+')}\\s*-\\s*Easy Rent SoHo SME`,'i'));
+
+ if(base){
+   // Per la SIM Dati usiamo il canone piano + le sole promo/sconti ricorrenti
+   // presenti prima della prima riga device. In questo modo eventuali sconti
+   // Soluzioni Digitali/device non riducono erroneamente l'inflow SIM.
+   const firstDeviceIndex=b.search(/Kasko\s+(?:Smart|Comfort|Extra)\s+(?:24|30|36)m/i);
+   const dataPart=firstDeviceIndex>=0?b.slice(0,firstDeviceIndex):b;
+   let recurringDiscounts=0;
+   for(const m of dataPart.matchAll(/(?:Promo|Sconto)[^€]{0,100}?\s+(?:(\d+)\s*x\s*)?(-[0-9]+[,.]\d{2})\s*€/gi)){
+     // Esclude esplicitamente attivazioni una tantum; considera le promo canone.
+     const full=m[0]||'';
+     if(/Attivazione/i.test(full))continue;
+     recurringDiscounts+=Number(m[1]||1)*num(m[2]);
+   }
+   const simTotal=Math.max(base.q*base.v+recurringDiscounts,0);
+
+   add(rows,{
+     service:'SIM Dati',
+     product:dataPlan,
+     category:'Mobile',
+     qty:base.q,
+     inflowUnit:Math.round((simTotal/Math.max(base.q,1))*100)/100,
+     confidence:'green',
+     calc:'SIM Dati bundle Easy Rent = canone piano meno promo/sconti ricorrenti del piano; esclusi device e sconti device'
+   });
+
+   // Separa il device Easy Rent e gli assegna il valore inflow del listino ufficiale.
+   const deviceRe=/((?:iPhone|iPad|iPadPro|Galaxy|Tab|Pixel|Motorola|Xiaomi|Honor|Oppo|OnePlus|Mac|MacBook|ThinkPad|Think|Surface|Watch)[^€]{2,120}?Kasko\s+(?:Smart|Comfort|Extra)\s+(?:24|30|36)m(?:\s+Voce)?)\s+(?:(\d+)\s*x\s*)?([0-9]{1,3}(?:\.[0-9]{3})*,\d{2}|[0-9]+[,.]\d{2})\s*€/gi;
+   let foundDevice=0;
+   for(const m of b.matchAll(deviceRe)){
+     const desc=m[1].replace(/\s+/g,' ').trim();
+     const qty=Number(m[2]||1);
+     const er=findER(desc.replace(/\s+Voce$/i,''));
+     add(rows,{
+       service:'Easy Rent',
+       product:desc,
+       category:'Noleggio',
+       qty,
+       inflowUnit:er?Math.round(Number(er.inflow||0)*100)/100:0,
+       confidence:er?er.confidence:'red',
+       calc:er
+         ?`Listino ufficiale Easy Rent: ${er.plan} · fascia ${er.tier}`
+         :'Easy Rent non trovato nel listino: inserire inflow manualmente'
+     });
+     foundDevice++;
+   }
+   if(!foundDevice){
+     add(rows,{
+       service:'Easy Rent',
+       product:'Easy Rent da verificare',
+       category:'Noleggio',
+       qty:1,
+       inflowUnit:0,
+       confidence:'red',
+       calc:'Bundle Dati + Easy Rent riconosciuto ma device non trovato nel listino'
+     });
+   }
+
+   // Extra IllimiDati interamente scontata (promo pari al canone) non genera una riga separata.
+   // Se in futuro non fosse scontata al 100%, resterà da gestire come opzione autonoma.
+ }
   }else if(/OFFERTA\s+Easy Rent/i.test(b)){
    const erPattern=/(?:OFFERTA\s+Easy Rent|Vincolo\s+\d+\s+mesi)\s+(.+?Kasko\s+(?:Smart|Comfort|Extra)\s+(?:24|30|36)m)\s+(?:(\d+)\s*x\s*)?([0-9]{1,3}(?:\.[0-9]{3})*,\d{2}|[0-9]+[,.]\d{2})\s*€/gi;
    let found=0;

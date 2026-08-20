@@ -1,7 +1,7 @@
-import {matchEasyRent} from './easy-rent-listino.js?v=3151';
-import {recognizeM2MProduct} from './m2m-listino.js?v=3151';
-import {COMMISSION_RULE_SETS,commissionRuleSetForDate,activeCommissionRuleSet} from './commission-rules.js?v=3151';
-// SmartTracker 3.15.1 — prima base del motore Provvigioni.
+import {matchEasyRent} from './easy-rent-listino.js?v=3153';
+import {recognizeM2MProduct} from './m2m-listino.js?v=3153';
+import {COMMISSION_RULE_SETS,commissionRuleSetForDate,activeCommissionRuleSet} from './commission-rules.js?v=3153';
+// SmartTracker 3.15.3 — prima base del motore Provvigioni.
 // Q3 2026: calcoliamo solo le parti supportate dalle regole già raccolte.
 // Le voci ancora ambigue restano esplicitamente "da confermare".
 
@@ -208,6 +208,42 @@ export function commissionsForPeriod(store,start,end,agent='Francesco'){
       if(prospectExtra>0)rows.push({...common,component:'Premio Prospect',paymentMonth:paymentMonth(c.date,3),base:0,base60:0,prospectExtra,deterministicExtra:prospectExtra,estimated:prospectExtra});
       if(individualExtra>0)rows.push({...common,component:'Gara individuale trimestrale',paymentMonth:quarterPaymentMonth(c.date),base:0,base60:0,individualExtra,deterministicExtra:individualExtra,estimated:individualExtra});
       if(agencyExtra>0)rows.push({...common,component:`Gara Agenzia ${agencyGroup==='digital'?'Digital':agencyGroup==='fixed'?'ADSL + One Net':'CORE'}`,paymentMonth:quarterAgencyPaymentMonth(c.date),base:0,base60:0,agencyExtra,deterministicExtra:agencyExtra,estimated:agencyExtra,noteAgency:`Gara Agenzia ${agencyGroup==='digital'?'Digital':agencyGroup==='fixed'?'ADSL + One Net':'CORE'} raggiunta · pagamento 60 gg dalla chiusura trimestre`});
+    }
+  }
+
+
+  // Provvigione indiretta Senior Executive di Francesco:
+  // 30% secco dell'inflow generato da Jacopo e Luciano, pagamento a 60 gg.
+  // Non viene mostrata nei conteggi personali di Jacopo/Luciano: è un movimento di Francesco.
+  if(agent==='Francesco'){
+    const seAgents=new Set(['Jacopo','Luciano']);
+    for(const c of (store.contracts||[]).filter(c=>active(c)&&seAgents.has(agentOf(c))&&inRange(c.date,start,end))){
+      const originAgent=agentOf(c);
+      for(const s of c.services||[]){
+        const inflow=inflowOf(s);
+        if(inflow<=0)continue;
+        const amount=Math.round(inflow*0.30*100)/100;
+        rows.push({
+          contractId:c.id,
+          date:c.date,
+          productionMonth:monthKey(c.date),
+          client:c.client||'Cliente',
+          service:s.service||'',
+          product:s.product||'',
+          inflow,
+          base:0,
+          deterministicExtra:amount,
+          estimated:amount,
+          status:'calculated',
+          rule:'Senior Executive 30%',
+          component:`Provvigione indiretta SE 30% · ${originAgent}`,
+          originAgent,
+          seRate:0.30,
+          paymentMonth:paymentMonth(c.date,2),
+          pending:[],
+          note:`30% secco dell'inflow generato da ${originAgent} · pagamento a 60 gg`
+        });
+      }
     }
   }
 

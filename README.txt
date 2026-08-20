@@ -1295,3 +1295,23 @@ SMARTTRACKER 3.15.1 — GARE + COMMUNITY
 - Community mensile: posizione salvata cliccabile verso il regolamento premi.
 - Provvigioni > Tipologia > Community: premio cliccabile verso lo stesso regolamento.
 - Cloud/login/AutoSync non modificati.
+
+SMARTTRACKER 3.15.2 — PARSER SIM DATI + EASY RENT
+- Basata sulla 3.15.1 funzionante.
+- Modifica funzionale limitata al parser PDF.
+- Riconosce bundle "Dati Smart/Comfort/Extra - Easy Rent SoHo SME" come due righe:
+  1) SIM Dati con inflow del piano al netto delle sole promo ricorrenti del piano.
+  2) Easy Rent con prodotto/device separato e inflow preso dal listino Easy Rent.
+- Gli sconti Soluzioni Digitali/device non vengono più sottratti dalla SIM Dati.
+- Extra IllimiDati scontata integralmente non genera una riga separata.
+- Caso VISINTINI: Dati Comfort -> 10,00 EUR inflow; Tab A11 PLUS 128GB Kasko Comfort 36m -> Easy Rent con valore listino (10,74 EUR).
+- Cloud/login/AutoSync, provvigioni, gare e regolamenti non modificati.
+
+SMARTTRACKER 3.15.3 — PROVVIGIONE INDIRETTA SE 30%
+- Basata integralmente sulla 3.15.2, quindi mantiene il parser SIM Dati + Easy Rent VISINTINI.
+- Per Francesco viene generata automaticamente una provvigione indiretta pari al 30% dell'inflow prodotto da Jacopo e Luciano.
+- Pagamento previsto a 60 giorni dalla data del contratto.
+- La voce compare solo nelle provvigioni di Francesco, non nei totali personali di Jacopo/Luciano.
+- Nuova categoria separata: “Provvigione indiretta SE 30%”.
+- Ogni movimento mostra agente origine, cliente, servizio/prodotto, inflow, 30% e mese previsto di pagamento.
+- Cloud/login/AutoSync non modificati.

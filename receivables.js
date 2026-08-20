@@ -14,6 +14,7 @@ function categoryOf(r){
   if(/Prospect/i.test(x))return 'Prospect';
   if(/Community/i.test(x))return 'Community';
   if(/Excellent/i.test(x))return 'Excellent';
+  if(/Provvigione indiretta SE|Senior Executive/i.test(x))return 'Provvigione indiretta SE 30%';
   if(/Extra base/i.test(x))return 'Extra base differito';
   if(/Easy Rent/i.test(x))return 'Easy Rent';
   return 'Base';
