@@ -1315,3 +1315,11 @@ SMARTTRACKER 3.15.3 — PROVVIGIONE INDIRETTA SE 30%
 - Nuova categoria separata: “Provvigione indiretta SE 30%”.
 - Ogni movimento mostra agente origine, cliente, servizio/prodotto, inflow, 30% e mese previsto di pagamento.
 - Cloud/login/AutoSync non modificati.
+
+SMARTTRACKER 3.15.4 — DIAGNOSTICA CLOUD IPAD
+- Base 3.15.3.
+- cloud.js identico alla 3.15.3: nessuna modifica a login, refresh token, AutoSync, merge o scritture Cloud.
+- Nuovo pulsante diagnostico sola lettura in Sicurezza e backup > SmartTracker Cloud.
+- Confronta contratti locali e Cloud, segnala solo-locali, solo-Cloud e record diversi.
+- Mostra timestamp sync, timestamp riga Cloud, sessione/scadenza e flag PDF Cloud.
+- Elenca gli ultimi contratti locali e Cloud.

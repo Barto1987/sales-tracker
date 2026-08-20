@@ -1,5 +1,5 @@
-import {uploadPdfCloud,openPdfCloud,pdfCloudExists,pdfCloudProbe} from './cloud-pdf-minimal.js?v=3153';
-import {buildReceivables,receivablesHtml,communityPrizeForPosition} from './receivables.js?v=3153';
+import {uploadPdfCloud,openPdfCloud,pdfCloudExists,pdfCloudProbe} from './cloud-pdf-minimal.js?v=3154';
+import {buildReceivables,receivablesHtml,communityPrizeForPosition} from './receivables.js?v=3154';
 
 window.addEventListener('error',(e)=>{
  try{
@@ -22,16 +22,16 @@ window.addEventListener('unhandledrejection',(e)=>{
 });
 
 
-import {loadStore,saveStore,importBackupObject} from './storage.js?v=3153';
-import {TARGETS,generalStats,agencyStats,agencyBreakdown,excellentStats,excellentBreakdown,communityStats,communityBreakdown,teamStats,teamBreakdown,availableMonths,customerList,customerDashboard,customerKey,inflowOf,communityRulesForMonth} from './engines.js?v=3153';
-import {savePdf,openPdf,deletePdf,getPdf} from './pdf-store.js?v=3153';
-import {initParser,parsePDF} from './parser.js?v=3153';
-import {createAutoBackup,getAutoBackupMeta,getFullBackupMeta,downloadDatabaseBackup,downloadCompleteBackup,restoreCompleteBackup,getArchiveStats,formatBytes,formatDate} from './backup.js?v=3153';
-import {exportSync,readSyncFile,previewMerge,applyMerge,getSyncMeta} from './sync.js?v=3153';
-import {regulationGroups} from './regulations.js?v=3153';
-import {currentMonthKey,monthLabel,quarterFromMonth,availablePeriodMonths,ensurePeriodState,periodStatusLabel,periodStatusIcon,applyGlobalMonth} from './periods.js?v=3153';
-import {cloudLogin,cloudLogout,cloudInfo,uploadLocalFirst,downloadAndMerge,syncNow,bootstrapLinkedCloud,queueCloudPush,getCloudMeta,isCloudLinked,getCloudSession,getCloudEmail,setCloudEmail,runCloudDiagnostics,readPrimaryCloudStoreRaw} from './cloud.js?v=3153';
-import {commissionsForPeriod} from './commissions.js?v=3153';
+import {loadStore,saveStore,importBackupObject} from './storage.js?v=3154';
+import {TARGETS,generalStats,agencyStats,agencyBreakdown,excellentStats,excellentBreakdown,communityStats,communityBreakdown,teamStats,teamBreakdown,availableMonths,customerList,customerDashboard,customerKey,inflowOf,communityRulesForMonth} from './engines.js?v=3154';
+import {savePdf,openPdf,deletePdf,getPdf} from './pdf-store.js?v=3154';
+import {initParser,parsePDF} from './parser.js?v=3154';
+import {createAutoBackup,getAutoBackupMeta,getFullBackupMeta,downloadDatabaseBackup,downloadCompleteBackup,restoreCompleteBackup,getArchiveStats,formatBytes,formatDate} from './backup.js?v=3154';
+import {exportSync,readSyncFile,previewMerge,applyMerge,getSyncMeta} from './sync.js?v=3154';
+import {regulationGroups} from './regulations.js?v=3154';
+import {currentMonthKey,monthLabel,quarterFromMonth,availablePeriodMonths,ensurePeriodState,periodStatusLabel,periodStatusIcon,applyGlobalMonth} from './periods.js?v=3154';
+import {cloudLogin,cloudLogout,cloudInfo,uploadLocalFirst,downloadAndMerge,syncNow,bootstrapLinkedCloud,queueCloudPush,getCloudMeta,isCloudLinked,getCloudSession,getCloudEmail,setCloudEmail,runCloudDiagnostics,readPrimaryCloudStoreRaw} from './cloud.js?v=3154';
+import {commissionsForPeriod} from './commissions.js?v=3154';
 
 let store=loadStore(),parsed=null,pendingPdf=null;
 applyGlobalMonth(store,store.settings.activeMonth||store.settings.currentMonth||currentMonthKey());
@@ -752,7 +752,7 @@ async function saveParsed(){
      ?[{agent:'Jacopo',share:.5},{agent:'Luciano',share:.5}]
      :[{agent,share:1}];
  const nowIso=new Date().toISOString();
- const contract={id:'C-'+Date.now(),createdAt:nowIso,updatedAt:nowIso,date:$('contractDate').value,offer:parsed.meta.offer,client:parsed.meta.client||'Da verificare',vat:parsed.meta.vat,customerCode:parsed.meta.customerCode||'',prospect,agent,includeAgency,teamAllocations,status:'Valido',pdfRef:parsed.filename,pdfStored:false,notes:'SmartTracker 3.15.3',services:[]};
+ const contract={id:'C-'+Date.now(),createdAt:nowIso,updatedAt:nowIso,date:$('contractDate').value,offer:parsed.meta.offer,client:parsed.meta.client||'Da verificare',vat:parsed.meta.vat,customerCode:parsed.meta.customerCode||'',prospect,agent,includeAgency,teamAllocations,status:'Valido',pdfRef:parsed.filename,pdfStored:false,notes:'SmartTracker 3.15.4',services:[]};
  for(const el of rows){
    const service=el.querySelector('.pr-service').value;
    const mnpEl=el.querySelector('.pr-mnp');
@@ -850,6 +850,69 @@ function cloudStatusView(info){
      :'Nessuna sincronizzazione Cloud completata';
 }
 
+
+function cloudDiagLabel(c){return `${c?.client||'Cliente'}${c?.id?` · ${c.id}`:''}`;}
+function cloudDiagLatest(list,limit=8){
+  return [...(list||[])].sort((a,b)=>String(b?.updatedAt||b?.date||'').localeCompare(String(a?.updatedAt||a?.date||''))).slice(0,limit);
+}
+function cloudDiagLatestDate(obj){
+  const vals=(obj?.contracts||[]).map(c=>c?.updatedAt||c?.date).filter(Boolean).sort();
+  return vals.at(-1)||null;
+}
+async function runDeviceCloudDiagnostic(){
+  const host=$('cloudDeviceDiagnosticResult'),btn=$('cloudRunDeviceDiagnostic');
+  if(!host||!btn)return;
+  btn.disabled=true;btn.textContent='Analisi…';
+  host.classList.remove('hidden');
+  host.innerHTML='<div class="muted">Lettura dati locali e Cloud…</div>';
+  try{
+    const session=getCloudSession(),meta=getCloudMeta(),raw=await readPrimaryCloudStoreRaw();
+    const cloudStore=raw?.data||{},localContracts=store.contracts||[],cloudContracts=cloudStore.contracts||[];
+    const lm=new Map(localContracts.map(c=>[String(c.id),c])),cm=new Map(cloudContracts.map(c=>[String(c.id),c]));
+    const onlyLocal=localContracts.filter(c=>c?.id&&!cm.has(String(c.id)));
+    const onlyCloud=cloudContracts.filter(c=>c?.id&&!lm.has(String(c.id)));
+    const differing=[];
+    for(const [id,l] of lm){
+      const c=cm.get(id); if(!c)continue;
+      const lp=JSON.stringify({client:l.client,date:l.date,services:l.services,prospect:l.prospect,mnp:l.mnp,cloudPdf:l.cloudPdf,deletedAt:l.deletedAt});
+      const cp=JSON.stringify({client:c.client,date:c.date,services:c.services,prospect:c.prospect,mnp:c.mnp,cloudPdf:c.cloudPdf,deletedAt:c.deletedAt});
+      if(lp!==cp)differing.push({id,local:l,cloud:c});
+    }
+    const same=!onlyLocal.length&&!onlyCloud.length&&!differing.length;
+    const expiry=session?.expires_at?new Date(Number(session.expires_at)*1000).toLocaleString('it-IT'):'n/d';
+    host.innerHTML=`
+      <div class="cloud-diag-summary ${same?'diag-ok':'diag-ko'}"><strong>${same?'✓ Locale e Cloud coincidono':'⚠ Trovate differenze'}</strong><small>${new Date().toLocaleString('it-IT')}</small></div>
+      <div class="cloud-diag-grid cloud-device-grid">
+        <div><b>Contratti locali</b><span>${localContracts.length}</span></div>
+        <div><b>Contratti Cloud</b><span>${cloudContracts.length}</span></div>
+        <div><b>Solo locali</b><span>${onlyLocal.length}</span></div>
+        <div><b>Solo Cloud</b><span>${onlyCloud.length}</span></div>
+        <div><b>Comuni ma diversi</b><span>${differing.length}</span></div>
+        <div><b>PDF Cloud marcati locale</b><span>${localContracts.filter(c=>c?.cloudPdf).length}</span></div>
+        <div><b>PDF Cloud marcati DB</b><span>${cloudContracts.filter(c=>c?.cloudPdf).length}</span></div>
+        <div><b>Ultimo sync dispositivo</b><span>${meta?.lastSyncAt?formatDate(meta.lastSyncAt):'mai'}</span></div>
+        <div><b>Riga Cloud aggiornata</b><span>${raw?.updated_at?formatDate(raw.updated_at):'n/d'}</span></div>
+        <div><b>Ultima modifica locale</b><span>${cloudDiagLatestDate(store)?formatDate(cloudDiagLatestDate(store)):'n/d'}</span></div>
+        <div><b>Ultima modifica Cloud</b><span>${cloudDiagLatestDate(cloudStore)?formatDate(cloudDiagLatestDate(cloudStore)):'n/d'}</span></div>
+        <div><b>Sessione</b><span>${session?.access_token?'presente':'assente'}</span></div>
+        <div><b>Scadenza sessione</b><span>${expiry}</span></div>
+        <div><b>Utente</b><span>${session?.user?.email||getCloudEmail()||'n/d'}</span></div>
+        <div><b>Dispositivo</b><span>${localStorage.getItem('smartTrackerCloudDeviceName')||localStorage.getItem('salesTrackerDeviceName')||'non nominato'}</span></div>
+      </div>
+      ${onlyLocal.length?`<details class="cloud-diff-block" open><summary><strong>Solo su questo dispositivo (${onlyLocal.length})</strong></summary>${onlyLocal.slice(0,20).map(c=>`<div class="cloud-diff-line"><span>${cloudDiagLabel(c)}</span><small>${c.date||''}</small></div>`).join('')}</details>`:''}
+      ${onlyCloud.length?`<details class="cloud-diff-block" open><summary><strong>Solo nel Cloud (${onlyCloud.length})</strong></summary>${onlyCloud.slice(0,20).map(c=>`<div class="cloud-diff-line"><span>${cloudDiagLabel(c)}</span><small>${c.date||''}</small></div>`).join('')}</details>`:''}
+      ${differing.length?`<details class="cloud-diff-block"><summary><strong>Presenti in entrambi ma diversi (${differing.length})</strong></summary>${differing.slice(0,20).map(x=>`<div class="cloud-diff-line"><span>${cloudDiagLabel(x.local)}</span><small>locale ${x.local?.updatedAt||'n/d'} · cloud ${x.cloud?.updatedAt||'n/d'}</small></div>`).join('')}</details>`:''}
+      <details class="cloud-diff-block"><summary><strong>Ultimi contratti locali</strong></summary>${cloudDiagLatest(localContracts).map(c=>`<div class="cloud-diff-line"><span>${cloudDiagLabel(c)}</span><small>${c.updatedAt||c.date||''}</small></div>`).join('')}</details>
+      <details class="cloud-diff-block"><summary><strong>Ultimi contratti Cloud</strong></summary>${cloudDiagLatest(cloudContracts).map(c=>`<div class="cloud-diff-line"><span>${cloudDiagLabel(c)}</span><small>${c.updatedAt||c.date||''}</small></div>`).join('')}</details>
+      <div class="field-hint">Sola lettura: nessun upload, merge, refresh forzato o modifica dati.</div>`;
+  }catch(e){
+    console.error('Cloud diagnostic',e);
+    host.innerHTML=`<div class="cloud-diag-row cloud-diag-ko"><span>✕</span><div><strong>Diagnostica non riuscita</strong><small>${e.message||e}</small></div></div>`;
+  }finally{
+    btn.disabled=false;btn.textContent='Esegui diagnostica Cloud';
+  }
+}
+
 async function renderCloud(){
  const email=$('cloudEmail');if(!email)return;
  email.value=getCloudEmail()||email.value||'';
@@ -939,7 +1002,10 @@ async function renderCloud(){
    finally{btn.disabled=false;btn.textContent='Forza sincronizzazione'}
  };
 
- $('cloudLogout').onclick=async()=>{
+ const cloudDeviceDiagBtn=$('cloudRunDeviceDiagnostic');
+  if(cloudDeviceDiagBtn)cloudDeviceDiagBtn.onclick=()=>runDeviceCloudDiagnostic();
+
+  $('cloudLogout').onclick=async()=>{
    if(!confirm('Disconnettere SmartTracker Cloud da questo dispositivo? I dati locali resteranno disponibili.'))return;
    await cloudLogout();
    await renderCloud();
