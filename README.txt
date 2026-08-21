@@ -1323,3 +1323,15 @@ SMARTTRACKER 3.15.4 — DIAGNOSTICA CLOUD IPAD
 - Confronta contratti locali e Cloud, segnala solo-locali, solo-Cloud e record diversi.
 - Mostra timestamp sync, timestamp riga Cloud, sessione/scadenza e flag PDF Cloud.
 - Elenca gli ultimi contratti locali e Cloud.
+
+SMARTTRACKER 3.15.5 — RIALLINEAMENTO CLOUD MASTER PROTETTO
+- Base 3.15.4 diagnostica.
+- cloud.js IDENTICO alla 3.15.4: nessuna modifica a login, refresh token, AutoSync o merge esistente.
+- Nuova procedura manuale protetta da usare sull'iPhone con database completo.
+- Richiede password Supabase e usa la routine di login già stabile per creare una sessione fresca.
+- Prima di scrivere verifica che il locale abbia PIÙ contratti del Cloud e che il Cloud non contenga contratti assenti localmente.
+- Crea backup locale automatico prima della scrittura.
+- Carica il database locale completo direttamente nel Cloud senza fare merge con il Cloud vecchio.
+- Dopo la scrittura rilegge il Cloud e verifica numero contratti + presenza di tutti gli ID locali.
+- Se la verifica fallisce, blocca le istruzioni per l'iPad e segnala l'errore.
+- Parser, provvigioni, 30% SE, Community, Excellent e Gare invariati.

@@ -1,5 +1,5 @@
-import {uploadPdfCloud,openPdfCloud,pdfCloudExists,pdfCloudProbe} from './cloud-pdf-minimal.js?v=3154';
-import {buildReceivables,receivablesHtml,communityPrizeForPosition} from './receivables.js?v=3154';
+import {uploadPdfCloud,openPdfCloud,pdfCloudExists,pdfCloudProbe} from './cloud-pdf-minimal.js?v=3155';
+import {buildReceivables,receivablesHtml,communityPrizeForPosition} from './receivables.js?v=3155';
 
 window.addEventListener('error',(e)=>{
  try{
@@ -22,16 +22,16 @@ window.addEventListener('unhandledrejection',(e)=>{
 });
 
 
-import {loadStore,saveStore,importBackupObject} from './storage.js?v=3154';
-import {TARGETS,generalStats,agencyStats,agencyBreakdown,excellentStats,excellentBreakdown,communityStats,communityBreakdown,teamStats,teamBreakdown,availableMonths,customerList,customerDashboard,customerKey,inflowOf,communityRulesForMonth} from './engines.js?v=3154';
-import {savePdf,openPdf,deletePdf,getPdf} from './pdf-store.js?v=3154';
-import {initParser,parsePDF} from './parser.js?v=3154';
-import {createAutoBackup,getAutoBackupMeta,getFullBackupMeta,downloadDatabaseBackup,downloadCompleteBackup,restoreCompleteBackup,getArchiveStats,formatBytes,formatDate} from './backup.js?v=3154';
-import {exportSync,readSyncFile,previewMerge,applyMerge,getSyncMeta} from './sync.js?v=3154';
-import {regulationGroups} from './regulations.js?v=3154';
-import {currentMonthKey,monthLabel,quarterFromMonth,availablePeriodMonths,ensurePeriodState,periodStatusLabel,periodStatusIcon,applyGlobalMonth} from './periods.js?v=3154';
-import {cloudLogin,cloudLogout,cloudInfo,uploadLocalFirst,downloadAndMerge,syncNow,bootstrapLinkedCloud,queueCloudPush,getCloudMeta,isCloudLinked,getCloudSession,getCloudEmail,setCloudEmail,runCloudDiagnostics,readPrimaryCloudStoreRaw} from './cloud.js?v=3154';
-import {commissionsForPeriod} from './commissions.js?v=3154';
+import {loadStore,saveStore,importBackupObject} from './storage.js?v=3155';
+import {TARGETS,generalStats,agencyStats,agencyBreakdown,excellentStats,excellentBreakdown,communityStats,communityBreakdown,teamStats,teamBreakdown,availableMonths,customerList,customerDashboard,customerKey,inflowOf,communityRulesForMonth} from './engines.js?v=3155';
+import {savePdf,openPdf,deletePdf,getPdf} from './pdf-store.js?v=3155';
+import {initParser,parsePDF} from './parser.js?v=3155';
+import {createAutoBackup,getAutoBackupMeta,getFullBackupMeta,downloadDatabaseBackup,downloadCompleteBackup,restoreCompleteBackup,getArchiveStats,formatBytes,formatDate} from './backup.js?v=3155';
+import {exportSync,readSyncFile,previewMerge,applyMerge,getSyncMeta} from './sync.js?v=3155';
+import {regulationGroups} from './regulations.js?v=3155';
+import {currentMonthKey,monthLabel,quarterFromMonth,availablePeriodMonths,ensurePeriodState,periodStatusLabel,periodStatusIcon,applyGlobalMonth} from './periods.js?v=3155';
+import {cloudLogin,cloudLogout,cloudInfo,uploadLocalFirst,downloadAndMerge,syncNow,bootstrapLinkedCloud,queueCloudPush,getCloudMeta,isCloudLinked,getCloudSession,getCloudEmail,setCloudEmail,runCloudDiagnostics,readPrimaryCloudStoreRaw,pushCloudStore} from './cloud.js?v=3155';
+import {commissionsForPeriod} from './commissions.js?v=3155';
 
 let store=loadStore(),parsed=null,pendingPdf=null;
 applyGlobalMonth(store,store.settings.activeMonth||store.settings.currentMonth||currentMonthKey());
@@ -752,7 +752,7 @@ async function saveParsed(){
      ?[{agent:'Jacopo',share:.5},{agent:'Luciano',share:.5}]
      :[{agent,share:1}];
  const nowIso=new Date().toISOString();
- const contract={id:'C-'+Date.now(),createdAt:nowIso,updatedAt:nowIso,date:$('contractDate').value,offer:parsed.meta.offer,client:parsed.meta.client||'Da verificare',vat:parsed.meta.vat,customerCode:parsed.meta.customerCode||'',prospect,agent,includeAgency,teamAllocations,status:'Valido',pdfRef:parsed.filename,pdfStored:false,notes:'SmartTracker 3.15.4',services:[]};
+ const contract={id:'C-'+Date.now(),createdAt:nowIso,updatedAt:nowIso,date:$('contractDate').value,offer:parsed.meta.offer,client:parsed.meta.client||'Da verificare',vat:parsed.meta.vat,customerCode:parsed.meta.customerCode||'',prospect,agent,includeAgency,teamAllocations,status:'Valido',pdfRef:parsed.filename,pdfStored:false,notes:'SmartTracker 3.15.5',services:[]};
  for(const el of rows){
    const service=el.querySelector('.pr-service').value;
    const mnpEl=el.querySelector('.pr-mnp');
@@ -913,6 +913,87 @@ async function runDeviceCloudDiagnostic(){
   }
 }
 
+
+async function safeMasterRealignFromThisDevice(){
+  const btn=$('cloudMasterRealign');
+  const status=$('cloudMasterRealignStatus');
+  const password=$('cloudMasterPassword')?.value||'';
+  const email=getCloudEmail()||'';
+
+  if(!btn||!status)return;
+  if(!email)return alert('Email Cloud non disponibile. Accedi prima a SmartTracker Cloud.');
+  if(!password)return alert('Inserisci la password Supabase per creare una sessione nuova.');
+
+  btn.disabled=true;
+  btn.textContent='Verifica sicurezza…';
+  status.textContent='Controllo database locale e Cloud…';
+
+  try{
+    // 1) Fresh login/session using the already stable login diagnostic routine.
+    const auth=await runCloudDiagnostics(email,password);
+    if(!auth?.ok)throw new Error(auth?.error||'Rinnovo sessione non riuscito');
+
+    // 2) Read Cloud after fresh auth, before any write.
+    const before=await readPrimaryCloudStoreRaw();
+    const localContracts=store.contracts||[];
+    const cloudContracts=before?.data?.contracts||[];
+
+    const localIds=new Set(localContracts.map(c=>String(c.id)));
+    const cloudIds=new Set(cloudContracts.map(c=>String(c.id)));
+    const onlyLocal=localContracts.filter(c=>c?.id&&!cloudIds.has(String(c.id)));
+    const onlyCloud=cloudContracts.filter(c=>c?.id&&!localIds.has(String(c.id)));
+
+    // Safety guard: this device must clearly be the superset/master.
+    if(localContracts.length<=cloudContracts.length){
+      throw new Error(`Blocco sicurezza: locale ${localContracts.length}, Cloud ${cloudContracts.length}. Il dispositivo master deve avere più contratti del Cloud.`);
+    }
+    if(onlyCloud.length>0){
+      throw new Error(`Blocco sicurezza: il Cloud contiene ${onlyCloud.length} contratti assenti su questo dispositivo. Nessuna scrittura eseguita.`);
+    }
+
+    const sample=onlyLocal.slice(0,8).map(c=>c.client||c.id).join(', ');
+    const msg=`Riallineare il Cloud usando QUESTO dispositivo come master?\n\nLocale: ${localContracts.length} contratti\nCloud: ${cloudContracts.length} contratti\nDa aggiungere al Cloud: ${onlyLocal.length}${sample?`\n${sample}`:''}\n\nPrima della scrittura SmartTracker crea un backup locale automatico e dopo verifica nuovamente tutti gli ID.`;
+
+    if(!confirm(msg)){
+      status.textContent='Operazione annullata. Nessun dato modificato.';
+      return;
+    }
+
+    // 3) Local automatic backup before Cloud write.
+    createAutoBackup(store);
+
+    // 4) Directly upload the complete local store. No merge with stale Cloud.
+    btn.textContent='Caricamento master…';
+    status.textContent=`Caricamento protetto di ${localContracts.length} contratti…`;
+    const device=localStorage.getItem('smartTrackerCloudDeviceName')||localStorage.getItem('salesTrackerDeviceName')||'iPhone master';
+    await pushCloudStore(store,device);
+
+    // 5) Read-back verification: count and every local ID must exist.
+    btn.textContent='Verifica Cloud…';
+    const after=await readPrimaryCloudStoreRaw();
+    const afterContracts=after?.data?.contracts||[];
+    const afterIds=new Set(afterContracts.map(c=>String(c.id)));
+    const missingAfter=localContracts.filter(c=>c?.id&&!afterIds.has(String(c.id)));
+
+    if(afterContracts.length!==localContracts.length || missingAfter.length){
+      throw new Error(`Verifica finale fallita: locale ${localContracts.length}, Cloud ${afterContracts.length}, mancanti ${missingAfter.length}. Non usare ancora l’iPad.`);
+    }
+
+    $('cloudMasterPassword').value='';
+    status.innerHTML=`<strong>✓ Cloud riallineato e verificato</strong><br>${afterContracts.length} contratti presenti · aggiornato ${after?.updated_at?formatDate(after.updated_at):'ora'}. Ora puoi aggiornare l’iPad con “Scarica e unisci dal Cloud”.`;
+
+    alert(`Riallineamento completato.\n\nCloud verificato: ${afterContracts.length} contratti.\n\nOra passa all’iPad e usa “Scarica e unisci dal Cloud”.`);
+    await renderCloud();
+  }catch(e){
+    console.error('Safe master realign',e);
+    status.innerHTML=`<strong>Operazione interrotta</strong><br>${e.message||e}`;
+    alert(`Riallineamento NON completato.\n\n${e.message||e}\n\nI dati locali non sono stati sostituiti.`);
+  }finally{
+    btn.disabled=false;
+    btn.textContent='Rinnova sessione e riallinea Cloud';
+  }
+}
+
 async function renderCloud(){
  const email=$('cloudEmail');if(!email)return;
  email.value=getCloudEmail()||email.value||'';
@@ -1002,7 +1083,10 @@ async function renderCloud(){
    finally{btn.disabled=false;btn.textContent='Forza sincronizzazione'}
  };
 
- const cloudDeviceDiagBtn=$('cloudRunDeviceDiagnostic');
+ const cloudMasterBtn=$('cloudMasterRealign');
+  if(cloudMasterBtn)cloudMasterBtn.onclick=()=>safeMasterRealignFromThisDevice();
+
+  const cloudDeviceDiagBtn=$('cloudRunDeviceDiagnostic');
   if(cloudDeviceDiagBtn)cloudDeviceDiagBtn.onclick=()=>runDeviceCloudDiagnostic();
 
   $('cloudLogout').onclick=async()=>{
