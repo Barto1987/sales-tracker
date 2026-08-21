@@ -1,7 +1,7 @@
 {
   "name": "SmartTracker",
   "short_name": "SmartTracker",
-  "start_url": "./index.html?v=3157",
+  "start_url": "./index.html?v=3158",
   "display": "standalone",
   "background_color": "#f7f8fa",
   "theme_color": "#e00000",

@@ -7,14 +7,14 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icon-192.png">
-<link rel="stylesheet" href="style.css?v=3157">
-<title>SmartTracker 3.15.7</title>
-  <link rel="apple-touch-icon" href="apple-touch-icon.png?v=3157">
+<link rel="stylesheet" href="style.css?v=3158">
+<title>SmartTracker 3.15.8</title>
+  <link rel="apple-touch-icon" href="apple-touch-icon.png?v=3158">
 </head>
 <body>
 <header class="smart-header">
   <div class="smart-header-copy">
-    <div class="title">SmartTracker 3.15.7</div>
+    <div class="title">SmartTracker 3.15.8</div>
     <div class="sub">Cruscotto commerciale personale</div>
   </div>
   <button id="headerNewContract" class="header-new-contract" type="button" aria-label="Nuovo contratto" title="Nuovo contratto">＋</button>
@@ -108,6 +108,14 @@
     <button id="cloudLogout" class="secondary" style="margin-top:10px">Disconnetti Cloud</button>
     <div id="cloudLastStatus" class="field-hint prospect-auto-no"></div>
     <div class="cloud-auto-note">⚡ AutoSync attivo: le modifiche vengono inviate al Cloud e scaricate automaticamente sugli altri dispositivi.</div><div id="cloudAutoPushLiveStatus" class="field-hint prospect-auto-no">AutoPush pronto.</div>
+    <div class="cloud-pdf-audit">
+      <div class="section-kicker">PDF CLOUD</div>
+      <h3>Controllo completo documenti</h3>
+      <p class="muted">Controlla tutte le pratiche attive e verifica per ciascuna: riferimento locale, riferimento nel database Cloud e presenza reale del PDF nello Storage. Non modifica nulla.</p>
+      <button id="cloudRunPdfAudit" class="secondary">Diagnostica PDF completa</button>
+      <div id="cloudPdfAuditResult" class="cloud-device-diagnostic-result hidden"></div>
+    </div>
+
     <div class="cloud-device-diagnostic">
       <div class="section-kicker">DIAGNOSTICA SOLA LETTURA</div>
       <h3>Confronta dispositivo ↔ Cloud</h3>
@@ -131,7 +139,7 @@
     <strong>Prima migrazione sicura</strong>
     <span>Il primo dispositivo con tutti i dati deve usare “Carica i dati locali nel Cloud”. Sugli altri dispositivi usa “Scarica e unisci”.</span>
   </div>
-  <div class="cloud-pdf-note">📄 In questa versione i PDF restano locali sul singolo dispositivo. Contratti, obiettivi, regolamenti e impostazioni vengono sincronizzati.</div>
+  <div class="cloud-pdf-note">📄 I PDF caricati con “Aggiungi PDF Cloud” vengono conservati nello Storage Cloud e possono essere aperti dagli altri dispositivi collegati.</div>
 </div>
 
 
@@ -279,8 +287,8 @@
 <button data-view="team"><span class="nav-icon">♟</span><span>Squadra</span></button>
 <button data-view="commissions"><span class="nav-icon">€</span><span>Provvig.</span></button>
 </nav>
-<script src="jszip.min.js?v=3157"></script>
-<script type="module" src="app.js?v=3157"></script>
+<script src="jszip.min.js?v=3158"></script>
+<script type="module" src="app.js?v=3158"></script>
 <script>
 (async()=>{
   if('serviceWorker' in navigator){

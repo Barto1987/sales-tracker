@@ -1356,3 +1356,17 @@ SMARTTRACKER 3.15.7 — AUTOPUSH LINK FIX
 - syncNow, quando riesce, imposta comunque il linked correttamente.
 - Se manca la sessione, ora compare “AutoPush sospeso: sessione Cloud assente” invece di fallire in silenzio.
 - Dopo un riallineamento master viene schedulato subito il normale AutoPush.
+
+SMARTTRACKER 3.15.8 — DIAGNOSTICA PDF CLOUD COMPLETA
+- Base stabile 3.15.7.
+- cloud.js IDENTICO alla 3.15.7.
+- Nessuna modifica ad AutoPush/AutoPull, login, parser, provvigioni o gare.
+- Nuovo pulsante SmartTracker Cloud > “Diagnostica PDF completa”.
+- Scansiona tutte le pratiche attive.
+- Per ogni pratica verifica:
+  1) riferimento cloudPdf nel dispositivo locale;
+  2) riferimento cloudPdf nel database Cloud;
+  3) presenza reale del file nello Storage privato contract-pdfs.
+- Risultati: PDF OK / PDF da caricare / PDF presente ma riferimento da riallineare / errore verifica.
+- Mostra l’elenco dei clienti in ogni categoria.
+- Diagnostica di sola lettura: non carica, elimina o modifica nulla.
