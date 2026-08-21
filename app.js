@@ -1,5 +1,5 @@
-import {uploadPdfCloud,openPdfCloud,pdfCloudExists,pdfCloudProbe} from './cloud-pdf-minimal.js?v=3155';
-import {buildReceivables,receivablesHtml,communityPrizeForPosition} from './receivables.js?v=3155';
+import {uploadPdfCloud,openPdfCloud,pdfCloudExists,pdfCloudProbe} from './cloud-pdf-minimal.js?v=3156';
+import {buildReceivables,receivablesHtml,communityPrizeForPosition} from './receivables.js?v=3156';
 
 window.addEventListener('error',(e)=>{
  try{
@@ -22,24 +22,79 @@ window.addEventListener('unhandledrejection',(e)=>{
 });
 
 
-import {loadStore,saveStore,importBackupObject} from './storage.js?v=3155';
-import {TARGETS,generalStats,agencyStats,agencyBreakdown,excellentStats,excellentBreakdown,communityStats,communityBreakdown,teamStats,teamBreakdown,availableMonths,customerList,customerDashboard,customerKey,inflowOf,communityRulesForMonth} from './engines.js?v=3155';
-import {savePdf,openPdf,deletePdf,getPdf} from './pdf-store.js?v=3155';
-import {initParser,parsePDF} from './parser.js?v=3155';
-import {createAutoBackup,getAutoBackupMeta,getFullBackupMeta,downloadDatabaseBackup,downloadCompleteBackup,restoreCompleteBackup,getArchiveStats,formatBytes,formatDate} from './backup.js?v=3155';
-import {exportSync,readSyncFile,previewMerge,applyMerge,getSyncMeta} from './sync.js?v=3155';
-import {regulationGroups} from './regulations.js?v=3155';
-import {currentMonthKey,monthLabel,quarterFromMonth,availablePeriodMonths,ensurePeriodState,periodStatusLabel,periodStatusIcon,applyGlobalMonth} from './periods.js?v=3155';
-import {cloudLogin,cloudLogout,cloudInfo,uploadLocalFirst,downloadAndMerge,syncNow,bootstrapLinkedCloud,queueCloudPush,getCloudMeta,isCloudLinked,getCloudSession,getCloudEmail,setCloudEmail,runCloudDiagnostics,readPrimaryCloudStoreRaw,pushCloudStore} from './cloud.js?v=3155';
-import {commissionsForPeriod} from './commissions.js?v=3155';
+import {loadStore,saveStore,importBackupObject} from './storage.js?v=3156';
+import {TARGETS,generalStats,agencyStats,agencyBreakdown,excellentStats,excellentBreakdown,communityStats,communityBreakdown,teamStats,teamBreakdown,availableMonths,customerList,customerDashboard,customerKey,inflowOf,communityRulesForMonth} from './engines.js?v=3156';
+import {savePdf,openPdf,deletePdf,getPdf} from './pdf-store.js?v=3156';
+import {initParser,parsePDF} from './parser.js?v=3156';
+import {createAutoBackup,getAutoBackupMeta,getFullBackupMeta,downloadDatabaseBackup,downloadCompleteBackup,restoreCompleteBackup,getArchiveStats,formatBytes,formatDate} from './backup.js?v=3156';
+import {exportSync,readSyncFile,previewMerge,applyMerge,getSyncMeta} from './sync.js?v=3156';
+import {regulationGroups} from './regulations.js?v=3156';
+import {currentMonthKey,monthLabel,quarterFromMonth,availablePeriodMonths,ensurePeriodState,periodStatusLabel,periodStatusIcon,applyGlobalMonth} from './periods.js?v=3156';
+import {cloudLogin,cloudLogout,cloudInfo,uploadLocalFirst,downloadAndMerge,syncNow,bootstrapLinkedCloud,queueCloudPush,getCloudMeta,isCloudLinked,getCloudSession,getCloudEmail,setCloudEmail,runCloudDiagnostics,readPrimaryCloudStoreRaw,pushCloudStore} from './cloud.js?v=3156';
+import {commissionsForPeriod} from './commissions.js?v=3156';
 
 let store=loadStore(),parsed=null,pendingPdf=null;
+let guaranteedPushTimer=null,guaranteedPushInFlight=false,persistRevision=0,pushRequestedWhileBusy=false;
 applyGlobalMonth(store,store.settings.activeMonth||store.settings.currentMonth||currentMonthKey());
+
+async function guaranteedCloudPush(expectedRevision){
+  if(!isCloudLinked()||!getCloudSession()?.access_token)return;
+  if(guaranteedPushInFlight){pushRequestedWhileBusy=true;return}
+  guaranteedPushInFlight=true;
+  pushRequestedWhileBusy=false;
+
+  const device=localStorage.getItem('smartTrackerCloudDeviceName')||localStorage.getItem('salesTrackerDeviceName')||'Dispositivo';
+  const localSnapshot=store;
+  const revisionAtStart=expectedRevision;
+
+  try{
+    // Bypassa il solo gate interno di queueCloudPush e usa la sync stabile già esistente.
+    const result=await syncNow(localSnapshot,device,'local');
+
+    // Adotta il merge soltanto se nel frattempo non ci sono stati altri salvataggi locali.
+    if(result?.store && persistRevision===revisionAtStart){
+      store=result.store;
+      saveStore(store);
+      createAutoBackup(store);
+    }
+
+    // Verifica di lettura: tutti gli ID dello snapshot devono essere davvero nel Cloud.
+    const raw=await readPrimaryCloudStoreRaw();
+    const cloudIds=new Set((raw?.data?.contracts||[]).map(c=>String(c.id)));
+    const missing=(localSnapshot.contracts||[]).filter(c=>c?.id&&!cloudIds.has(String(c.id)));
+    if(missing.length){
+      throw new Error(`AutoPush incompleto: ${missing.length} contratti non risultano ancora nel Cloud`);
+    }
+
+    const status=$('cloudAutoPushLiveStatus');
+    if(status)status.textContent=`✓ AutoPush verificato · ${(raw?.data?.contracts||[]).length} contratti · ${new Date().toLocaleTimeString('it-IT')}`;
+  }catch(e){
+    console.warn('Guaranteed AutoPush',e);
+    const status=$('cloudAutoPushLiveStatus');
+    if(status)status.textContent=`⚠ AutoPush: ${e.message||e}`;
+  }finally{
+    guaranteedPushInFlight=false;
+    if(pushRequestedWhileBusy || persistRevision>revisionAtStart){
+      scheduleGuaranteedCloudPush();
+    }
+  }
+}
+
+function scheduleGuaranteedCloudPush(){
+  if(!isCloudLinked()||!getCloudSession()?.access_token)return;
+  if(guaranteedPushTimer)clearTimeout(guaranteedPushTimer);
+  const revision=persistRevision;
+  guaranteedPushTimer=setTimeout(()=>guaranteedCloudPush(revision),1200);
+}
+
 function persistStore(){
   saveStore(store);
   createAutoBackup(store);
+  persistRevision++;
   const device=localStorage.getItem('smartTrackerCloudDeviceName')||localStorage.getItem('salesTrackerDeviceName')||'Dispositivo';
+  // Manteniamo il percorso storico e aggiungiamo una seconda garanzia esplicita.
   queueCloudPush(()=>store,device);
+  scheduleGuaranteedCloudPush();
 }
 createAutoBackup(store);
 const $=id=>document.getElementById(id),money=v=>new Intl.NumberFormat('it-IT',{style:'currency',currency:'EUR'}).format(v||0);
@@ -752,7 +807,7 @@ async function saveParsed(){
      ?[{agent:'Jacopo',share:.5},{agent:'Luciano',share:.5}]
      :[{agent,share:1}];
  const nowIso=new Date().toISOString();
- const contract={id:'C-'+Date.now(),createdAt:nowIso,updatedAt:nowIso,date:$('contractDate').value,offer:parsed.meta.offer,client:parsed.meta.client||'Da verificare',vat:parsed.meta.vat,customerCode:parsed.meta.customerCode||'',prospect,agent,includeAgency,teamAllocations,status:'Valido',pdfRef:parsed.filename,pdfStored:false,notes:'SmartTracker 3.15.5',services:[]};
+ const contract={id:'C-'+Date.now(),createdAt:nowIso,updatedAt:nowIso,date:$('contractDate').value,offer:parsed.meta.offer,client:parsed.meta.client||'Da verificare',vat:parsed.meta.vat,customerCode:parsed.meta.customerCode||'',prospect,agent,includeAgency,teamAllocations,status:'Valido',pdfRef:parsed.filename,pdfStored:false,notes:'SmartTracker 3.15.6',services:[]};
  for(const el of rows){
    const service=el.querySelector('.pr-service').value;
    const mnpEl=el.querySelector('.pr-mnp');

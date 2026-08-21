@@ -1335,3 +1335,15 @@ SMARTTRACKER 3.15.5 — RIALLINEAMENTO CLOUD MASTER PROTETTO
 - Dopo la scrittura rilegge il Cloud e verifica numero contratti + presenza di tutti gli ID locali.
 - Se la verifica fallisce, blocca le istruzioni per l'iPad e segnala l'errore.
 - Parser, provvigioni, 30% SE, Community, Excellent e Gare invariati.
+
+SMARTTRACKER 3.15.6 — FIX AUTOPUSH
+- Base 3.15.5.
+- cloud.js IDENTICO alla 3.15.5.
+- Nessuna modifica a login, refresh token, merge, parser, provvigioni, gare o regolamenti.
+- Dopo ogni persistStore resta attivo il vecchio queueCloudPush, ma viene aggiunto un secondo percorso garantito:
+  attende 1,2 s, chiama direttamente syncNow(...,'local'), poi rilegge il Cloud e verifica che tutti gli ID locali siano presenti.
+- Il nuovo percorso non dipende dal flag interno bootstrapped di queueCloudPush.
+- Gestione concorrenza: se avviene un altro salvataggio durante un push, viene schedulato automaticamente un nuovo push.
+- Il merge restituito viene adottato localmente solo se nel frattempo non ci sono state altre modifiche.
+- In SmartTracker Cloud compare una riga "AutoPush" con esito verificato o errore.
+- La procedura master protetta della 3.15.5 resta disponibile ma non va usata per il normale AutoSync.
