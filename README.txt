@@ -1347,3 +1347,12 @@ SMARTTRACKER 3.15.6 — FIX AUTOPUSH
 - Il merge restituito viene adottato localmente solo se nel frattempo non ci sono state altre modifiche.
 - In SmartTracker Cloud compare una riga "AutoPush" con esito verificato o errore.
 - La procedura master protetta della 3.15.5 resta disponibile ma non va usata per il normale AutoSync.
+
+SMARTTRACKER 3.15.7 — AUTOPUSH LINK FIX
+- Base 3.15.6.
+- cloud.js ancora IDENTICO alla 3.15.6.
+- Corretto il vero blocco del secondo AutoPush: non dipende più dal flag isCloudLinked, ma dalla presenza della sessione Cloud.
+- Motivo: il riallineamento master usa una scrittura diretta valida ma può lasciare il flag locale linked non coerente; in quel caso 3.15.6 non schedulava il push pur avendo sessione valida.
+- syncNow, quando riesce, imposta comunque il linked correttamente.
+- Se manca la sessione, ora compare “AutoPush sospeso: sessione Cloud assente” invece di fallire in silenzio.
+- Dopo un riallineamento master viene schedulato subito il normale AutoPush.

@@ -1,5 +1,5 @@
-import {uploadPdfCloud,openPdfCloud,pdfCloudExists,pdfCloudProbe} from './cloud-pdf-minimal.js?v=3156';
-import {buildReceivables,receivablesHtml,communityPrizeForPosition} from './receivables.js?v=3156';
+import {uploadPdfCloud,openPdfCloud,pdfCloudExists,pdfCloudProbe} from './cloud-pdf-minimal.js?v=3157';
+import {buildReceivables,receivablesHtml,communityPrizeForPosition} from './receivables.js?v=3157';
 
 window.addEventListener('error',(e)=>{
  try{
@@ -22,23 +22,23 @@ window.addEventListener('unhandledrejection',(e)=>{
 });
 
 
-import {loadStore,saveStore,importBackupObject} from './storage.js?v=3156';
-import {TARGETS,generalStats,agencyStats,agencyBreakdown,excellentStats,excellentBreakdown,communityStats,communityBreakdown,teamStats,teamBreakdown,availableMonths,customerList,customerDashboard,customerKey,inflowOf,communityRulesForMonth} from './engines.js?v=3156';
-import {savePdf,openPdf,deletePdf,getPdf} from './pdf-store.js?v=3156';
-import {initParser,parsePDF} from './parser.js?v=3156';
-import {createAutoBackup,getAutoBackupMeta,getFullBackupMeta,downloadDatabaseBackup,downloadCompleteBackup,restoreCompleteBackup,getArchiveStats,formatBytes,formatDate} from './backup.js?v=3156';
-import {exportSync,readSyncFile,previewMerge,applyMerge,getSyncMeta} from './sync.js?v=3156';
-import {regulationGroups} from './regulations.js?v=3156';
-import {currentMonthKey,monthLabel,quarterFromMonth,availablePeriodMonths,ensurePeriodState,periodStatusLabel,periodStatusIcon,applyGlobalMonth} from './periods.js?v=3156';
-import {cloudLogin,cloudLogout,cloudInfo,uploadLocalFirst,downloadAndMerge,syncNow,bootstrapLinkedCloud,queueCloudPush,getCloudMeta,isCloudLinked,getCloudSession,getCloudEmail,setCloudEmail,runCloudDiagnostics,readPrimaryCloudStoreRaw,pushCloudStore} from './cloud.js?v=3156';
-import {commissionsForPeriod} from './commissions.js?v=3156';
+import {loadStore,saveStore,importBackupObject} from './storage.js?v=3157';
+import {TARGETS,generalStats,agencyStats,agencyBreakdown,excellentStats,excellentBreakdown,communityStats,communityBreakdown,teamStats,teamBreakdown,availableMonths,customerList,customerDashboard,customerKey,inflowOf,communityRulesForMonth} from './engines.js?v=3157';
+import {savePdf,openPdf,deletePdf,getPdf} from './pdf-store.js?v=3157';
+import {initParser,parsePDF} from './parser.js?v=3157';
+import {createAutoBackup,getAutoBackupMeta,getFullBackupMeta,downloadDatabaseBackup,downloadCompleteBackup,restoreCompleteBackup,getArchiveStats,formatBytes,formatDate} from './backup.js?v=3157';
+import {exportSync,readSyncFile,previewMerge,applyMerge,getSyncMeta} from './sync.js?v=3157';
+import {regulationGroups} from './regulations.js?v=3157';
+import {currentMonthKey,monthLabel,quarterFromMonth,availablePeriodMonths,ensurePeriodState,periodStatusLabel,periodStatusIcon,applyGlobalMonth} from './periods.js?v=3157';
+import {cloudLogin,cloudLogout,cloudInfo,uploadLocalFirst,downloadAndMerge,syncNow,bootstrapLinkedCloud,queueCloudPush,getCloudMeta,isCloudLinked,getCloudSession,getCloudEmail,setCloudEmail,runCloudDiagnostics,readPrimaryCloudStoreRaw,pushCloudStore} from './cloud.js?v=3157';
+import {commissionsForPeriod} from './commissions.js?v=3157';
 
 let store=loadStore(),parsed=null,pendingPdf=null;
 let guaranteedPushTimer=null,guaranteedPushInFlight=false,persistRevision=0,pushRequestedWhileBusy=false;
 applyGlobalMonth(store,store.settings.activeMonth||store.settings.currentMonth||currentMonthKey());
 
 async function guaranteedCloudPush(expectedRevision){
-  if(!isCloudLinked()||!getCloudSession()?.access_token)return;
+  if(!getCloudSession()?.access_token)return;
   if(guaranteedPushInFlight){pushRequestedWhileBusy=true;return}
   guaranteedPushInFlight=true;
   pushRequestedWhileBusy=false;
@@ -81,7 +81,11 @@ async function guaranteedCloudPush(expectedRevision){
 }
 
 function scheduleGuaranteedCloudPush(){
-  if(!isCloudLinked()||!getCloudSession()?.access_token)return;
+  if(!getCloudSession()?.access_token){
+    const status=$('cloudAutoPushLiveStatus');
+    if(status)status.textContent='⚠ AutoPush sospeso: sessione Cloud assente';
+    return;
+  }
   if(guaranteedPushTimer)clearTimeout(guaranteedPushTimer);
   const revision=persistRevision;
   guaranteedPushTimer=setTimeout(()=>guaranteedCloudPush(revision),1200);
@@ -807,7 +811,7 @@ async function saveParsed(){
      ?[{agent:'Jacopo',share:.5},{agent:'Luciano',share:.5}]
      :[{agent,share:1}];
  const nowIso=new Date().toISOString();
- const contract={id:'C-'+Date.now(),createdAt:nowIso,updatedAt:nowIso,date:$('contractDate').value,offer:parsed.meta.offer,client:parsed.meta.client||'Da verificare',vat:parsed.meta.vat,customerCode:parsed.meta.customerCode||'',prospect,agent,includeAgency,teamAllocations,status:'Valido',pdfRef:parsed.filename,pdfStored:false,notes:'SmartTracker 3.15.6',services:[]};
+ const contract={id:'C-'+Date.now(),createdAt:nowIso,updatedAt:nowIso,date:$('contractDate').value,offer:parsed.meta.offer,client:parsed.meta.client||'Da verificare',vat:parsed.meta.vat,customerCode:parsed.meta.customerCode||'',prospect,agent,includeAgency,teamAllocations,status:'Valido',pdfRef:parsed.filename,pdfStored:false,notes:'SmartTracker 3.15.7',services:[]};
  for(const el of rows){
    const service=el.querySelector('.pr-service').value;
    const mnpEl=el.querySelector('.pr-mnp');
@@ -1036,6 +1040,8 @@ async function safeMasterRealignFromThisDevice(){
 
     $('cloudMasterPassword').value='';
     status.innerHTML=`<strong>✓ Cloud riallineato e verificato</strong><br>${afterContracts.length} contratti presenti · aggiornato ${after?.updated_at?formatDate(after.updated_at):'ora'}. Ora puoi aggiornare l’iPad con “Scarica e unisci dal Cloud”.`;
+    // Riattiva immediatamente il normale percorso AutoSync dopo il riallineamento master.
+    scheduleGuaranteedCloudPush();
 
     alert(`Riallineamento completato.\n\nCloud verificato: ${afterContracts.length} contratti.\n\nOra passa all’iPad e usa “Scarica e unisci dal Cloud”.`);
     await renderCloud();
