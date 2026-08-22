@@ -1472,3 +1472,11 @@ SMARTTRACKER 3.15.18 — APP-LIKE + PROVVIGIONI COMPATTE
 - Provvigioni: rimossa card “Prima base operativa”; dashboard compatta con totale da ricevere, questo mese/prossimo/più avanti, boost compatti, Gara Agenzia in dettaglio espandibile, accessi per mese/tipologia/target/voci mancanti.
 - Regole e dettaglio pratiche restano disponibili ma collassati.
 - Nessuna regola economica modificata.
+
+
+SMARTTRACKER 3.15.19 — EDIT ATTRIBUTI + CONTRASTO PROVVIGIONI
+- Cambio agente aggiorna agent + teamAllocations al 100%.
+- Modifica attributi in bottom sheet app-like.
+- Gara Agenzia solo Francesco.
+- Card Provvigioni bianche ad alto contrasto.
+- cloud.js invariato.

@@ -1,5 +1,5 @@
-import {uploadPdfCloud,openPdfCloud,pdfCloudExists,pdfCloudProbe} from './cloud-pdf-minimal.js?v=31518';
-import {buildReceivables,receivablesHtml,communityPrizeForPosition} from './receivables.js?v=31518';
+import {uploadPdfCloud,openPdfCloud,pdfCloudExists,pdfCloudProbe} from './cloud-pdf-minimal.js?v=31519';
+import {buildReceivables,receivablesHtml,communityPrizeForPosition} from './receivables.js?v=31519';
 
 window.addEventListener('error',(e)=>{
  try{
@@ -22,16 +22,16 @@ window.addEventListener('unhandledrejection',(e)=>{
 });
 
 
-import {loadStore,saveStore,importBackupObject} from './storage.js?v=31518';
-import {TARGETS,generalStats,agencyStats,agencyBreakdown,excellentStats,excellentBreakdown,communityStats,communityBreakdown,teamStats,teamBreakdown,availableMonths,customerList,customerDashboard,customerKey,inflowOf,communityRulesForMonth} from './engines.js?v=31518';
-import {savePdf,openPdf,deletePdf,getPdf} from './pdf-store.js?v=31518';
-import {initParser,parsePDF} from './parser.js?v=31518';
-import {createAutoBackup,getAutoBackupMeta,getFullBackupMeta,downloadDatabaseBackup,downloadCompleteBackup,restoreCompleteBackup,getArchiveStats,formatBytes,formatDate} from './backup.js?v=31518';
-import {exportSync,readSyncFile,previewMerge,applyMerge,getSyncMeta} from './sync.js?v=31518';
-import {regulationGroups} from './regulations.js?v=31518';
-import {currentMonthKey,monthLabel,quarterFromMonth,availablePeriodMonths,ensurePeriodState,periodStatusLabel,periodStatusIcon,applyGlobalMonth} from './periods.js?v=31518';
-import {cloudLogin,cloudLogout,cloudInfo,uploadLocalFirst,downloadAndMerge,syncNow,bootstrapLinkedCloud,queueCloudPush,getCloudMeta,isCloudLinked,getCloudSession,getCloudEmail,setCloudEmail,runCloudDiagnostics,readPrimaryCloudStoreRaw,pushCloudStore} from './cloud.js?v=31518';
-import {commissionsForPeriod} from './commissions.js?v=31518';
+import {loadStore,saveStore,importBackupObject} from './storage.js?v=31519';
+import {TARGETS,generalStats,agencyStats,agencyBreakdown,excellentStats,excellentBreakdown,communityStats,communityBreakdown,teamStats,teamBreakdown,availableMonths,customerList,customerDashboard,customerKey,inflowOf,communityRulesForMonth} from './engines.js?v=31519';
+import {savePdf,openPdf,deletePdf,getPdf} from './pdf-store.js?v=31519';
+import {initParser,parsePDF} from './parser.js?v=31519';
+import {createAutoBackup,getAutoBackupMeta,getFullBackupMeta,downloadDatabaseBackup,downloadCompleteBackup,restoreCompleteBackup,getArchiveStats,formatBytes,formatDate} from './backup.js?v=31519';
+import {exportSync,readSyncFile,previewMerge,applyMerge,getSyncMeta} from './sync.js?v=31519';
+import {regulationGroups} from './regulations.js?v=31519';
+import {currentMonthKey,monthLabel,quarterFromMonth,availablePeriodMonths,ensurePeriodState,periodStatusLabel,periodStatusIcon,applyGlobalMonth} from './periods.js?v=31519';
+import {cloudLogin,cloudLogout,cloudInfo,uploadLocalFirst,downloadAndMerge,syncNow,bootstrapLinkedCloud,queueCloudPush,getCloudMeta,isCloudLinked,getCloudSession,getCloudEmail,setCloudEmail,runCloudDiagnostics,readPrimaryCloudStoreRaw,pushCloudStore} from './cloud.js?v=31519';
+import {commissionsForPeriod} from './commissions.js?v=31519';
 
 let store=loadStore(),parsed=null,pendingPdf=null;
 let guaranteedPushTimer=null,guaranteedPushInFlight=false,persistRevision=0,pushRequestedWhileBusy=false;
@@ -750,7 +750,8 @@ function renderArchive(){
  const month=monthSel?.value||'Tutti';
  const rows=[...store.contracts].reverse().filter(c=>{
    const text=(c.client+' '+c.offer+' '+c.vat+' '+(c.customerCode||'')+' '+c.services.map(s=>s.product).join(' ')).toLowerCase();
-   const agentOk=agent==='Tutti'||(c.agent||'Francesco')===agent;
+   const assignedAgents=(Array.isArray(c.teamAllocations)&&c.teamAllocations.length?c.teamAllocations.map(x=>x?.agent).filter(Boolean):[c.agent||'Francesco']);
+   const agentOk=agent==='Tutti'||assignedAgents.includes(agent);
    const monthOk=month==='Tutti'||archiveUploadMonth(c)===month;
    return text.includes(q)&&agentOk&&monthOk;
  });
@@ -761,13 +762,33 @@ function renderArchive(){
  document.querySelectorAll('[data-edit]').forEach(b=>b.onclick=()=>editAttrs(b.dataset.edit));
  setTimeout(()=>reconcilePdfCloudRefs(),250);
 }
-function editAttrs(id){
- const c=store.contracts.find(x=>x.id===id);if(!c)return;
- const prospect=confirm(`Cliente ${c.client}\n\nImpostare Prospect = SÌ?\nOK = Sì, Annulla = No`);
- const agent=prompt('Agente di riferimento: Francesco, Jacopo o Luciano',c.agent||'Francesco')||c.agent||'Francesco';
- const includeAgency=confirm('Valido per Gara Agenzia?\nOK = Sì, Annulla = No');
- c.prospect=prospect;c.agent=agent;c.includeAgency=includeAgency;c.updatedAt=new Date().toISOString();persistStore();renderAll()
+let editingContractId=null;
+function currentSingleAgent(c){
+ const alloc=Array.isArray(c?.teamAllocations)?c.teamAllocations.filter(x=>x?.agent&&Number(x.share||0)>0):[];
+ if(alloc.length===1&&Number(alloc[0].share||0)>0.99)return alloc[0].agent;
+ return c?.agent||alloc[0]?.agent||'Francesco';
 }
+function updateEditAgencyAvailability(){
+ const agent=$('editAttrsAgent')?.value||'Francesco';
+ const agency=$('editAttrsAgency'),hint=$('editAttrsAgencyHint');
+ const allowed=agent==='Francesco';
+ if(agency){agency.disabled=!allowed;if(!allowed)agency.value='no';}
+ if(hint)hint.textContent=allowed?'Per Francesco puoi scegliere se la pratica è valida per Gara Agenzia.':'Gara Agenzia viene impostata automaticamente su No: vale solo per le pratiche di Francesco.';
+}
+function closeEditAttrs(){
+ const host=$('editAttrsSheet');if(!host)return;host.classList.add('hidden');host.setAttribute('aria-hidden','true');document.body.classList.remove('edit-sheet-open');editingContractId=null;
+}
+function editAttrs(id){
+ const c=store.contracts.find(x=>x.id===id);if(!c)return;editingContractId=id;
+ $('editAttrsClient').textContent=`${c.client||'Cliente'} · ${c.offer||'Senza numero offerta'}`;
+ $('editAttrsAgent').value=currentSingleAgent(c);$('editAttrsProspect').value=c.prospect?'yes':'no';$('editAttrsAgency').value=c.includeAgency===false?'no':'yes';updateEditAgencyAvailability();
+ const host=$('editAttrsSheet');host.classList.remove('hidden');host.setAttribute('aria-hidden','false');document.body.classList.add('edit-sheet-open');
+}
+function saveEditedAttrs(){
+ const c=store.contracts.find(x=>x.id===editingContractId);if(!c)return closeEditAttrs();
+ const agent=$('editAttrsAgent').value;c.agent=agent;c.teamAllocations=[{agent,share:1}];c.prospect=$('editAttrsProspect').value==='yes';c.includeAgency=agent==='Francesco'&&$('editAttrsAgency').value==='yes';c.updatedAt=new Date().toISOString();persistStore();closeEditAttrs();renderAll();
+}
+
 function renderPreview(){
  $('previewBox').classList.remove('hidden');
  const hasDigitalSolution=(parsed.rows||[]).some(r=>
@@ -841,7 +862,7 @@ async function saveParsed(){
    status:'Valido',
    pdfRef:parsed.filename,
    pdfStored:false,
-   notes:'SmartTracker 3.15.18',
+   notes:'SmartTracker 3.15.19',
    services:[]
  };
 
@@ -943,11 +964,11 @@ function updateHeaderTitle(id){
  const title=document.querySelector('.smart-header .title'),sub=document.querySelector('.smart-header .sub');
  if(!title||!sub)return;
  if(id==='home'){
-   title.textContent='SmartTracker 3.15.18';
+   title.textContent='SmartTracker 3.15.19';
    sub.textContent='Cruscotto commerciale personale';
  }else{
    title.textContent=VIEW_TITLES[id]||'SmartTracker';
-   sub.textContent='SmartTracker 3.15.18';
+   sub.textContent='SmartTracker 3.15.19';
  }
 }
 function syncHeaderNavigation(){
@@ -2225,6 +2246,11 @@ if($('exportBtn'))$('exportBtn').onclick=exportBackup;
 if($('importInput'))$('importInput').onchange=e=>e.target.files[0]&&importBackup(e.target.files[0]);
 $('agent').onchange=()=>{$('includeAgency').value=$('agent').value==='Francesco'?'Sì':'No'};
 $('archiveAgent').onchange=renderArchive;
+$('editAttrsAgent').onchange=updateEditAgencyAvailability;
+$('editAttrsClose').onclick=closeEditAttrs;
+$('editAttrsCancel').onclick=closeEditAttrs;
+$('editAttrsSave').onclick=saveEditedAttrs;
+$('editAttrsSheet').onclick=e=>{if(e.target===$('editAttrsSheet'))closeEditAttrs()};
 
 $('contractDate').valueAsDate=new Date();
 await initParser();
