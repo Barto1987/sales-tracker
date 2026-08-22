@@ -1438,3 +1438,16 @@ SMARTTRACKER 3.15.15 — CLOUD ICON + HEARTBEAT FIX
 - Gli errori transienti Abort/Fetch aborted non cancellano più un ultimo stato Cloud valido.
 - La Home non esegue più render/fetch della sezione strumenti ad ogni aggiornamento; la sezione viene caricata quando la si apre.
 - cloud.js invariato.
+
+
+SMARTTRACKER 3.15.16 — HOME COMPATTA + CLOUD OUTLINE
+- Base stabile 3.15.15.
+- cloud.js byte-identico alla 3.15.15.
+- Stato Cloud: rimosso il pallino esterno; cambia colore direttamente il contorno dell'icona nuvola (verde / arancio / rosso / neutro).
+- Home ridisegnata in versione compatta: periodo attivo più basso, select mese, badge stato e solo pulsante Chiudi/Riapri mese.
+- Il badge stato resta funzionale: tocco = In lavorazione ↔ Verificato con conferma.
+- Riga trimestre abbreviata a “Qx YYYY · Excellent + Gara Agenzia”.
+- Rimossa dalla Home la grande Panoramica generale ridondante e l'attività recente per ridurre lo scroll.
+- Community / Excellent / Gara Agenzia / Squadra in griglia 2x2 compatta.
+- Archivio / Regolamenti / Clienti raccolti in una sola card a righe compatte.
+- Freccia indietro e Centro controllo Cloud restano invariati.

@@ -1,5 +1,5 @@
-import {uploadPdfCloud,openPdfCloud,pdfCloudExists,pdfCloudProbe} from './cloud-pdf-minimal.js?v=31515';
-import {buildReceivables,receivablesHtml,communityPrizeForPosition} from './receivables.js?v=31515';
+import {uploadPdfCloud,openPdfCloud,pdfCloudExists,pdfCloudProbe} from './cloud-pdf-minimal.js?v=31516';
+import {buildReceivables,receivablesHtml,communityPrizeForPosition} from './receivables.js?v=31516';
 
 window.addEventListener('error',(e)=>{
  try{
@@ -22,16 +22,16 @@ window.addEventListener('unhandledrejection',(e)=>{
 });
 
 
-import {loadStore,saveStore,importBackupObject} from './storage.js?v=31515';
-import {TARGETS,generalStats,agencyStats,agencyBreakdown,excellentStats,excellentBreakdown,communityStats,communityBreakdown,teamStats,teamBreakdown,availableMonths,customerList,customerDashboard,customerKey,inflowOf,communityRulesForMonth} from './engines.js?v=31515';
-import {savePdf,openPdf,deletePdf,getPdf} from './pdf-store.js?v=31515';
-import {initParser,parsePDF} from './parser.js?v=31515';
-import {createAutoBackup,getAutoBackupMeta,getFullBackupMeta,downloadDatabaseBackup,downloadCompleteBackup,restoreCompleteBackup,getArchiveStats,formatBytes,formatDate} from './backup.js?v=31515';
-import {exportSync,readSyncFile,previewMerge,applyMerge,getSyncMeta} from './sync.js?v=31515';
-import {regulationGroups} from './regulations.js?v=31515';
-import {currentMonthKey,monthLabel,quarterFromMonth,availablePeriodMonths,ensurePeriodState,periodStatusLabel,periodStatusIcon,applyGlobalMonth} from './periods.js?v=31515';
-import {cloudLogin,cloudLogout,cloudInfo,uploadLocalFirst,downloadAndMerge,syncNow,bootstrapLinkedCloud,queueCloudPush,getCloudMeta,isCloudLinked,getCloudSession,getCloudEmail,setCloudEmail,runCloudDiagnostics,readPrimaryCloudStoreRaw,pushCloudStore} from './cloud.js?v=31515';
-import {commissionsForPeriod} from './commissions.js?v=31515';
+import {loadStore,saveStore,importBackupObject} from './storage.js?v=31516';
+import {TARGETS,generalStats,agencyStats,agencyBreakdown,excellentStats,excellentBreakdown,communityStats,communityBreakdown,teamStats,teamBreakdown,availableMonths,customerList,customerDashboard,customerKey,inflowOf,communityRulesForMonth} from './engines.js?v=31516';
+import {savePdf,openPdf,deletePdf,getPdf} from './pdf-store.js?v=31516';
+import {initParser,parsePDF} from './parser.js?v=31516';
+import {createAutoBackup,getAutoBackupMeta,getFullBackupMeta,downloadDatabaseBackup,downloadCompleteBackup,restoreCompleteBackup,getArchiveStats,formatBytes,formatDate} from './backup.js?v=31516';
+import {exportSync,readSyncFile,previewMerge,applyMerge,getSyncMeta} from './sync.js?v=31516';
+import {regulationGroups} from './regulations.js?v=31516';
+import {currentMonthKey,monthLabel,quarterFromMonth,availablePeriodMonths,ensurePeriodState,periodStatusLabel,periodStatusIcon,applyGlobalMonth} from './periods.js?v=31516';
+import {cloudLogin,cloudLogout,cloudInfo,uploadLocalFirst,downloadAndMerge,syncNow,bootstrapLinkedCloud,queueCloudPush,getCloudMeta,isCloudLinked,getCloudSession,getCloudEmail,setCloudEmail,runCloudDiagnostics,readPrimaryCloudStoreRaw,pushCloudStore} from './cloud.js?v=31516';
+import {commissionsForPeriod} from './commissions.js?v=31516';
 
 let store=loadStore(),parsed=null,pendingPdf=null;
 let guaranteedPushTimer=null,guaranteedPushInFlight=false,persistRevision=0,pushRequestedWhileBusy=false;
@@ -176,41 +176,43 @@ function renderHome(){
  const customerCount=customerList(store).length;
  const g=generalStats(store),a=agencyStats(store),e=excellentStats(store),c=communityStats(store);
  const activeMonth=store.settings.activeMonth||store.settings.currentMonth;
- const monthContracts=(store.contracts||[])
-   .filter(x=>x.status!=='Annullato'&&String(x.date||'').startsWith(activeMonth))
-   .sort((x,y)=>String(y.date||'').localeCompare(String(x.date||'')))
-   .slice(0,3);
-
- $('homeTop').innerHTML=`
- <div class="dashboard-summary">
-   <div class="summary-main">
-     <div class="summary-label">${monthLabel(activeMonth)}</div>
-     <div class="summary-value">${money(g.inflow)}</div>
-     <div class="summary-caption">Inflow del mese · ${g.contracts} contratti · ${g.pieces} prodotti/servizi</div>
-   </div>
-   <div class="summary-mini-grid">
-     <div class="summary-mini"><small>V-Coin</small><strong>${Math.round(c.vcoins)}</strong><span>${c.ability?'Ability OK':'Ability in corso'}</span></div>
-     <div class="summary-mini"><small>Excellent extra</small><strong>${money(e.variable)}</strong><span>${e.won?'Trimestre vinto':'Obiettivo in corso'}</span></div>
-     <div class="summary-mini"><small>Clienti</small><strong>${customerCount}</strong><span>schede censite</span></div>
-   </div>
- </div>
- ${monthContracts.length?`<div class="card recent-card">
-   <div class="card-heading-row"><div><div class="section-kicker">ATTIVITÀ RECENTE</div><h3>Ultimi contratti</h3></div><button class="ghost-link" data-go="archive">Vedi tutti ›</button></div>
-   ${monthContracts.map(x=>`<div class="recent-row"><div class="recent-dot"></div><div class="recent-copy"><strong>${x.client}</strong><span>${x.services?.[0]?.product||x.services?.[0]?.service||x.offer||'Contratto'}</span></div><time>${x.date?.split('-').reverse().join('/')||''}</time></div>`).join('')}
- </div>`:''}`;
+ const team=teamStats(store).Totale;
+ const communityRule=communityRulesForMonth(activeMonth);
 
  $('homeCards').innerHTML=`
- <div class="card section-link goal-card" data-go="community"><div class="goal-top"><div><small>COMMUNITY</small><strong>${Math.round(c.vcoins)} <em>V-Coin</em></strong></div><span class="status-pill ${c.ability?'ok-pill':'work-pill'}">${c.ability?'Ability OK':'In corso'}</span></div><div class="goal-progress"><span style="width:${Math.min(100,pct(c.inflow,communityRulesForMonth(activeMonth).abilityInflow))}%"></span></div><div class="goal-foot">Inflow ${money(c.inflow)} · Link ${money(c.link)}</div></div>
- <div class="card section-link goal-card" data-go="excellent"><div class="goal-top"><div><small>EXCELLENT</small><strong>${money(e.variable)} <em>extra</em></strong></div><span class="status-pill ${e.won?'ok-pill':'work-pill'}">${e.won?'Vinto':'Q3'}</span></div><div class="goal-progress"><span style="width:${Math.min(100,pct(e.variable,1000))}%"></span></div><div class="goal-foot">${e.won?'Soglia trimestre raggiunta':'Mancano '+money(Math.max(1000-e.variable,0))}</div></div>
- <div class="card section-link goal-card" data-go="agency"><div class="goal-top"><div><small>GARA AGENZIA</small><strong>${Math.round(pct(a.coreInflow,TARGETS.agency.coreInflow))}%</strong></div><span class="goal-arrow">›</span></div><div class="goal-progress"><span style="width:${pct(a.coreInflow,TARGETS.agency.coreInflow)}%"></span></div><div class="goal-foot">Inflow Core ${money(a.coreInflow)}</div></div>
- <div class="card section-link goal-card" data-go="team"><div class="goal-top"><div><small>SQUADRA</small><strong>${money(teamStats(store).Totale.inflow)}</strong></div><span class="goal-arrow">›</span></div><div class="goal-foot">Inflow del mese</div></div>
- <div class="card section-link goal-card compact-goal" data-go="archive"><div><small>ARCHIVIO</small><strong>${store.contracts.length}</strong><div class="goal-foot">contratti totali</div></div><span class="goal-arrow">›</span></div>
- <div class="card section-link goal-card compact-goal" data-go="regulations"><div><small>REGOLAMENTI</small><strong>4</strong><div class="goal-foot">campagne e storico</div></div><span class="goal-arrow">›</span></div>`;
+ <div class="card section-link goal-card home-goal-compact" data-go="community">
+   <div class="goal-top"><div><small>COMMUNITY</small><strong>${Math.round(c.vcoins)} <em>V-Coin</em></strong></div><span class="status-pill ${c.ability?'ok-pill':'work-pill'}">${c.ability?'Ability OK':'In corso'}</span></div>
+   <div class="goal-foot">Inflow ${money(c.inflow)} · Link ${money(c.link)}</div>
+ </div>
+ <div class="card section-link goal-card home-goal-compact" data-go="excellent">
+   <div class="goal-top"><div><small>EXCELLENT</small><strong>${money(e.variable)} <em>extra</em></strong></div><span class="status-pill ${e.won?'ok-pill':'work-pill'}">${e.won?'Vinto':'Q3'}</span></div>
+   <div class="goal-foot">${e.won?'Soglia trimestre raggiunta':'Mancano '+money(Math.max(1000-e.variable,0))}</div>
+ </div>
+ <div class="card section-link goal-card home-goal-compact" data-go="agency">
+   <div class="goal-top"><div><small>GARA AGENZIA</small><strong>${Math.round(pct(a.coreInflow,TARGETS.agency.coreInflow))}%</strong></div><span class="goal-arrow">›</span></div>
+   <div class="goal-foot">Inflow Core ${money(a.coreInflow)}</div>
+ </div>
+ <div class="card section-link goal-card home-goal-compact" data-go="team">
+   <div class="goal-top"><div><small>SQUADRA</small><strong>${money(team.inflow)}</strong></div><span class="goal-arrow">›</span></div>
+   <div class="goal-foot">Inflow del mese</div>
+ </div>`;
+
+ $('homeQuickLinks').innerHTML=`
+   <div class="home-quick-row section-link" data-go="archive">
+     <span class="home-quick-icon" aria-hidden="true">▤</span>
+     <div><strong>ARCHIVIO</strong><span>${store.contracts.length} contratti totali</span></div><b>›</b>
+   </div>
+   <div class="home-quick-row section-link" data-go="regulations">
+     <span class="home-quick-icon" aria-hidden="true">◉</span>
+     <div><strong>REGOLAMENTI</strong><span>4 campagne e storico</span></div><b>›</b>
+   </div>
+   <div class="home-quick-row section-link" data-go="customers">
+     <span class="home-quick-icon" aria-hidden="true">♙</span>
+     <div><strong>CLIENTI</strong><span>${customerCount} schede cliente</span></div><b>›</b>
+   </div>`;
 
  document.querySelectorAll('[data-go]').forEach(x=>x.onclick=()=>go(x.dataset.go));
- const hc=$('homeCustomerCount');if(hc)hc.textContent=customerCount;
 }
-
 function renderAgency(){
  const periods=quarterOptions(),selected=periodKey(store.settings.agencyPeriod);
  $('agencyPeriodSelect').innerHTML=periods.map(q=>`<option value="${q.key}" ${q.key===selected?'selected':''}>${q.label}</option>`).join('');
@@ -823,7 +825,7 @@ async function saveParsed(){
    status:'Valido',
    pdfRef:parsed.filename,
    pdfStored:false,
-   notes:'SmartTracker 3.15.15',
+   notes:'SmartTracker 3.15.16',
    services:[]
  };
 
@@ -2164,13 +2166,29 @@ function renderPeriodManager(){
  select.innerHTML=months.map(m=>`<option value="${m}"${m===active?' selected':''}>${monthLabel(m)}</option>`).join('');
  const state=ensurePeriodState(store,active),q=quarterFromMonth(active);
  $('activePeriodLabel').textContent=monthLabel(active);
- const badge=$('activePeriodStatus');badge.className=`period-status period-status-${state.status}`;badge.textContent=`${periodStatusIcon(state.status)} ${periodStatusLabel(state.status)}`;
- $('activeQuarterInfo').textContent=`Excellent e Gara Agenzia: ${q.label} · ${q.start} → ${q.end}`;
- $('markPeriodWorking').disabled=state.status==='working';$('markPeriodVerified').disabled=state.status==='verified';$('togglePeriodClosed').textContent=state.status==='closed'?'Riapri mese':'Chiudi mese';
+ const badge=$('activePeriodStatus');
+ badge.className=`period-status period-status-${state.status}`;
+ badge.textContent=`${periodStatusIcon(state.status)} ${periodStatusLabel(state.status)}`;
+ badge.disabled=state.status==='closed';
+ badge.title=state.status==='working'?'Tocca per segnare il mese come Verificato':state.status==='verified'?'Tocca per rimettere il mese In lavorazione':'Mese chiuso';
+ $('activeQuarterInfo').textContent=`${q.label} · Excellent + Gara Agenzia`;
+ const closeBtn=$('togglePeriodClosed');
+ closeBtn.textContent=state.status==='closed'?'Riapri mese':'Chiudi mese';
+ closeBtn.classList.toggle('period-reopen-button',state.status==='closed');
  select.onchange=()=>{applyGlobalMonth(store,select.value);persistStore();renderAll()};
- $('markPeriodWorking').onclick=()=>{const x=ensurePeriodState(store,active);x.status='working';x.manual=true;x.updatedAt=new Date().toISOString();persistStore();renderAll()};
- $('markPeriodVerified').onclick=()=>{const x=ensurePeriodState(store,active);x.status='verified';x.manual=true;x.updatedAt=new Date().toISOString();persistStore();renderAll()};
- $('togglePeriodClosed').onclick=()=>{const x=ensurePeriodState(store,active);x.status=x.status==='closed'?'working':'closed';x.manual=true;x.updatedAt=new Date().toISOString();persistStore();renderAll()};
+ badge.onclick=()=>{
+   if(state.status==='closed')return;
+   const next=state.status==='verified'?'working':'verified';
+   const label=next==='verified'?'Verificato':'In lavorazione';
+   if(!confirm(`Impostare ${monthLabel(active)} come “${label}”?`))return;
+   const x=ensurePeriodState(store,active);x.status=next;x.manual=true;x.updatedAt=new Date().toISOString();persistStore();renderAll();
+ };
+ closeBtn.onclick=()=>{
+   const closing=state.status!=='closed';
+   const question=closing?`Chiudere ${monthLabel(active)}? Potrai riaprirlo in seguito.`:`Riaprire ${monthLabel(active)} e rimetterlo In lavorazione?`;
+   if(!confirm(question))return;
+   const x=ensurePeriodState(store,active);x.status=closing?'closed':'working';x.manual=true;x.updatedAt=new Date().toISOString();persistStore();renderAll();
+ };
 }
 function selectedPeriodIsClosed(){const a=store.settings.activeMonth||store.settings.currentMonth;return ensurePeriodState(store,a).status==='closed'}
 function renderAll(){renderPeriodManager();renderHome();renderAgency();renderExcellent();renderCommunity();renderTeam();renderCommissions();renderCustomers();renderRegulations();renderArchive();if(currentViewId==='settings')renderBackup()}
