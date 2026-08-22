@@ -636,7 +636,7 @@ input:focus,select:focus,textarea:focus{
 .cloud-auto-note{margin-top:10px;padding:10px 12px;border-radius:12px;background:#edf9f1;color:#176b35;font-weight:800;font-size:12px}
 
 
-/* SmartTracker 3.15.14 — navigation active-state visibility */
+/* SmartTracker 3.15.15 — navigation active-state visibility */
 .app-nav{
   grid-template-columns:repeat(7,minmax(62px,1fr))!important;
   overflow-x:auto;
@@ -679,7 +679,7 @@ input:focus,select:focus,textarea:focus{
 }
 
 
-/* SmartTracker 3.15.14 — menu iPhone + pulsante Nuovo in testata */
+/* SmartTracker 3.15.15 — menu iPhone + pulsante Nuovo in testata */
 .smart-header{
   position:sticky;
   top:0;
@@ -888,7 +888,7 @@ input:focus,select:focus,textarea:focus{
 .cloud-master-realign .section-kicker{color:#b00020}
 
 
-/* SmartTracker 3.15.14 — Sicurezza Cloud */
+/* SmartTracker 3.15.15 — Sicurezza Cloud */
 .cloud-security-overview{overflow:hidden}
 .cloud-security-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
 .cloud-security-head h3{margin:4px 0 0}
@@ -908,7 +908,7 @@ input:focus,select:focus,textarea:focus{
 .cloud-advanced-tools .cloud-recovery-test,.cloud-advanced-tools .cloud-master-realign{margin-top:14px}
 @media(max-width:600px){.cloud-security-grid{grid-template-columns:1fr}.cloud-security-head{align-items:center}}
 
-/* SmartTracker 3.15.14 — Home pulita, impostazioni e semaforo Cloud */
+/* SmartTracker 3.15.15 — Home pulita, impostazioni e semaforo Cloud */
 .header-actions{display:flex;align-items:center;gap:9px;flex:0 0 auto}
 .header-action{width:44px;height:44px;min-height:44px;flex:0 0 44px;margin:0!important;padding:0!important;border-radius:50%!important;border:2px solid rgba(255,255,255,.95)!important;background:#fff!important;color:var(--brand)!important;display:flex!important;align-items:center;justify-content:center;box-shadow:0 5px 16px rgba(100,0,0,.20)!important;-webkit-tap-highlight-color:transparent}
 .header-new-contract{font-size:30px!important;line-height:1!important;font-weight:800!important}
@@ -932,7 +932,7 @@ input:focus,select:focus,textarea:focus{
 }
 
 
-/* SmartTracker 3.15.14 — freccia back + icone header premium */
+/* SmartTracker 3.15.15 — freccia back + icone header premium */
 .smart-header{
   gap:12px!important;
 }
@@ -1030,7 +1030,7 @@ input:focus,select:focus,textarea:focus{
 }
 
 
-/* SmartTracker 3.15.14 — header Cloud pill semplificato */
+/* SmartTracker 3.15.15 — header Cloud pill semplificato */
 .header-actions{gap:10px!important}
 .header-cloud-status{width:auto!important;min-width:110px!important;height:44px!important;padding:0 14px!important;border-radius:999px!important;border:1.5px solid rgba(255,255,255,.92)!important;background:linear-gradient(180deg,#ffffff 0%,#fff3f3 100%)!important;color:var(--brand)!important;justify-content:center!important;gap:8px!important;box-shadow:0 8px 18px rgba(83,0,0,.18)!important;backdrop-filter:none!important}
 .header-cloud-icon{width:18px!important;height:18px!important;opacity:1!important}
@@ -1041,3 +1041,46 @@ input:focus,select:focus,textarea:focus{
 .header-cloud-offline .header-cloud-led{background:#ef4444!important;box-shadow:0 0 0 4px rgba(239,68,68,.18)!important}
 .header-cloud-checking .header-cloud-led{background:#f59e0b!important;animation:cloudPulse 1.2s infinite!important}
 @media(max-width:600px){.header-cloud-status{min-width:98px!important;height:42px!important;padding:0 12px!important}.header-cloud-text{font-size:14px}.header-cloud-icon{width:17px!important;height:17px!important}}
+
+
+/* SmartTracker 3.15.15 — Cloud icon compatta + fix layout */
+.header-actions{gap:10px!important}
+.header-cloud-status{
+  position:relative!important;
+  width:44px!important;
+  min-width:44px!important;
+  height:44px!important;
+  padding:0!important;
+  border-radius:50%!important;
+  border:1.5px solid rgba(255,255,255,.92)!important;
+  background:linear-gradient(180deg,#ffffff 0%,#fff3f3 100%)!important;
+  color:var(--brand)!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  box-shadow:0 8px 18px rgba(83,0,0,.18)!important;
+  overflow:visible!important;
+}
+.header-cloud-text{display:none!important}
+.header-cloud-icon{width:23px!important;height:23px!important;display:block!important;opacity:1!important}
+.header-cloud-led{
+  position:absolute!important;
+  right:-1px!important;
+  bottom:-1px!important;
+  width:12px!important;
+  height:12px!important;
+  flex:none!important;
+  border:2.5px solid #fff!important;
+  border-radius:50%!important;
+  background:#9ca3af!important;
+  box-shadow:0 2px 5px rgba(0,0,0,.16)!important;
+}
+.header-cloud-online .header-cloud-led{background:#22c55e!important}
+.header-cloud-warn .header-cloud-led{background:#f59e0b!important}
+.header-cloud-offline .header-cloud-led{background:#ef4444!important}
+.header-cloud-checking .header-cloud-led{background:#f59e0b!important;animation:cloudPulse 1.2s infinite!important}
+@media(max-width:600px){
+  .header-cloud-status{width:42px!important;min-width:42px!important;height:42px!important}
+  .header-cloud-icon{width:22px!important;height:22px!important}
+  .header-cloud-led{width:11px!important;height:11px!important}
+}

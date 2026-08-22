@@ -1423,10 +1423,18 @@ SMARTTRACKER 3.15.12 — HOME PULITA + IMPOSTAZIONI
 - Heartbeat leggero con cache 60 secondi.
 
 
-SMARTTRACKER 3.15.14 — BACK NAV + HEADER ICONS
+SMARTTRACKER 3.15.15 — BACK NAV + HEADER ICONS
 - Base stabile 3.15.12; motore Cloud invariato.
 - Freccia indietro in testata: appare fuori dalla Home e riporta alla vista precedente senza usare il menu in basso.
 - Navigazione con cronologia semplice tra sezioni / sottosezioni.
 - Header ridisegnato con icone SVG più curate per Nuovo, Strumenti e stato Cloud.
 - Semaforo Cloud trasformato in pill compatta con icona cloud + LED di stato.
 - Nessuna modifica a cloud.js, Storage PDF, AutoPush, AutoPull o logica dati.
+
+SMARTTRACKER 3.15.15 — CLOUD ICON + HEARTBEAT FIX
+- Sostituita la pill Cloud con icona circolare compatta + LED di stato.
+- Eliminato il doppio fetch Cloud della schermata strumenti, causa probabile di “Fetch is aborted”.
+- La sezione Cloud effettua una sola lettura e riusa lo stesso risultato per lo stato sicurezza.
+- Gli errori transienti Abort/Fetch aborted non cancellano più un ultimo stato Cloud valido.
+- La Home non esegue più render/fetch della sezione strumenti ad ogni aggiornamento; la sezione viene caricata quando la si apre.
+- cloud.js invariato.

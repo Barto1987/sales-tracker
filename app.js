@@ -1,5 +1,5 @@
-import {uploadPdfCloud,openPdfCloud,pdfCloudExists,pdfCloudProbe} from './cloud-pdf-minimal.js?v=31514';
-import {buildReceivables,receivablesHtml,communityPrizeForPosition} from './receivables.js?v=31514';
+import {uploadPdfCloud,openPdfCloud,pdfCloudExists,pdfCloudProbe} from './cloud-pdf-minimal.js?v=31515';
+import {buildReceivables,receivablesHtml,communityPrizeForPosition} from './receivables.js?v=31515';
 
 window.addEventListener('error',(e)=>{
  try{
@@ -22,16 +22,16 @@ window.addEventListener('unhandledrejection',(e)=>{
 });
 
 
-import {loadStore,saveStore,importBackupObject} from './storage.js?v=31514';
-import {TARGETS,generalStats,agencyStats,agencyBreakdown,excellentStats,excellentBreakdown,communityStats,communityBreakdown,teamStats,teamBreakdown,availableMonths,customerList,customerDashboard,customerKey,inflowOf,communityRulesForMonth} from './engines.js?v=31514';
-import {savePdf,openPdf,deletePdf,getPdf} from './pdf-store.js?v=31514';
-import {initParser,parsePDF} from './parser.js?v=31514';
-import {createAutoBackup,getAutoBackupMeta,getFullBackupMeta,downloadDatabaseBackup,downloadCompleteBackup,restoreCompleteBackup,getArchiveStats,formatBytes,formatDate} from './backup.js?v=31514';
-import {exportSync,readSyncFile,previewMerge,applyMerge,getSyncMeta} from './sync.js?v=31514';
-import {regulationGroups} from './regulations.js?v=31514';
-import {currentMonthKey,monthLabel,quarterFromMonth,availablePeriodMonths,ensurePeriodState,periodStatusLabel,periodStatusIcon,applyGlobalMonth} from './periods.js?v=31514';
-import {cloudLogin,cloudLogout,cloudInfo,uploadLocalFirst,downloadAndMerge,syncNow,bootstrapLinkedCloud,queueCloudPush,getCloudMeta,isCloudLinked,getCloudSession,getCloudEmail,setCloudEmail,runCloudDiagnostics,readPrimaryCloudStoreRaw,pushCloudStore} from './cloud.js?v=31514';
-import {commissionsForPeriod} from './commissions.js?v=31514';
+import {loadStore,saveStore,importBackupObject} from './storage.js?v=31515';
+import {TARGETS,generalStats,agencyStats,agencyBreakdown,excellentStats,excellentBreakdown,communityStats,communityBreakdown,teamStats,teamBreakdown,availableMonths,customerList,customerDashboard,customerKey,inflowOf,communityRulesForMonth} from './engines.js?v=31515';
+import {savePdf,openPdf,deletePdf,getPdf} from './pdf-store.js?v=31515';
+import {initParser,parsePDF} from './parser.js?v=31515';
+import {createAutoBackup,getAutoBackupMeta,getFullBackupMeta,downloadDatabaseBackup,downloadCompleteBackup,restoreCompleteBackup,getArchiveStats,formatBytes,formatDate} from './backup.js?v=31515';
+import {exportSync,readSyncFile,previewMerge,applyMerge,getSyncMeta} from './sync.js?v=31515';
+import {regulationGroups} from './regulations.js?v=31515';
+import {currentMonthKey,monthLabel,quarterFromMonth,availablePeriodMonths,ensurePeriodState,periodStatusLabel,periodStatusIcon,applyGlobalMonth} from './periods.js?v=31515';
+import {cloudLogin,cloudLogout,cloudInfo,uploadLocalFirst,downloadAndMerge,syncNow,bootstrapLinkedCloud,queueCloudPush,getCloudMeta,isCloudLinked,getCloudSession,getCloudEmail,setCloudEmail,runCloudDiagnostics,readPrimaryCloudStoreRaw,pushCloudStore} from './cloud.js?v=31515';
+import {commissionsForPeriod} from './commissions.js?v=31515';
 
 let store=loadStore(),parsed=null,pendingPdf=null;
 let guaranteedPushTimer=null,guaranteedPushInFlight=false,persistRevision=0,pushRequestedWhileBusy=false;
@@ -823,7 +823,7 @@ async function saveParsed(){
    status:'Valido',
    pdfRef:parsed.filename,
    pdfStored:false,
-   notes:'SmartTracker 3.15.14',
+   notes:'SmartTracker 3.15.15',
    services:[]
  };
 
@@ -934,6 +934,7 @@ function setActiveView(id){
  document.querySelector(`nav button[data-view="${id}"]`)?.classList.add('active');
  currentViewId=id;
  syncHeaderNavigation();
+ if(id==='settings')renderBackup().catch(e=>console.error('Settings Cloud',e));
  window.scrollTo(0,0);
 }
 function go(id,opts={}){
@@ -1022,11 +1023,8 @@ function setHeaderCloudLight(state,detail=''){
   const el=$('headerCloudStatus');if(!el)return;
   el.className=`header-cloud-status header-cloud-${state}`;
   const label=state==='online'?'Cloud online':state==='warn'?'Cloud da verificare':state==='offline'?'Cloud offline':'Verifica Cloud';
-  const shortLabel=state==='online'?'Cloud':state==='warn'?'Cloud':state==='offline'?'Cloud':'Cloud';
   el.setAttribute('aria-label',`${label}${detail?': '+detail:''}`);
   el.title=`${label}${detail?' · '+detail:''}`;
-  const txt=el.querySelector('.header-cloud-text');
-  if(txt) txt.textContent=shortLabel;
 }
 
 function cloudStatusView(info){
@@ -1540,6 +1538,7 @@ async function renderCloud(){
    await cloudLogout();
    await renderCloud();
  };
+ return info;
 }
 
 
@@ -1567,6 +1566,27 @@ function readJsonLocal(key){
   try{return JSON.parse(localStorage.getItem(key)||'null')}catch{return null}
 }
 
+function heartbeatFromCloudInfo(info){
+  const previous=readJsonLocal(CLOUD_HEARTBEAT_KEY);
+  const row=info?.row;
+  const err=info?.error||info?.meta?.lastError||'';
+  const transient=/aborted|aborterror|fetch is aborted/i.test(String(err));
+  if(transient && previous?.ok){
+    return {...previous,transient:true,transientAt:new Date().toISOString()};
+  }
+  const result={
+    ok:!!info?.loggedIn && !!row?.data && !err,
+    checkedAt:new Date().toISOString(),
+    contracts:row?.data?.contracts?.length||0,
+    cloudUpdatedAt:row?.updated_at||null,
+    error:err||(!info?.loggedIn?'Sessione Cloud assente':'')
+  };
+  localStorage.setItem(CLOUD_HEARTBEAT_KEY,JSON.stringify(result));
+  const same=Number(result.contracts||0)===(store.contracts||[]).length;
+  setHeaderCloudLight(result.ok?(same?'online':'warn'):'offline',result.ok?`${result.contracts}/${(store.contracts||[]).length} contratti`:result.error||'');
+  return result;
+}
+
 async function runCloudHeartbeat(force=false){
   const cached=readJsonLocal(CLOUD_HEARTBEAT_KEY);
   if(!force&&cached?.checkedAt&&(Date.now()-new Date(cached.checkedAt).getTime())<60000){
@@ -1574,21 +1594,18 @@ async function runCloudHeartbeat(force=false){
     setHeaderCloudLight(cached.ok?(same?'online':'warn'):'offline',cached.ok?`${cached.contracts||0}/${(store.contracts||[]).length} contratti`:cached.error||'');
     return cached;
   }
-  if(!getCloudSession()?.access_token){
-    const result={ok:false,checkedAt:new Date().toISOString(),error:'Sessione Cloud assente'};
-    setHeaderCloudLight('offline','login richiesto');return result;
-  }
-  setHeaderCloudLight('checking','controllo in corso');
   try{
-    const raw=await readPrimaryCloudStoreRaw();
-    const result={ok:true,checkedAt:new Date().toISOString(),contracts:raw?.data?.contracts?.length||0,cloudUpdatedAt:raw?.updated_at||null};
-    localStorage.setItem(CLOUD_HEARTBEAT_KEY,JSON.stringify(result));
-    setHeaderCloudLight(Number(result.contracts)===(store.contracts||[]).length?'online':'warn',`${result.contracts}/${(store.contracts||[]).length} contratti`);
-    return result;
+    const info=await cloudInfo();
+    return heartbeatFromCloudInfo(info);
   }catch(e){
-    const result={ok:false,checkedAt:new Date().toISOString(),error:e.message||String(e)};
+    const msg=e?.message||String(e);
+    if(/aborted|aborterror|fetch is aborted/i.test(msg) && cached?.ok){
+      return {...cached,transient:true,transientAt:new Date().toISOString()};
+    }
+    const result={ok:false,checkedAt:new Date().toISOString(),error:msg};
     localStorage.setItem(CLOUD_HEARTBEAT_KEY,JSON.stringify(result));
-    setHeaderCloudLight('offline',result.error);return result;
+    setHeaderCloudLight('offline',msg);
+    return result;
   }
 }
 
@@ -1632,13 +1649,12 @@ function cloudSecurityHtml({heartbeat,pdfAudit,info}){
 }
 
 async function renderBackup(){
- renderCloud().catch(e=>console.error('Cloud UI',e));
  const health=$('backupHealth');
  if(!health)return;
 
  try{
-   const info=await cloudInfo().catch(()=>null);
-   const heartbeat=await runCloudHeartbeat();
+   const info=await renderCloud().catch(e=>{console.error('Cloud UI',e);return null});
+   const heartbeat=info?heartbeatFromCloudInfo(info):readJsonLocal(CLOUD_HEARTBEAT_KEY);
    const pdfAudit=readJsonLocal(PDF_AUDIT_LAST_KEY);
    health.innerHTML=cloudSecurityHtml({heartbeat,pdfAudit,info});
 
@@ -2157,7 +2173,7 @@ function renderPeriodManager(){
  $('togglePeriodClosed').onclick=()=>{const x=ensurePeriodState(store,active);x.status=x.status==='closed'?'working':'closed';x.manual=true;x.updatedAt=new Date().toISOString();persistStore();renderAll()};
 }
 function selectedPeriodIsClosed(){const a=store.settings.activeMonth||store.settings.currentMonth;return ensurePeriodState(store,a).status==='closed'}
-function renderAll(){renderPeriodManager();renderHome();renderAgency();renderExcellent();renderCommunity();renderTeam();renderCommissions();renderCustomers();renderRegulations();renderArchive();renderBackup()}
+function renderAll(){renderPeriodManager();renderHome();renderAgency();renderExcellent();renderCommunity();renderTeam();renderCommissions();renderCustomers();renderRegulations();renderArchive();if(currentViewId==='settings')renderBackup()}
 document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>go(b.dataset.view));
 $('headerBack').onclick=()=>goBack();
 $('headerNewContract').onclick=()=>go('new');
@@ -2199,7 +2215,7 @@ const pullCloudChanges=async()=>{
       createAutoBackup(store);
       renderAll();
     }
-    runCloudHeartbeat(true).catch(()=>{});
+    setHeaderCloudLight('online',`${(store.contracts||[]).length} contratti`);
   }catch(e){
     console.warn('Cloud auto pull',e);
   }
