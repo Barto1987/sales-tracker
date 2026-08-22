@@ -1370,3 +1370,17 @@ SMARTTRACKER 3.15.8 — DIAGNOSTICA PDF CLOUD COMPLETA
 - Risultati: PDF OK / PDF da caricare / PDF presente ma riferimento da riallineare / errore verifica.
 - Mostra l’elenco dei clienti in ogni categoria.
 - Diagnostica di sola lettura: non carica, elimina o modifica nulla.
+
+SMARTTRACKER 3.15.9 — CLOUD FIRST
+- Base stabile 3.15.8.
+- cloud.js IDENTICO alla 3.15.8.
+- AutoPush/AutoPull invariati.
+- Al salvataggio di un nuovo contratto, il PDF selezionato viene caricato AUTOMATICAMENTE nello Storage Cloud.
+- Se l'upload Cloud riesce, NON viene creata una nuova copia PDF locale permanente.
+- Se l'upload Cloud fallisce o manca la sessione, il PDF viene salvato localmente come fallback di emergenza per non perdere il documento; la diagnostica PDF completa lo segnala.
+- Dopo upload PDF Cloud riuscito, viene sincronizzato subito anche il riferimento cloudPdf nel database.
+- Archivio semplificato: rimosso “Apri PDF” locale e rimossa “Diagnostica PDF” singola.
+- Resta “Apri PDF Cloud”; se manca il PDF Cloud compare “Carica PDF Cloud” per recupero manuale.
+- Anche nella scheda cliente l'apertura PDF usa il Cloud.
+- Dopo un nuovo login, se il database locale è vuoto e il Cloud contiene contratti, SmartTracker ripristina automaticamente i dati dal Cloud.
+- Questo prepara il test controllato di cancellazione cache/reinstallazione su dispositivo secondario.

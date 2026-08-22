@@ -1,5 +1,5 @@
-import {uploadPdfCloud,openPdfCloud,pdfCloudExists,pdfCloudProbe} from './cloud-pdf-minimal.js?v=3158';
-import {buildReceivables,receivablesHtml,communityPrizeForPosition} from './receivables.js?v=3158';
+import {uploadPdfCloud,openPdfCloud,pdfCloudExists,pdfCloudProbe} from './cloud-pdf-minimal.js?v=3159';
+import {buildReceivables,receivablesHtml,communityPrizeForPosition} from './receivables.js?v=3159';
 
 window.addEventListener('error',(e)=>{
  try{
@@ -22,16 +22,16 @@ window.addEventListener('unhandledrejection',(e)=>{
 });
 
 
-import {loadStore,saveStore,importBackupObject} from './storage.js?v=3158';
-import {TARGETS,generalStats,agencyStats,agencyBreakdown,excellentStats,excellentBreakdown,communityStats,communityBreakdown,teamStats,teamBreakdown,availableMonths,customerList,customerDashboard,customerKey,inflowOf,communityRulesForMonth} from './engines.js?v=3158';
-import {savePdf,openPdf,deletePdf,getPdf} from './pdf-store.js?v=3158';
-import {initParser,parsePDF} from './parser.js?v=3158';
-import {createAutoBackup,getAutoBackupMeta,getFullBackupMeta,downloadDatabaseBackup,downloadCompleteBackup,restoreCompleteBackup,getArchiveStats,formatBytes,formatDate} from './backup.js?v=3158';
-import {exportSync,readSyncFile,previewMerge,applyMerge,getSyncMeta} from './sync.js?v=3158';
-import {regulationGroups} from './regulations.js?v=3158';
-import {currentMonthKey,monthLabel,quarterFromMonth,availablePeriodMonths,ensurePeriodState,periodStatusLabel,periodStatusIcon,applyGlobalMonth} from './periods.js?v=3158';
-import {cloudLogin,cloudLogout,cloudInfo,uploadLocalFirst,downloadAndMerge,syncNow,bootstrapLinkedCloud,queueCloudPush,getCloudMeta,isCloudLinked,getCloudSession,getCloudEmail,setCloudEmail,runCloudDiagnostics,readPrimaryCloudStoreRaw,pushCloudStore} from './cloud.js?v=3158';
-import {commissionsForPeriod} from './commissions.js?v=3158';
+import {loadStore,saveStore,importBackupObject} from './storage.js?v=3159';
+import {TARGETS,generalStats,agencyStats,agencyBreakdown,excellentStats,excellentBreakdown,communityStats,communityBreakdown,teamStats,teamBreakdown,availableMonths,customerList,customerDashboard,customerKey,inflowOf,communityRulesForMonth} from './engines.js?v=3159';
+import {savePdf,openPdf,deletePdf,getPdf} from './pdf-store.js?v=3159';
+import {initParser,parsePDF} from './parser.js?v=3159';
+import {createAutoBackup,getAutoBackupMeta,getFullBackupMeta,downloadDatabaseBackup,downloadCompleteBackup,restoreCompleteBackup,getArchiveStats,formatBytes,formatDate} from './backup.js?v=3159';
+import {exportSync,readSyncFile,previewMerge,applyMerge,getSyncMeta} from './sync.js?v=3159';
+import {regulationGroups} from './regulations.js?v=3159';
+import {currentMonthKey,monthLabel,quarterFromMonth,availablePeriodMonths,ensurePeriodState,periodStatusLabel,periodStatusIcon,applyGlobalMonth} from './periods.js?v=3159';
+import {cloudLogin,cloudLogout,cloudInfo,uploadLocalFirst,downloadAndMerge,syncNow,bootstrapLinkedCloud,queueCloudPush,getCloudMeta,isCloudLinked,getCloudSession,getCloudEmail,setCloudEmail,runCloudDiagnostics,readPrimaryCloudStoreRaw,pushCloudStore} from './cloud.js?v=3159';
+import {commissionsForPeriod} from './commissions.js?v=3159';
 
 let store=loadStore(),parsed=null,pendingPdf=null;
 let guaranteedPushTimer=null,guaranteedPushInFlight=false,persistRevision=0,pushRequestedWhileBusy=false;
@@ -688,7 +688,7 @@ async function diagnosePdfCloud(contractId){
 }
 
 function archiveItem(c){
- return `<div class="card"><div class="item"><div><strong>${c.client}</strong><div class="muted">${c.offer||'Senza offerta'} · ${c.date}</div><div class="muted">P.IVA ${c.vat||'—'} · Codice cliente ${c.customerCode||'—'}</div><div class="muted">${c.services.map(s=>`${s.service} ×${s.qty}${s.service==='SIM Voce'&&s.mnp?' MNP':''}`).join(' · ')}</div><div class="muted">${(c.teamAllocations||[{agent:c.agent||'Francesco',share:1}]).map(a=>`${a.agent} ${Math.round(Number(a.share||0)*100)}%`).join(' + ')} · Gara Agenzia ${c.includeAgency===false?'No':'Sì'}</div></div><div style="text-align:right"><strong>${money(allInflow(c))}</strong><br><span class="badge ${c.status==='Valido'?'ok':'warn'}">${c.status}</span></div></div><div class="actions">${c.pdfStored?`<button class="secondary" data-open-pdf="${c.id}">📄 Apri PDF</button>`:''}${c.cloudPdf?.path?`<button class="secondary" data-open-cloud-pdf="${c.id}">☁️ Apri PDF Cloud</button>`:`<button class="secondary" data-add-cloud-pdf="${c.id}">☁️ Aggiungi PDF Cloud</button>`}<button class="secondary" data-pdf-diagnostic="${c.id}">🔎 Diagnostica PDF</button><button class="secondary" data-edit="${c.id}">Modifica attributi</button><button class="danger" data-del="${c.id}">Elimina</button></div></div>`
+ return `<div class="card"><div class="item"><div><strong>${c.client}</strong><div class="muted">${c.offer||'Senza offerta'} · ${c.date}</div><div class="muted">P.IVA ${c.vat||'—'} · Codice cliente ${c.customerCode||'—'}</div><div class="muted">${c.services.map(s=>`${s.service} ×${s.qty}${s.service==='SIM Voce'&&s.mnp?' MNP':''}`).join(' · ')}</div><div class="muted">${(c.teamAllocations||[{agent:c.agent||'Francesco',share:1}]).map(a=>`${a.agent} ${Math.round(Number(a.share||0)*100)}%`).join(' + ')} · Gara Agenzia ${c.includeAgency===false?'No':'Sì'}</div></div><div style="text-align:right"><strong>${money(allInflow(c))}</strong><br><span class="badge ${c.status==='Valido'?'ok':'warn'}">${c.status}</span></div></div><div class="actions">${c.cloudPdf?.path?`<button class="secondary" data-open-cloud-pdf="${c.id}">☁️ Apri PDF Cloud</button>`:`<button class="secondary" data-add-cloud-pdf="${c.id}">☁️ Carica PDF Cloud</button>`}<button class="secondary" data-edit="${c.id}">Modifica attributi</button><button class="danger" data-del="${c.id}">Elimina</button></div></div>`
 }
 
 function customerSearchText(d){
@@ -721,8 +721,8 @@ function openCustomerDashboard(key){
  <div class="card"><h3>Filtri timeline</h3><div class="customer-filters"><div><label>Anno</label><select id="customerYearFilter"><option value="">Tutti</option>${years.map(y=>`<option>${y}</option>`).join('')}</select></div><div><label>Servizio</label><select id="customerServiceFilter"><option value="">Tutti</option>${services.map(x=>`<option>${x}</option>`).join('')}</select></div></div></div><div class="card"><h3>Timeline pratiche</h3><div id="customerTimeline"></div></div>`;
  dash.querySelector('.customer-back').onclick=()=>{dash.classList.add('hidden');list.classList.remove('hidden')};
  const timeline=()=>{const y=$('customerYearFilter').value,sv=$('customerServiceFilter').value,cs=d.contractsList.filter(c=>(!y||(c.date||'').startsWith(y))&&(!sv||(c.services||[]).some(x=>x.service===sv)));
- $('customerTimeline').innerHTML=cs.length?cs.map(c=>{const total=(c.services||[]).reduce((a,x)=>a+inflowOf(x),0);return `<div class="customer-timeline-item"><div class="customer-head"><div><strong>${c.date||'—'} · ${c.offer||'Senza numero offerta'}</strong><div class="muted">${c.agent||'Francesco'} · Gara Agenzia ${c.includeAgency===false?'No':'Sì'}${c.prospect?' · Prospect':''}</div></div><strong>${money(total)}</strong></div>${(c.services||[]).map(x=>`<div class="customer-product-row"><span>${x.product||x.service} · ${x.qty||1}${x.service==='SIM Voce'&&x.mnp?' · MNP':''}</span><strong>${money(inflowOf(x))}</strong></div>`).join('')}${c.pdfStored?`<button class="secondary open-customer-pdf" data-pdf-id="${c.id}" style="margin-top:10px">📄 Apri PDF</button>`:''}</div>`}).join(''):'<div class="muted">Nessuna pratica con questi filtri.</div>';
- dash.querySelectorAll('.open-customer-pdf').forEach(b=>b.onclick=async()=>{if(!await openPdf(b.dataset.pdfId))alert('PDF non disponibile su questo dispositivo')})};
+ $('customerTimeline').innerHTML=cs.length?cs.map(c=>{const total=(c.services||[]).reduce((a,x)=>a+inflowOf(x),0);return `<div class="customer-timeline-item"><div class="customer-head"><div><strong>${c.date||'—'} · ${c.offer||'Senza numero offerta'}</strong><div class="muted">${c.agent||'Francesco'} · Gara Agenzia ${c.includeAgency===false?'No':'Sì'}${c.prospect?' · Prospect':''}</div></div><strong>${money(total)}</strong></div>${(c.services||[]).map(x=>`<div class="customer-product-row"><span>${x.product||x.service} · ${x.qty||1}${x.service==='SIM Voce'&&x.mnp?' · MNP':''}</span><strong>${money(inflowOf(x))}</strong></div>`).join('')}${c.cloudPdf?.path?`<button class="secondary open-customer-cloud-pdf" data-pdf-id="${c.id}" style="margin-top:10px">☁️ Apri PDF Cloud</button>`:''}</div>`}).join(''):'<div class="muted">Nessuna pratica con questi filtri.</div>';
+ dash.querySelectorAll('.open-customer-cloud-pdf').forEach(b=>b.onclick=()=>openPdfCloudMinimal(b.dataset.pdfId))};
  $('customerYearFilter').onchange=timeline;$('customerServiceFilter').onchange=timeline;timeline();dash.scrollIntoView({behavior:'smooth',block:'start'});
 }
 function renderArchive(){
@@ -738,10 +738,8 @@ function renderArchive(){
  });
  $('archiveList').innerHTML=rows.length?rows.map(archiveItem).join(''):'<div class="card muted">Nessun contratto.</div>';
  document.querySelectorAll('[data-del]').forEach(b=>b.onclick=async()=>{if(confirm('Eliminare il contratto?')){const id=b.dataset.del;await deletePdf(id).catch(()=>{});store.deletedContracts=store.deletedContracts||{};store.deletedContracts[id]=new Date().toISOString();store.contracts=store.contracts.filter(c=>c.id!==id);persistStore();renderAll()}});
- document.querySelectorAll('[data-open-pdf]').forEach(b=>b.onclick=async()=>{if(!await openPdf(b.dataset.openPdf))alert('PDF non disponibile su questo dispositivo')});
  document.querySelectorAll('[data-add-cloud-pdf]').forEach(b=>b.onclick=()=>addPdfCloudMinimal(b.dataset.addCloudPdf));
  document.querySelectorAll('[data-open-cloud-pdf]').forEach(b=>b.onclick=()=>openPdfCloudMinimal(b.dataset.openCloudPdf));
- document.querySelectorAll('[data-pdf-diagnostic]').forEach(b=>b.onclick=()=>diagnosePdfCloud(b.dataset.pdfDiagnostic));
  document.querySelectorAll('[data-edit]').forEach(b=>b.onclick=()=>editAttrs(b.dataset.edit));
  setTimeout(()=>reconcilePdfCloudRefs(),250);
 }
@@ -810,17 +808,113 @@ async function saveParsed(){
    :splitMode==='jl'
      ?[{agent:'Jacopo',share:.5},{agent:'Luciano',share:.5}]
      :[{agent,share:1}];
+
  const nowIso=new Date().toISOString();
- const contract={id:'C-'+Date.now(),createdAt:nowIso,updatedAt:nowIso,date:$('contractDate').value,offer:parsed.meta.offer,client:parsed.meta.client||'Da verificare',vat:parsed.meta.vat,customerCode:parsed.meta.customerCode||'',prospect,agent,includeAgency,teamAllocations,status:'Valido',pdfRef:parsed.filename,pdfStored:false,notes:'SmartTracker 3.15.8',services:[]};
+ const contract={
+   id:'C-'+Date.now(),
+   createdAt:nowIso,
+   updatedAt:nowIso,
+   date:$('contractDate').value,
+   offer:parsed.meta.offer,
+   client:parsed.meta.client||'Da verificare',
+   vat:parsed.meta.vat,
+   customerCode:parsed.meta.customerCode||'',
+   prospect,agent,includeAgency,teamAllocations,
+   status:'Valido',
+   pdfRef:parsed.filename,
+   pdfStored:false,
+   notes:'SmartTracker 3.15.9',
+   services:[]
+ };
+
  for(const el of rows){
    const service=el.querySelector('.pr-service').value;
    const mnpEl=el.querySelector('.pr-mnp');
-   contract.services.push({id:'S-'+Math.random().toString(36).slice(2),service,product:el.querySelector('.pr-product').value,category:el.querySelector('.pr-category').value,qty:Number(el.querySelector('.pr-qty').value||1),inflowUnit:Number(el.querySelector('.pr-inflow').value||0),mnp:service==='SIM Voce'&&mnpEl?mnpEl.value==='Sì':false,confidence:parsed.confidence,calc:''});
+   contract.services.push({
+     id:'S-'+Math.random().toString(36).slice(2),
+     service,
+     product:el.querySelector('.pr-product').value,
+     category:el.querySelector('.pr-category').value,
+     qty:Number(el.querySelector('.pr-qty').value||1),
+     inflowUnit:Number(el.querySelector('.pr-inflow').value||0),
+     mnp:service==='SIM Voce'&&mnpEl?mnpEl.value==='Sì':false,
+     confidence:parsed.confidence,
+     calc:''
+   });
  }
+
+ let pdfState='none';
+ let pdfError='';
+
+ // CLOUD-FIRST: il PDF viene caricato direttamente nello Storage Cloud.
+ // Nessuna copia locale permanente viene creata se l'upload Cloud riesce.
  if(pendingPdf){
-   try{await savePdf(contract.id,pendingPdf);contract.pdfStored=true}catch(e){console.error('PDF non salvato',e)}
+   if(getCloudSession()?.access_token){
+     try{
+       const info=await uploadPdfCloud(contract.id,pendingPdf);
+       contract.cloudPdf=info;
+       contract.pdfStored=false;
+       contract.updatedAt=new Date().toISOString();
+       pdfState='cloud';
+     }catch(e){
+       console.error('Upload PDF Cloud automatico',e);
+       pdfError=e.message||String(e);
+     }
+   }else{
+     pdfError='Sessione Cloud assente';
+   }
+
+   // Rete di sicurezza: se il Cloud fallisce, salva SOLO temporaneamente/localmente
+   // il PDF per non perdere il documento. La diagnostica completa lo segnalerà.
+   if(pdfState!=='cloud'){
+     try{
+       await savePdf(contract.id,pendingPdf);
+       contract.pdfStored=true;
+       contract.pdfCloudPending=true;
+       contract.pdfCloudPendingError=pdfError||'Upload Cloud non riuscito';
+       pdfState='local-fallback';
+     }catch(e){
+       console.error('Fallback PDF locale non riuscito',e);
+       pdfState='failed';
+       pdfError=pdfError||e.message||String(e);
+     }
+   }
  }
- store.contracts.push(contract);persistStore();pendingPdf=null;$('previewBox').classList.add('hidden');$('pdfInput').value='';renderAll();go('home');alert(contract.pdfStored?'Contratto e PDF salvati':'Contratto salvato; PDF non disponibile')
+
+ store.contracts.push(contract);
+ persistStore();
+
+ // Se il PDF Cloud è già stato caricato, forza anche una sync immediata del riferimento.
+ if(pdfState==='cloud'){
+   try{
+     const device=localStorage.getItem('smartTrackerCloudDeviceName')||localStorage.getItem('salesTrackerDeviceName')||'Dispositivo';
+     const synced=await syncNow(store,device,'local');
+     if(synced?.store){
+       store=synced.store;
+       saveStore(store);
+       createAutoBackup(store);
+     }
+   }catch(e){
+     console.warn('Sync immediata riferimento PDF Cloud',e);
+     // L'AutoPush 3.15.7+ resta attivo e ritenterà.
+   }
+ }
+
+ pendingPdf=null;
+ $('previewBox').classList.add('hidden');
+ $('pdfInput').value='';
+ renderAll();
+ go('home');
+
+ if(pdfState==='cloud'){
+   alert('Contratto salvato e PDF caricato automaticamente nel Cloud.');
+ }else if(pdfState==='local-fallback'){
+   alert(`Contratto salvato.\n\nIl PDF non è arrivato nel Cloud ed è stato conservato localmente come copia di sicurezza.\nLa diagnostica PDF completa lo segnalerà tra i documenti da caricare.${pdfError?`\n\nDettaglio: ${pdfError}`:''}`);
+ }else if(pdfState==='failed'){
+   alert(`Contratto salvato, ma il PDF non è stato archiviato.\n\n${pdfError||'Errore sconosciuto'}`);
+ }else{
+   alert('Contratto salvato.');
+ }
 }
 function go(id){document.querySelectorAll('.view').forEach(x=>x.classList.remove('active'));document.querySelectorAll('nav button').forEach(x=>x.classList.remove('active'));$(id).classList.add('active');document.querySelector(`nav button[data-view="${id}"]`)?.classList.add('active');window.scrollTo(0,0)}
 function exportBackup(){const a=document.createElement('a'),blob=new Blob([JSON.stringify(store,null,2)],{type:'application/json'});a.href=URL.createObjectURL(blob);a.download='sales-tracker-2-backup.json';a.click()}
@@ -1211,6 +1305,30 @@ async function renderCloud(){
      }
 
      $('cloudPassword').value='';
+
+     // CLOUD-FIRST RECOVERY: dopo cache/reinstallazione, se il locale è vuoto
+     // ricostruisce automaticamente SmartTracker dal database Cloud.
+     try{
+       const raw=await readPrimaryCloudStoreRaw();
+       const cloudCount=raw?.data?.contracts?.length||0;
+       const localCount=store.contracts?.length||0;
+       if(localCount===0 && cloudCount>0){
+         const device=localStorage.getItem('smartTrackerCloudDeviceName')||'Dispositivo ripristinato';
+         const restored=await downloadAndMerge(store,device);
+         if(restored?.store){
+           store=restored.store;
+           saveStore(store);
+           createAutoBackup(store);
+           renderAll();
+           alert(`Login Cloud riuscito. SmartTracker ripristinato automaticamente dal Cloud: ${store.contracts.length} contratti.`);
+           await renderCloud();
+           return;
+         }
+       }
+     }catch(restoreErr){
+       console.warn('Ripristino automatico Cloud',restoreErr);
+     }
+
      alert('Login Cloud riuscito.');
      await renderCloud();
    }catch(e){
