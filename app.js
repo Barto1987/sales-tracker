@@ -1,5 +1,5 @@
-import {uploadPdfCloud,openPdfCloud,pdfCloudExists,pdfCloudProbe} from './cloud-pdf-minimal.js?v=31517';
-import {buildReceivables,receivablesHtml,communityPrizeForPosition} from './receivables.js?v=31517';
+import {uploadPdfCloud,openPdfCloud,pdfCloudExists,pdfCloudProbe} from './cloud-pdf-minimal.js?v=31518';
+import {buildReceivables,receivablesHtml,communityPrizeForPosition} from './receivables.js?v=31518';
 
 window.addEventListener('error',(e)=>{
  try{
@@ -22,16 +22,16 @@ window.addEventListener('unhandledrejection',(e)=>{
 });
 
 
-import {loadStore,saveStore,importBackupObject} from './storage.js?v=31517';
-import {TARGETS,generalStats,agencyStats,agencyBreakdown,excellentStats,excellentBreakdown,communityStats,communityBreakdown,teamStats,teamBreakdown,availableMonths,customerList,customerDashboard,customerKey,inflowOf,communityRulesForMonth} from './engines.js?v=31517';
-import {savePdf,openPdf,deletePdf,getPdf} from './pdf-store.js?v=31517';
-import {initParser,parsePDF} from './parser.js?v=31517';
-import {createAutoBackup,getAutoBackupMeta,getFullBackupMeta,downloadDatabaseBackup,downloadCompleteBackup,restoreCompleteBackup,getArchiveStats,formatBytes,formatDate} from './backup.js?v=31517';
-import {exportSync,readSyncFile,previewMerge,applyMerge,getSyncMeta} from './sync.js?v=31517';
-import {regulationGroups} from './regulations.js?v=31517';
-import {currentMonthKey,monthLabel,quarterFromMonth,availablePeriodMonths,ensurePeriodState,periodStatusLabel,periodStatusIcon,applyGlobalMonth} from './periods.js?v=31517';
-import {cloudLogin,cloudLogout,cloudInfo,uploadLocalFirst,downloadAndMerge,syncNow,bootstrapLinkedCloud,queueCloudPush,getCloudMeta,isCloudLinked,getCloudSession,getCloudEmail,setCloudEmail,runCloudDiagnostics,readPrimaryCloudStoreRaw,pushCloudStore} from './cloud.js?v=31517';
-import {commissionsForPeriod} from './commissions.js?v=31517';
+import {loadStore,saveStore,importBackupObject} from './storage.js?v=31518';
+import {TARGETS,generalStats,agencyStats,agencyBreakdown,excellentStats,excellentBreakdown,communityStats,communityBreakdown,teamStats,teamBreakdown,availableMonths,customerList,customerDashboard,customerKey,inflowOf,communityRulesForMonth} from './engines.js?v=31518';
+import {savePdf,openPdf,deletePdf,getPdf} from './pdf-store.js?v=31518';
+import {initParser,parsePDF} from './parser.js?v=31518';
+import {createAutoBackup,getAutoBackupMeta,getFullBackupMeta,downloadDatabaseBackup,downloadCompleteBackup,restoreCompleteBackup,getArchiveStats,formatBytes,formatDate} from './backup.js?v=31518';
+import {exportSync,readSyncFile,previewMerge,applyMerge,getSyncMeta} from './sync.js?v=31518';
+import {regulationGroups} from './regulations.js?v=31518';
+import {currentMonthKey,monthLabel,quarterFromMonth,availablePeriodMonths,ensurePeriodState,periodStatusLabel,periodStatusIcon,applyGlobalMonth} from './periods.js?v=31518';
+import {cloudLogin,cloudLogout,cloudInfo,uploadLocalFirst,downloadAndMerge,syncNow,bootstrapLinkedCloud,queueCloudPush,getCloudMeta,isCloudLinked,getCloudSession,getCloudEmail,setCloudEmail,runCloudDiagnostics,readPrimaryCloudStoreRaw,pushCloudStore} from './cloud.js?v=31518';
+import {commissionsForPeriod} from './commissions.js?v=31518';
 
 let store=loadStore(),parsed=null,pendingPdf=null;
 let guaranteedPushTimer=null,guaranteedPushInFlight=false,persistRevision=0,pushRequestedWhileBusy=false;
@@ -740,7 +740,6 @@ function renderArchive(){
  const search=$('archiveSearch'),monthSel=$('archiveMonth');
  const q=(search?.value||'').toLowerCase();
  const agent=$('archiveAgent')?.value||'Tutti';
- const agency=$('archiveAgency')?.value||'Tutti';
 
  if(monthSel){
    const current=monthSel.value||'Tutti';
@@ -752,10 +751,8 @@ function renderArchive(){
  const rows=[...store.contracts].reverse().filter(c=>{
    const text=(c.client+' '+c.offer+' '+c.vat+' '+(c.customerCode||'')+' '+c.services.map(s=>s.product).join(' ')).toLowerCase();
    const agentOk=agent==='Tutti'||(c.agent||'Francesco')===agent;
-   const included=c.includeAgency!==false;
-   const agencyOk=agency==='Tutti'||(agency==='Inclusi'&&included)||(agency==='Esclusi'&&!included);
    const monthOk=month==='Tutti'||archiveUploadMonth(c)===month;
-   return text.includes(q)&&agentOk&&agencyOk&&monthOk;
+   return text.includes(q)&&agentOk&&monthOk;
  });
  $('archiveList').innerHTML=rows.length?rows.map(archiveItem).join(''):'<div class="card muted">Nessun contratto con questi filtri.</div>';
  document.querySelectorAll('[data-del]').forEach(b=>b.onclick=async()=>{if(confirm('Eliminare il contratto?')){const id=b.dataset.del;await deletePdf(id).catch(()=>{});store.deletedContracts=store.deletedContracts||{};store.deletedContracts[id]=new Date().toISOString();store.contracts=store.contracts.filter(c=>c.id!==id);persistStore();renderAll()}});
@@ -844,7 +841,7 @@ async function saveParsed(){
    status:'Valido',
    pdfRef:parsed.filename,
    pdfStored:false,
-   notes:'SmartTracker 3.15.17',
+   notes:'SmartTracker 3.15.18',
    services:[]
  };
 
@@ -939,6 +936,20 @@ async function saveParsed(){
 }
 let currentViewId=document.querySelector('.view.active')?.id||'home';
 const viewHistory=[];
+const VIEW_TITLES={
+ home:'SmartTracker',settings:'Cloud e strumenti',customers:'Clienti',new:'Nuovo contratto',agency:'Agenzia',excellent:'Excellent',community:'Community',team:'Squadra',commissions:'Provvigioni',regulations:'Regolamenti',archive:'Archivio'
+};
+function updateHeaderTitle(id){
+ const title=document.querySelector('.smart-header .title'),sub=document.querySelector('.smart-header .sub');
+ if(!title||!sub)return;
+ if(id==='home'){
+   title.textContent='SmartTracker 3.15.18';
+   sub.textContent='Cruscotto commerciale personale';
+ }else{
+   title.textContent=VIEW_TITLES[id]||'SmartTracker';
+   sub.textContent='SmartTracker 3.15.18';
+ }
+}
 function syncHeaderNavigation(){
  const backBtn=$('headerBack');
  if(backBtn){
@@ -946,40 +957,31 @@ function syncHeaderNavigation(){
    backBtn.classList.toggle('hidden',!show);
    backBtn.disabled=!show;
  }
+ updateHeaderTitle(currentViewId);
 }
-function setActiveView(id){
- const target=$(id); if(!target)return;
+function setActiveView(id,direction='forward'){
+ const target=$(id);if(!target)return;
+ const current=document.querySelector('.view.active');
+ if(current&&current!==target){
+   current.classList.add(direction==='back'?'view-exit-back':'view-exit-forward');
+   setTimeout(()=>current.classList.remove('view-exit-back','view-exit-forward'),210);
+ }
  document.querySelectorAll('.view').forEach(x=>x.classList.remove('active'));
  document.querySelectorAll('nav button').forEach(x=>x.classList.remove('active'));
- target.classList.add('active');
+ target.classList.add('active',direction==='back'?'view-enter-back':'view-enter-forward');
+ setTimeout(()=>target.classList.remove('view-enter-back','view-enter-forward'),220);
  document.querySelector(`nav button[data-view="${id}"]`)?.classList.add('active');
- currentViewId=id;
- syncHeaderNavigation();
- if(id==='settings')renderBackup().catch(e=>console.error('Settings Cloud',e));
- window.scrollTo(0,0);
+ currentViewId=id;syncHeaderNavigation();window.scrollTo(0,0);
 }
 function go(id,opts={}){
  if(!$(id))return;
- if(opts.fromBack){
-   setActiveView(id);
-   return;
- }
- if(id!==currentViewId){
-   if(viewHistory[viewHistory.length-1]!==currentViewId) viewHistory.push(currentViewId);
-   setActiveView(id);
- }else if(opts.force){
-   setActiveView(id);
- }
+ if(opts.fromBack){setActiveView(id,'back');return}
+ if(id!==currentViewId){if(viewHistory[viewHistory.length-1]!==currentViewId)viewHistory.push(currentViewId);setActiveView(id,'forward')}
+ else if(opts.force)setActiveView(id,'forward');
 }
 function goBack(fallback='home'){
- while(viewHistory.length){
-   const prev=viewHistory.pop();
-   if(prev&&prev!==currentViewId&&$(prev)){
-     setActiveView(prev);
-     return;
-   }
- }
- setActiveView(fallback);
+ while(viewHistory.length){const prev=viewHistory.pop();if(prev&&prev!==currentViewId&&$(prev)){setActiveView(prev,'back');return}}
+ setActiveView(fallback,'back');
 }
 function exportBackup(){const a=document.createElement('a'),blob=new Blob([JSON.stringify(store,null,2)],{type:'application/json'});a.href=URL.createObjectURL(blob);a.download='sales-tracker-2-backup.json';a.click()}
 async function importBackup(file){const obj=JSON.parse(await file.text());store=importBackupObject(obj);persistStore();renderAll();alert('Backup importato')}
@@ -1046,6 +1048,8 @@ function setHeaderCloudLight(state,detail=''){
   const label=state==='online'?'Cloud online':state==='warn'?'Cloud da verificare':state==='offline'?'Cloud offline':'Verifica Cloud';
   el.setAttribute('aria-label',`${label}${detail?': '+detail:''}`);
   el.title=`${label}${detail?' · '+detail:''}`;
+  const alert=$('headerCloudAlert');
+  if(alert)alert.classList.toggle('hidden',!(state==='warn'||state==='offline'));
 }
 
 function cloudStatusView(info){
@@ -1325,6 +1329,7 @@ async function runPdfCloudAudit(){
     const ref=results.filter(r=>r.state==='ref');
     const errors=results.filter(r=>r.state==='error');
     const ok=results.filter(r=>r.state==='ok');
+    if(missing.length||ref.length||errors.length)setHeaderCloudLight('warn',`${missing.length+ref.length+errors.length} PDF da controllare`);
 
     try{
       localStorage.setItem('smartTrackerPdfAuditLastV1',JSON.stringify({
@@ -1956,66 +1961,57 @@ function renderCommissions(){
  const agencyQuarterLock=store.settings.agencyQuarterLocks[agencyQuarterKey]||null;
  const agencyQuarterLocked=!!agencyQuarterLock?.locked;
 
+ const currentMonth=receivables.currentMonth;
+ const nextMonth=(()=>{const [y,m]=currentMonth.split('-').map(Number),d=new Date(y,m,1,12);return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`})();
+ const monthTotal=k=>(receivables.byMonth?.[k]||[]).reduce((a,r)=>a+Number(r.estimated||0),0);
+ const laterTotal=Object.entries(receivables.byMonth||{}).filter(([k])=>k>nextMonth).reduce((a,[,rows])=>a+rows.reduce((x,r)=>x+Number(r.estimated||0),0),0);
+ const potentialIndividual=t.won?0:Number(t.potentialIndividual||0);
+ const agencyResult=store.settings.agencyQuarterResults?.[agencyQuarterKey]||{core:'pending',fixed:'pending',digital:'pending'};
+ const agencyLabel=v=>v==='yes'?'Raggiunta':v==='no'?'Non raggiunta':'Da definire';
  box.innerHTML=`
- <div class="card commission-agent-card">
-   <div class="commission-agent-head">
-     <div><small>AGENTE</small><strong>${selectedCommissionAgent}</strong></div>
-     <select id="commissionAgentSelect">
-       ${(store.settings.agents||['Francesco','Jacopo','Luciano']).map(a=>`<option ${a===selectedCommissionAgent?'selected':''}>${a}</option>`).join('')}
-     </select>
-   </div>
-   <div class="commission-boost-grid">
-     ${(data.boostMonths||[]).map(x=>`<div class="commission-boost-chip ${x.unlocked?'unlocked':x.ko?'ko':'locked'}"><b>${x.month}</b><span>${money(x.inflow)} / € 250</span><strong>${x.unlocked?'✓ BOOST OK':x.ko?'✕ BOOST KO':'Mancano '+money(x.remaining)}</strong>${x.ko?'<small>Mese chiuso · nessun extra boost maturato</small>':''}</div>`).join('')||'<div class="muted">Nessun mese con inflow nel trimestre.</div>'}
-   </div>
+ <div class="commission-agent-compact">
+   <label>Agente</label>
+   <select id="commissionAgentSelect">${(store.settings.agents||['Francesco','Jacopo','Luciano']).map(a=>`<option ${a===selectedCommissionAgent?'selected':''}>${a}</option>`).join('')}</select>
  </div>
- <div class="card agency-outcome-card">
-<small>ESITO GARE AGENZIA · ${data.ruleSet?.id||'TRIMESTRE'}</small>
-<h3>Conferma manuale trimestrale</h3><p class="muted">Solo Gara Agenzia Piramis, separata dal target individuale. Se raggiunta, gli extra vengono pagati a 60 gg dalla chiusura trimestre (Q3 2026 → novembre 2026).</p>
-<div class="agency-outcome-grid">
-${[['core','CORE'],['fixed','ADSL + One Net'],['digital','Digital']].map(([key,label])=>{
- const qk=data.ruleSet?.id||'2026-Q3';
- const v=store.settings.agencyQuarterResults?.[qk]?.[key]||'pending';
- return `<label><span>${label}</span><select data-agency-outcome="${key}" data-quarter="${qk}" ${agencyQuarterLocked?'disabled':''}>
- <option value="pending" ${v==='pending'?'selected':''}>Da definire</option>
- <option value="yes" ${v==='yes'?'selected':''}>Raggiunta</option>
- <option value="no" ${v==='no'?'selected':''}>Non raggiunta</option>
- </select></label>`}).join('')}
-</div>
-<div class="agency-lock-box">
-  <strong>${agencyQuarterLocked?'🔒 Gara Agenzia '+agencyQuarterKey+' chiusa':'Gara Agenzia '+agencyQuarterKey+' aperta'}</strong>
-  ${agencyQuarterLocked&&agencyQuarterLock?.closedAt?`<small>Chiusa il ${new Date(agencyQuarterLock.closedAt).toLocaleDateString('it-IT')}</small>`:'<small>Quando gli esiti sono definitivi, chiudi il trimestre per evitare modifiche accidentali.</small>'}
-  <button id="${agencyQuarterLocked?'reopenAgencyQuarter':'closeAgencyQuarter'}" class="${agencyQuarterLocked?'secondary':'primary'}">${agencyQuarterLocked?'Riapri trimestre':'Chiudi esito gare trimestrali'}</button>
-</div>
-</div><div class="card commission-hero commission-clickable" data-commission-drill="all">
-   <small>PROVVIGIONI DA RICEVERE · ${data.ruleSet?.id||'TRIMESTRE'}</small>
-   <strong>${money(receivables.total)}</strong>
-   <div class="muted">Tutto ciò che risulta già maturato e non ancora previsto come liquidato. Premi potenziali o da confermare restano separati.</div>
+ <div class="card commission-receivable-hero commission-clickable" data-commission-drill="all">
+   <small>DA RICEVERE</small><strong>${money(receivables.total)}</strong>
+   <div class="commission-hero-meta"><span>Certe ${money(receivables.total)}</span><span>Potenziali ${money(potentialIndividual)}</span></div>
  </div>
- <div class="grid commission-kpis">
-   <div class="card kpi commission-clickable" data-commission-drill="base"><small>Base calcolabile</small><strong>${money(data.base)}</strong><span class="commission-tap-hint">Dettaglio pagamenti ›</span></div>
-   <div class="card kpi commission-clickable" data-commission-drill="extra"><small>Extra determinabili</small><strong>${money(data.deterministicExtra)}</strong><span class="commission-tap-hint">Dettaglio pagamenti ›</span></div>
-   <div class="card kpi commission-clickable" data-commission-manual>
-<small>Voci da completare</small><strong>${data.manualCount}</strong>
-<span class="commission-tap-hint">${data.manualCount?'Vedi cosa manca >':'Tutto valorizzato'}</span>
-</div>
-   <div class="card kpi commission-target-card" data-commission-target>
-     <small>Target individuale</small>
-     <strong>${t.won?'Raggiunto':'In corso'}</strong>
-     ${t.won
-       ?`<span class="commission-target-value">Extra applicato: ${money(t.potentialIndividual||0)}</span>`
-       :`<span class="commission-target-value">Se raggiunto oggi: +${money(t.potentialIndividual||0)}</span>`}
+ <div class="commission-payment-mini-grid">
+   <button class="card commission-mini-card commission-clickable" data-commission-drill="all"><small>Questo mese</small><strong>${money(monthTotal(currentMonth))}</strong><span>${monthLabelIT(currentMonth)}</span></button>
+   <button class="card commission-mini-card commission-clickable" data-commission-drill="all"><small>Prossimo mese</small><strong>${money(monthTotal(nextMonth))}</strong><span>${monthLabelIT(nextMonth)}</span></button>
+   <button class="card commission-mini-card commission-clickable" data-commission-drill="all"><small>Più avanti</small><strong>${money(laterTotal)}</strong><span>pagamenti futuri</span></button>
+ </div>
+ <div class="card commission-boost-compact">
+   <div class="commission-compact-head"><strong>Accesso boost</strong><span>Soglia € 250/mese</span></div>
+   ${(data.boostMonths||[]).map(x=>`<div class="commission-boost-line ${x.unlocked?'ok':'warn'}"><span><b>${monthLabelIT(x.month)}</b><small>${money(x.inflow)} / € 250</small></span><strong>${x.unlocked?'✓ BOOST OK':x.ko?'✕ BOOST KO':'-'+money(x.remaining)}</strong></div>`).join('')||'<div class="muted">Nessun mese con inflow nel trimestre.</div>'}
+ </div>
+ ${selectedCommissionAgent==='Francesco'?`<details class="card commission-agency-summary">
+   <summary><span><small>GARA AGENZIA · ${agencyQuarterKey}</small><strong>${agencyQuarterLocked?'🔒 Esito chiuso':'Gestisci esito'}</strong></span><b>›</b></summary>
+   <div class="commission-agency-status-row"><span>CORE</span><b>${agencyLabel(agencyResult.core)}</b></div>
+   <div class="commission-agency-status-row"><span>ADSL + One Net</span><b>${agencyLabel(agencyResult.fixed)}</b></div>
+   <div class="commission-agency-status-row"><span>Digital</span><b>${agencyLabel(agencyResult.digital)}</b></div>
+   <div class="agency-outcome-grid compact-agency-controls">
+   ${[['core','CORE'],['fixed','ADSL + One Net'],['digital','Digital']].map(([key,label])=>{const v=agencyResult[key]||'pending';return `<label><span>${label}</span><select data-agency-outcome="${key}" data-quarter="${agencyQuarterKey}" ${agencyQuarterLocked?'disabled':''}><option value="pending" ${v==='pending'?'selected':''}>Da definire</option><option value="yes" ${v==='yes'?'selected':''}>Raggiunta</option><option value="no" ${v==='no'?'selected':''}>Non raggiunta</option></select></label>`}).join('')}
    </div>
+   <div class="agency-lock-box compact-lock-box"><button id="${agencyQuarterLocked?'reopenAgencyQuarter':'closeAgencyQuarter'}" class="${agencyQuarterLocked?'secondary':'primary'}">${agencyQuarterLocked?'Riapri trimestre':'Chiudi esito gare trimestrali'}</button></div>
+ </details>`:''}
+ <div class="commission-access-grid">
+   <button class="card commission-access-card" data-commission-drill="all"><span>Per mese di pagamento</span><b>›</b></button>
+   <button class="card commission-access-card" id="commissionByType"><span>Per tipologia</span><b>›</b></button>
+   <button class="card commission-access-card" data-commission-target><span>Target individuale</span><b>${t.won?'Raggiunto':'In corso'} ›</b></button>
+   <button class="card commission-access-card" data-commission-manual><span>Voci da completare</span><b>${data.manualCount} ›</b></button>
  </div>`;
- box.insertAdjacentHTML('beforeend',receivablesHtml(receivables));
+ box.insertAdjacentHTML('beforeend',`<details id="commissionTypeDetails" class="commission-hidden-details"><summary>Dettaglio per tipologia</summary>${receivablesHtml(receivables)}</details>`);
  box.querySelectorAll('[data-open-community-prizes]').forEach(el=>el.onclick=()=>openCommunityPrizeRegulation());
+ const byTypeBtn=$('commissionByType'),typeDetails=$('commissionTypeDetails');if(byTypeBtn&&typeDetails)byTypeBtn.onclick=()=>{typeDetails.open=true;typeDetails.scrollIntoView({behavior:'smooth',block:'start'})};
 
  let drill=$('commissionDrilldown');
  if(!drill){drill=document.createElement('div');drill.id='commissionDrilldown';box.insertAdjacentElement('afterend',drill)}
  document.querySelectorAll('[data-commission-drill]').forEach(el=>el.onclick=()=>renderCommissionDrilldown(el.dataset.commissionDrill,data));
 
  const activeRule=data.ruleSet;
- ruleBox.innerHTML=`
- <div class="card commission-rules-card">
+ ruleBox.innerHTML=`<details class="card commission-rules-card commission-rules-collapsed"><summary><span>Regole provvigionali applicate</span><b>${activeRule?.id||'—'} ›</b></summary><div class="commission-rules-inner">
    <div class="commission-rules-title">
      <div><small>VERSIONE REGOLE APPLICATA</small><h3>${activeRule?.label||'Regole non disponibili'}</h3></div>
      <span class="rule-version-badge">${activeRule?.id||'—'}</span>
@@ -2041,10 +2037,10 @@ ${[['core','CORE'],['fixed','ADSL + One Net'],['digital','Digital']].map(([key,l
          </div>
        </details>`).join('')}
    </div>
- </div>`;
+</div></details>`;
 
  const paymentGroups=(data.paymentMonths||[]).filter(g=>g.rows.length);
- list.innerHTML=paymentGroups.length?paymentGroups.map(g=>`
+ list.innerHTML=paymentGroups.length?`<details class="commission-practice-details"><summary>Dettaglio pratiche e movimenti</summary>${paymentGroups.map(g=>`
    <div class="commission-payment-month">
      <div class="commission-payment-title"><div><small>MESE DI PAGAMENTO</small><h3>${g.month}</h3></div><strong>${money(g.total)}</strong></div>
      ${g.rows.map(r=>`<div class="card commission-row">
@@ -2061,7 +2057,7 @@ ${[['core','CORE'],['fixed','ADSL + One Net'],['digital','Digital']].map(([key,l
            ${r.pending?.length?`<div class="commission-pending">${r.pending.join(' · ')}</div>`:''}`
          :`<div class="commission-pending">${r.note}</div>${r.canReparse?`<button class="secondary er-reparse-btn" data-er-reparse="${r.contractId}" style="margin-top:10px">Carica e rileggi offerta PDF</button>`:''}`}
      </div>`).join('')}
-   </div>`).join('')
+   </div>`).join('')}</details>`
    :'<div class="card"><p class="muted">Nessun pagamento provvigionale calcolabile nel periodo.</p></div>';
  const manualCard=document.querySelector('[data-commission-manual]');
  if(manualCard)manualCard.onclick=()=>{
@@ -2229,7 +2225,6 @@ if($('exportBtn'))$('exportBtn').onclick=exportBackup;
 if($('importInput'))$('importInput').onchange=e=>e.target.files[0]&&importBackup(e.target.files[0]);
 $('agent').onchange=()=>{$('includeAgency').value=$('agent').value==='Francesco'?'Sì':'No'};
 $('archiveAgent').onchange=renderArchive;
-$('archiveAgency').onchange=renderArchive;
 
 $('contractDate').valueAsDate=new Date();
 await initParser();

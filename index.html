@@ -7,9 +7,9 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icon-192.png">
-<link rel="stylesheet" href="style.css?v=31517">
-<title>SmartTracker 3.15.17</title>
-  <link rel="apple-touch-icon" href="apple-touch-icon.png?v=31517">
+<link rel="stylesheet" href="style.css?v=31518">
+<title>SmartTracker 3.15.18</title>
+  <link rel="apple-touch-icon" href="apple-touch-icon.png?v=31518">
 </head>
 <body>
 <header class="smart-header">
@@ -18,7 +18,7 @@
       <svg class="header-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M15.5 19 8.5 12l7-7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
     </button>
     <div class="smart-header-copy">
-      <div class="title">SmartTracker 3.15.17</div>
+      <div class="title">SmartTracker 3.15.18</div>
       <div class="sub">Cruscotto commerciale personale</div>
     </div>
   </div>
@@ -28,6 +28,7 @@
     </button>
 <button id="headerCloudStatus" class="header-cloud-status header-cloud-checking" type="button" aria-label="Cloud: verifica in corso" title="Cloud: verifica in corso">
       <svg class="header-cloud-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 18h9.4a3.6 3.6 0 0 0 .4-7.2A5.2 5.2 0 0 0 6.7 9.5 3.7 3.7 0 0 0 7 18Z" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <span id="headerCloudAlert" class="header-cloud-alert hidden" aria-hidden="true">!</span>
     </button>
   </div>
 </header>
@@ -293,16 +294,11 @@
 
 
 
-<section id="commissions" class="view">
+<section id="commissions" class="view commissions-view">
   <div class="section-kicker">ECONOMICS</div>
   <h2>Provvigioni</h2>
-  <div class="card regulations-intro">
-    <h3>Prima base operativa</h3>
-    <p class="muted">Stima delle provvigioni sulle pratiche del trimestre. Le componenti non ancora definite dal listino restano separate e non vengono sommate.</p>
-  </div>
   <div id="commissionsSummary"></div>
   <div id="commissionsRules"></div>
-  <h3 style="margin-top:18px">Dettaglio pratiche</h3>
   <div id="commissionsList"></div>
 </section>
 
@@ -317,7 +313,7 @@
 </section>
 
 <section id="archive" class="view">
-<div id="pdfDiagnosticPanel"></div><h2>Archivio</h2><div class="card archive-filters-card"><input id="archiveSearch" placeholder="Cerca cliente, P.IVA, codice cliente, offerta o prodotto"><div class="archive-filter-grid"><div><label>Mese caricamento</label><select id="archiveMonth"><option value="Tutti">Tutti i mesi</option></select></div><div><label>Agente</label><select id="archiveAgent"><option>Tutti</option><option>Francesco</option><option>Jacopo</option><option>Luciano</option></select></div></div><label>Gara Agenzia</label><select id="archiveAgency"><option>Tutti</option><option>Inclusi</option><option>Esclusi</option></select></div><div id="archiveList"></div></section>
+<div id="pdfDiagnosticPanel"></div><h2>Archivio</h2><div class="card archive-filters-card"><input id="archiveSearch" placeholder="Cerca cliente, P.IVA, codice cliente, offerta o prodotto"><div class="archive-filter-grid"><div><label>Mese caricamento</label><select id="archiveMonth"><option value="Tutti">Tutti i mesi</option></select></div><div><label>Agente</label><select id="archiveAgent"><option>Tutti</option><option>Francesco</option><option>Jacopo</option><option>Luciano</option></select></div></div></div><div id="archiveList"></div></section>
 </main>
 <nav class="app-nav">
 <button class="active" data-view="home"><span class="nav-icon">⌂</span><span>Home</span></button>
@@ -327,8 +323,8 @@
 <button data-view="team"><span class="nav-icon">♟</span><span>Squadra</span></button>
 <button data-view="commissions"><span class="nav-icon">€</span><span>Provvig.</span></button>
 </nav>
-<script src="jszip.min.js?v=31517"></script>
-<script type="module" src="app.js?v=31517"></script>
+<script src="jszip.min.js?v=31518"></script>
+<script type="module" src="app.js?v=31518"></script>
 <script>
 (async()=>{
   if('serviceWorker' in navigator){

@@ -1461,3 +1461,14 @@ SMARTTRACKER 3.15.17 — REGOLAMENTI / ARCHIVIO / NAV
 - Archivio: nuovo filtro Mese caricamento, basato su createdAt con fallback updatedAt/date.
 - Home: periodo chiarito con Community mensile + Excellent/Gara trimestrali.
 - Bottom navigation rinforzata come fixed footer con safe-area iOS e z-index elevato.
+
+
+SMARTTRACKER 3.15.18 — APP-LIKE + PROVVIGIONI COMPATTE
+- Base 3.15.17. cloud.js IDENTICO alla 3.15.17.
+- Titolo testata dinamico per ogni sezione; versione SmartTracker resta nel sottotitolo.
+- Transizioni slide leggere entrando/uscendo dalle sezioni.
+- Badge ! sulla nuvola solo in caso di anomalia reale Cloud/PDF; nessun badge quando tutto è OK.
+- Archivio: rimosso filtro Gara Agenzia dalla UI; mese e agente restano.
+- Provvigioni: rimossa card “Prima base operativa”; dashboard compatta con totale da ricevere, questo mese/prossimo/più avanti, boost compatti, Gara Agenzia in dettaglio espandibile, accessi per mese/tipologia/target/voci mancanti.
+- Regole e dettaglio pratiche restano disponibili ma collassati.
+- Nessuna regola economica modificata.
