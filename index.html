@@ -7,14 +7,14 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icon-192.png">
-<link rel="stylesheet" href="style.css?v=31510">
-<title>SmartTracker 3.15.10</title>
-  <link rel="apple-touch-icon" href="apple-touch-icon.png?v=31510">
+<link rel="stylesheet" href="style.css?v=31511">
+<title>SmartTracker 3.15.11</title>
+  <link rel="apple-touch-icon" href="apple-touch-icon.png?v=31511">
 </head>
 <body>
 <header class="smart-header">
   <div class="smart-header-copy">
-    <div class="title">SmartTracker 3.15.10</div>
+    <div class="title">SmartTracker 3.15.11</div>
     <div class="sub">Cruscotto commerciale personale</div>
   </div>
   <button id="headerNewContract" class="header-new-contract" type="button" aria-label="Nuovo contratto" title="Nuovo contratto">＋</button>
@@ -31,19 +31,22 @@
 </div>
 
 <div class="home-backup-block">
-  <h2>Sicurezza e backup</h2>
-
-  <div class="card warning-card">
-    <h3>Prima di cancellare i dati di Safari</h3>
-    <p>Il backup automatico e i PDF salvati nell’app risiedono nei dati del sito. Se cancelli cache e dati di Safari, possono essere eliminati. Prima scarica almeno un backup manuale.</p>
-  </div>
+  <h2>Sicurezza Cloud</h2>
 
   <div id="backupHealth"></div>
 
-  <div class="card">
-    <h3>SmartTrackerLocal</h3>
-    <p class="muted">Creato all’apertura dell’app e dopo ogni salvataggio o modifica. Non include i PDF e non protegge dalla cancellazione dei dati del sito.</p>
-    <div id="autoBackupInfo"></div>
+  <div class="card cloud-cache-note">
+    <h3>Cloud-first attivo</h3>
+    <p class="muted">Database e PDF sono conservati nel Cloud. La copia locale serve come cache operativa e per lavorare più velocemente/offline.</p>
+    <div class="field-hint">Se cancelli i dati del browser dovrai effettuare nuovamente il login; SmartTracker può ricostruire il database dal Cloud.</div>
+  </div>
+
+  <div class="card local-backup-secondary">
+    <details>
+      <summary>Backup locale opzionale</summary>
+      <p class="muted">SmartTrackerLocal resta una copia tecnica di supporto. Non è più la fonte principale dei dati.</p>
+      <div id="autoBackupInfo"></div>
+    </details>
   </div>
 
   <div class="card legacy-cloud-hidden">
@@ -54,13 +57,13 @@
 
   <div class="card">
     <div class="backup-title-row">
-      <h3>SmartTrackerBkpCompleto</h3>
+      <h3>Backup ZIP opzionale</h3>
       <div id="fullBackupBadge" class="backup-status backup-status-red">
         <span class="backup-status-dot"></span>
         <span id="fullBackupStatusText">Backup necessario</span>
       </div>
     </div>
-    <p class="muted">Scarica un file ZIP con database e tutti i PDF conservati nell’app.</p>
+    <p class="muted">Copia manuale aggiuntiva. Non è necessaria per il normale ripristino Cloud, ma può essere utile come archivio esterno.</p>
     <button id="downloadFullBackup">Scarica SmartTrackerBkpCompleto</button>
     <div id="fullBackupInfo" class="field-hint prospect-auto-no"></div>
     <div id="fullBackupAgeInfo" class="backup-age-info"></div>
@@ -72,7 +75,7 @@
   <div class="backup-title-row">
     <div>
       <div class="section-kicker">SMARTTRACKER CLOUD</div>
-      <h3 style="margin:2px 0 0">Sincronizzazione dispositivi</h3>
+      <h3 style="margin:2px 0 0">Stato e sincronizzazione</h3>
     </div>
     <div id="cloudBadge" class="cloud-status cloud-status-off">
       <span class="cloud-status-dot"></span>
@@ -124,28 +127,30 @@
       <div id="cloudDeviceDiagnosticResult" class="cloud-device-diagnostic-result hidden"></div>
     </div>
 
-    <div class="cloud-recovery-test">
-      <div class="section-kicker">TEST RIPRISTINO CLOUD</div>
-      <h3>Simula dispositivo nuovo</h3>
-      <p class="muted">Cancella esclusivamente i dati locali di SmartTracker su QUESTO dispositivo (database locale, sessione Cloud e PDF locali di emergenza). Non tocca Safari, gli altri siti, l’iPhone o i dati già presenti nel Cloud.</p>
-      <button id="cloudSimulateNewDevice" class="secondary">Azzera solo SmartTracker su questo dispositivo</button>
-      <div class="field-hint prospect-auto-no">Usare solo su un dispositivo secondario dopo aver verificato Database Cloud e PDF Cloud.</div>
-    </div>
+    <details class="cloud-advanced-tools">
+      <summary>Strumenti avanzati</summary>
+      <div class="cloud-recovery-test">
+        <div class="section-kicker">TEST RIPRISTINO CLOUD</div>
+        <h3>Simula dispositivo nuovo</h3>
+        <p class="muted">Cancella esclusivamente i dati locali di SmartTracker su QUESTO dispositivo. Non modifica i dati Supabase.</p>
+        <button id="cloudSimulateNewDevice" class="secondary">Azzera solo SmartTracker su questo dispositivo</button>
+      </div>
 
-    <div class="cloud-master-realign">
-      <div class="section-kicker">RIALlineamento PROTETTO</div>
-      <h3>Usa questo dispositivo come master</h3>
-      <p class="muted">Da usare solo sull’iPhone che contiene il database completo. Prima controlla con la diagnostica che il dispositivo abbia più contratti del Cloud e che il Cloud non contenga contratti assenti localmente.</p>
-      <label>Password Supabase</label>
-      <input id="cloudMasterPassword" type="password" autocomplete="current-password" placeholder="Password">
-      <button id="cloudMasterRealign" class="primary">Rinnova sessione e riallinea Cloud</button>
-      <div id="cloudMasterRealignStatus" class="field-hint prospect-auto-no"></div>
-    </div>
+      <div class="cloud-master-realign">
+        <div class="section-kicker">RIALlineamento PROTETTO</div>
+        <h3>Usa questo dispositivo come master</h3>
+        <p class="muted">Strumento di emergenza. Usare solo quando la diagnostica dimostra che questo dispositivo contiene più contratti del Cloud.</p>
+        <label>Password Supabase</label>
+        <input id="cloudMasterPassword" type="password" autocomplete="current-password" placeholder="Password">
+        <button id="cloudMasterRealign" class="primary">Rinnova sessione e riallinea Cloud</button>
+        <div id="cloudMasterRealignStatus" class="field-hint prospect-auto-no"></div>
+      </div>
+    </details>
   </div>
 
   <div class="cloud-safety-note">
-    <strong>Prima migrazione sicura</strong>
-    <span>Il primo dispositivo con tutti i dati deve usare “Carica i dati locali nel Cloud”. Sugli altri dispositivi usa “Scarica e unisci”.</span>
+    <strong>Ripristino verificato</strong>
+    <span>SmartTracker è stato testato con dispositivo locale azzerato: dopo il login il database viene ricostruito dal Cloud.</span>
   </div>
   <div class="cloud-pdf-note">☁️ Cloud-first attivo: i nuovi contratti e i relativi PDF vengono salvati nel Cloud. Il locale è una cache/copia di emergenza, non la fonte principale.</div>
 </div>
@@ -295,8 +300,8 @@
 <button data-view="team"><span class="nav-icon">♟</span><span>Squadra</span></button>
 <button data-view="commissions"><span class="nav-icon">€</span><span>Provvig.</span></button>
 </nav>
-<script src="jszip.min.js?v=31510"></script>
-<script type="module" src="app.js?v=31510"></script>
+<script src="jszip.min.js?v=31511"></script>
+<script type="module" src="app.js?v=31511"></script>
 <script>
 (async()=>{
   if('serviceWorker' in navigator){

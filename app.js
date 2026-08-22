@@ -1,5 +1,5 @@
-import {uploadPdfCloud,openPdfCloud,pdfCloudExists,pdfCloudProbe} from './cloud-pdf-minimal.js?v=31510';
-import {buildReceivables,receivablesHtml,communityPrizeForPosition} from './receivables.js?v=31510';
+import {uploadPdfCloud,openPdfCloud,pdfCloudExists,pdfCloudProbe} from './cloud-pdf-minimal.js?v=31511';
+import {buildReceivables,receivablesHtml,communityPrizeForPosition} from './receivables.js?v=31511';
 
 window.addEventListener('error',(e)=>{
  try{
@@ -22,16 +22,16 @@ window.addEventListener('unhandledrejection',(e)=>{
 });
 
 
-import {loadStore,saveStore,importBackupObject} from './storage.js?v=31510';
-import {TARGETS,generalStats,agencyStats,agencyBreakdown,excellentStats,excellentBreakdown,communityStats,communityBreakdown,teamStats,teamBreakdown,availableMonths,customerList,customerDashboard,customerKey,inflowOf,communityRulesForMonth} from './engines.js?v=31510';
-import {savePdf,openPdf,deletePdf,getPdf} from './pdf-store.js?v=31510';
-import {initParser,parsePDF} from './parser.js?v=31510';
-import {createAutoBackup,getAutoBackupMeta,getFullBackupMeta,downloadDatabaseBackup,downloadCompleteBackup,restoreCompleteBackup,getArchiveStats,formatBytes,formatDate} from './backup.js?v=31510';
-import {exportSync,readSyncFile,previewMerge,applyMerge,getSyncMeta} from './sync.js?v=31510';
-import {regulationGroups} from './regulations.js?v=31510';
-import {currentMonthKey,monthLabel,quarterFromMonth,availablePeriodMonths,ensurePeriodState,periodStatusLabel,periodStatusIcon,applyGlobalMonth} from './periods.js?v=31510';
-import {cloudLogin,cloudLogout,cloudInfo,uploadLocalFirst,downloadAndMerge,syncNow,bootstrapLinkedCloud,queueCloudPush,getCloudMeta,isCloudLinked,getCloudSession,getCloudEmail,setCloudEmail,runCloudDiagnostics,readPrimaryCloudStoreRaw,pushCloudStore} from './cloud.js?v=31510';
-import {commissionsForPeriod} from './commissions.js?v=31510';
+import {loadStore,saveStore,importBackupObject} from './storage.js?v=31511';
+import {TARGETS,generalStats,agencyStats,agencyBreakdown,excellentStats,excellentBreakdown,communityStats,communityBreakdown,teamStats,teamBreakdown,availableMonths,customerList,customerDashboard,customerKey,inflowOf,communityRulesForMonth} from './engines.js?v=31511';
+import {savePdf,openPdf,deletePdf,getPdf} from './pdf-store.js?v=31511';
+import {initParser,parsePDF} from './parser.js?v=31511';
+import {createAutoBackup,getAutoBackupMeta,getFullBackupMeta,downloadDatabaseBackup,downloadCompleteBackup,restoreCompleteBackup,getArchiveStats,formatBytes,formatDate} from './backup.js?v=31511';
+import {exportSync,readSyncFile,previewMerge,applyMerge,getSyncMeta} from './sync.js?v=31511';
+import {regulationGroups} from './regulations.js?v=31511';
+import {currentMonthKey,monthLabel,quarterFromMonth,availablePeriodMonths,ensurePeriodState,periodStatusLabel,periodStatusIcon,applyGlobalMonth} from './periods.js?v=31511';
+import {cloudLogin,cloudLogout,cloudInfo,uploadLocalFirst,downloadAndMerge,syncNow,bootstrapLinkedCloud,queueCloudPush,getCloudMeta,isCloudLinked,getCloudSession,getCloudEmail,setCloudEmail,runCloudDiagnostics,readPrimaryCloudStoreRaw,pushCloudStore} from './cloud.js?v=31511';
+import {commissionsForPeriod} from './commissions.js?v=31511';
 
 let store=loadStore(),parsed=null,pendingPdf=null;
 let guaranteedPushTimer=null,guaranteedPushInFlight=false,persistRevision=0,pushRequestedWhileBusy=false;
@@ -823,7 +823,7 @@ async function saveParsed(){
    status:'Valido',
    pdfRef:parsed.filename,
    pdfStored:false,
-   notes:'SmartTracker 3.15.10',
+   notes:'SmartTracker 3.15.11',
    services:[]
  };
 
@@ -1226,6 +1226,18 @@ async function runPdfCloudAudit(){
     const errors=results.filter(r=>r.state==='error');
     const ok=results.filter(r=>r.state==='ok');
 
+    try{
+      localStorage.setItem('smartTrackerPdfAuditLastV1',JSON.stringify({
+        checkedAt:new Date().toISOString(),
+        active:results.length,
+        ok:ok.length,
+        missing:missing.length,
+        ref:ref.length,
+        errors:errors.length,
+        storagePresent:results.filter(r=>r.storage.exists).length
+      }));
+    }catch(_){}
+
     const row=r=>`
       <div class="cloud-diag-row ${r.state==='ok'?'cloud-diag-ok':'cloud-diag-ko'}">
         <span>${r.state==='ok'?'✓':r.state==='ref'?'↻':r.state==='error'?'!':'○'}</span>
@@ -1265,6 +1277,7 @@ async function runPdfCloudAudit(){
   }finally{
     btn.disabled=false;
     btn.textContent='Diagnostica PDF completa';
+    renderBackup().catch(()=>{});
   }
 }
 
@@ -1465,19 +1478,84 @@ function ensureCloudButtonDiagnosticFallback(){
  });
 }
 
+
+const CLOUD_HEARTBEAT_KEY='smartTrackerCloudHeartbeatV1';
+const PDF_AUDIT_LAST_KEY='smartTrackerPdfAuditLastV1';
+
+function readJsonLocal(key){
+  try{return JSON.parse(localStorage.getItem(key)||'null')}catch{return null}
+}
+
+async function runCloudHeartbeat(){
+  if(!getCloudSession()?.access_token){
+    return {ok:false,error:'Sessione Cloud assente'};
+  }
+  try{
+    const raw=await readPrimaryCloudStoreRaw();
+    const result={
+      ok:true,
+      checkedAt:new Date().toISOString(),
+      contracts:raw?.data?.contracts?.length||0,
+      cloudUpdatedAt:raw?.updated_at||null
+    };
+    localStorage.setItem(CLOUD_HEARTBEAT_KEY,JSON.stringify(result));
+    return result;
+  }catch(e){
+    const result={ok:false,checkedAt:new Date().toISOString(),error:e.message||String(e)};
+    localStorage.setItem(CLOUD_HEARTBEAT_KEY,JSON.stringify(result));
+    return result;
+  }
+}
+
+function cloudSecurityHtml({heartbeat,pdfAudit,info}){
+  const localCount=(store.contracts||[]).length;
+  const cloudCount=Number(heartbeat?.contracts??info?.row?.data?.contracts?.length??0);
+  const dbOk=!!heartbeat?.ok && cloudCount===localCount;
+  const sessionOk=!!getCloudSession()?.access_token;
+
+  const localPdfRefs=(store.contracts||[]).filter(c=>c?.status!=='deleted'&&c?.cloudPdf).length;
+  const activeCount=(store.contracts||[]).filter(c=>c?.status!=='deleted').length;
+
+  const pdfAuditFresh=pdfAudit?.checkedAt && (Date.now()-new Date(pdfAudit.checkedAt).getTime())<7*86400000;
+  const pdfOk=!!pdfAuditFresh && Number(pdfAudit?.ok||0)===activeCount && Number(pdfAudit?.missing||0)===0 && Number(pdfAudit?.errors||0)===0 && Number(pdfAudit?.ref||0)===0;
+
+  const protectedOk=dbOk && sessionOk && pdfOk;
+  const protectedLabel=protectedOk?'Cloud protetto e ripristinabile':dbOk?'Cloud attivo · verifica PDF consigliata':'Controllo Cloud richiesto';
+
+  const statusIcon=protectedOk?'✓':dbOk?'●':'!';
+  const hbText=heartbeat?.checkedAt?formatDate(heartbeat.checkedAt):'Mai';
+  const pdfText=pdfAuditFresh
+    ?`${pdfAudit.ok||0}/${activeCount} verificati · ${formatDate(pdfAudit.checkedAt)}`
+    :`${localPdfRefs}/${activeCount} riferimenti · diagnostica completa consigliata`;
+
+  return `<div class="card cloud-security-overview">
+    <div class="cloud-security-head">
+      <div>
+        <div class="section-kicker">SICUREZZA CLOUD</div>
+        <h3>${statusIcon} ${protectedLabel}</h3>
+      </div>
+      <span class="cloud-security-pill ${protectedOk?'cloud-security-ok':dbOk?'cloud-security-warn':'cloud-security-ko'}">${protectedOk?'PROTETTO':dbOk?'ONLINE':'VERIFICA'}</span>
+    </div>
+    <div class="cloud-security-grid">
+      <div><small>Database Cloud</small><strong>${dbOk?'✓':'!'} ${cloudCount}/${localCount}</strong><span>contratti</span></div>
+      <div><small>PDF Cloud</small><strong>${pdfOk?'✓':'●'} ${pdfText}</strong><span>${pdfOk?'Storage verificato':'riferimenti Cloud'}</span></div>
+      <div><small>Sessione</small><strong>${sessionOk?'✓ Attiva':'! Login richiesto'}</strong><span>${getCloudSession()?.user?.email||''}</span></div>
+      <div><small>Ultimo controllo</small><strong>${heartbeat?.ok?'✓ '+hbText:hbText}</strong><span>${heartbeat?.ok?'Cloud raggiungibile':heartbeat?.error||'Non eseguito'}</span></div>
+    </div>
+    <div class="field-hint">I dati locali sono una cache. Dopo la cancellazione dei dati browser basta effettuare nuovamente il login per ricostruire SmartTracker dal Cloud.</div>
+  </div>`;
+}
+
 async function renderBackup(){
  renderCloud().catch(e=>console.error('Cloud UI',e));
  const health=$('backupHealth');
  if(!health)return;
 
  try{
-   const stats=await getArchiveStats(store);
-   health.innerHTML=`<div class="card"><h3>Stato archivio</h3><div class="backup-health-grid">
-     <div class="backup-health-item"><small>Contratti</small><strong>${stats.contracts}</strong></div>
-     <div class="backup-health-item"><small>PDF salvati</small><strong>${stats.pdfs}</strong></div>
-     <div class="backup-health-item"><small>PDF mancanti</small><strong>${stats.missing}</strong></div>
-     <div class="backup-health-item"><small>Spazio PDF</small><strong>${formatBytes(stats.bytes)}</strong></div>
-   </div></div>`;
+   const info=await cloudInfo().catch(()=>null);
+   const heartbeat=await runCloudHeartbeat();
+   const pdfAudit=readJsonLocal(PDF_AUDIT_LAST_KEY);
+   health.innerHTML=cloudSecurityHtml({heartbeat,pdfAudit,info});
 
    const auto=getAutoBackupMeta();
    $('autoBackupInfo').innerHTML=`<div class="note"><strong>${auto?.name||'SmartTrackerLocal'}</strong><br>Ultimo aggiornamento: <strong>${formatDate(auto?.createdAt)}</strong><br>Contratti inclusi: ${auto?.contracts??0} · Dimensione: ${formatBytes(auto?.bytes||0)}</div>`;
@@ -1488,7 +1566,7 @@ async function renderBackup(){
    const backupState=fullBackupTrafficLight(full);
    const badge=$('fullBackupBadge');
    badge.className=`backup-status backup-status-${backupState.level}`;
-   $('fullBackupStatusText').textContent=backupState.label;
+   $('fullBackupStatusText').textContent=full?'Backup disponibile':'Opzionale';
    $('fullBackupAgeInfo').textContent=backupState.detail;
 
    const syncMeta=getSyncMeta();

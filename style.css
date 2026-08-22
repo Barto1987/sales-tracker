@@ -636,7 +636,7 @@ input:focus,select:focus,textarea:focus{
 .cloud-auto-note{margin-top:10px;padding:10px 12px;border-radius:12px;background:#edf9f1;color:#176b35;font-weight:800;font-size:12px}
 
 
-/* SmartTracker 3.15.10 — navigation active-state visibility */
+/* SmartTracker 3.15.11 — navigation active-state visibility */
 .app-nav{
   grid-template-columns:repeat(7,minmax(62px,1fr))!important;
   overflow-x:auto;
@@ -679,7 +679,7 @@ input:focus,select:focus,textarea:focus{
 }
 
 
-/* SmartTracker 3.15.10 — menu iPhone + pulsante Nuovo in testata */
+/* SmartTracker 3.15.11 — menu iPhone + pulsante Nuovo in testata */
 .smart-header{
   position:sticky;
   top:0;
@@ -886,3 +886,24 @@ input:focus,select:focus,textarea:focus{
 .cloud-master-realign h3{margin:3px 0 6px}
 .cloud-master-realign input{margin-bottom:10px}
 .cloud-master-realign .section-kicker{color:#b00020}
+
+
+/* SmartTracker 3.15.11 — Sicurezza Cloud */
+.cloud-security-overview{overflow:hidden}
+.cloud-security-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.cloud-security-head h3{margin:4px 0 0}
+.cloud-security-pill{font-size:11px;font-weight:800;padding:7px 10px;border-radius:999px;white-space:nowrap}
+.cloud-security-ok{background:#e9f8ef;color:#14723a}
+.cloud-security-warn{background:#fff5d9;color:#855f00}
+.cloud-security-ko{background:#fdeaea;color:#a22626}
+.cloud-security-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:14px}
+.cloud-security-grid>div{border:1px solid var(--line,#e5e5e5);border-radius:14px;padding:12px;display:flex;flex-direction:column;gap:4px}
+.cloud-security-grid small{opacity:.7}
+.cloud-security-grid strong{font-size:15px;line-height:1.25}
+.cloud-security-grid span{font-size:12px;opacity:.68;overflow-wrap:anywhere}
+.cloud-cache-note{border-left:4px solid #28a745}
+.local-backup-secondary summary,.cloud-advanced-tools summary{cursor:pointer;font-weight:700}
+.cloud-advanced-tools{margin-top:16px;border-top:1px solid var(--line,#e5e5e5);padding-top:14px}
+.cloud-advanced-tools>summary{padding:8px 0}
+.cloud-advanced-tools .cloud-recovery-test,.cloud-advanced-tools .cloud-master-realign{margin-top:14px}
+@media(max-width:600px){.cloud-security-grid{grid-template-columns:1fr}.cloud-security-head{align-items:center}}

@@ -1396,3 +1396,17 @@ SMARTTRACKER 3.15.10 — TEST RIPRISTINO CLOUD CONTROLLATO
 - Non cancella cronologia Safari, dati di altri siti, dati su altri dispositivi o dati Supabase.
 - Dopo reload: login Cloud; la logica Cloud First 3.15.9 deve ripristinare automaticamente il database se il locale è vuoto.
 - Questo test serve a validare il futuro uso sicuro dopo pulizia cache/reinstallazione.
+
+SMARTTRACKER 3.15.11 — SICUREZZA CLOUD
+- Base stabile 3.15.10.
+- cloud.js IDENTICO alla 3.15.10.
+- Nessuna modifica ad AutoPush/AutoPull, parser, provvigioni, regole o Storage PDF.
+- “Sicurezza e backup” diventa “Sicurezza Cloud”.
+- Rimossi dalla vista principale i vecchi KPI PDF locali (PDF salvati, PDF mancanti, spazio PDF locale).
+- Nuovo riepilogo Cloud: Database Cloud, PDF Cloud, sessione e ultimo controllo.
+- Heartbeat leggero all’apertura: legge la riga primaria Cloud e registra l’esito/ora.
+- La Diagnostica PDF completa memorizza l’ultimo esito; se tutti i PDF risultano presenti nello Storage, il pannello mostra “Cloud protetto e ripristinabile”.
+- SmartTrackerLocal resta nascosto come backup tecnico opzionale.
+- Backup ZIP resta disponibile come copia manuale aggiuntiva, non come requisito prima di pulire Safari.
+- Messaggio cache aggiornato: dopo cancellazione dati browser è necessario rifare login; il database viene ricostruito dal Cloud.
+- “Simula dispositivo nuovo” e “Usa questo dispositivo come master” spostati dentro “Strumenti avanzati”.
