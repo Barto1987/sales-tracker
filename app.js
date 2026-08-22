@@ -1,5 +1,5 @@
-import {uploadPdfCloud,openPdfCloud,pdfCloudExists,pdfCloudProbe} from './cloud-pdf-minimal.js?v=3159';
-import {buildReceivables,receivablesHtml,communityPrizeForPosition} from './receivables.js?v=3159';
+import {uploadPdfCloud,openPdfCloud,pdfCloudExists,pdfCloudProbe} from './cloud-pdf-minimal.js?v=31510';
+import {buildReceivables,receivablesHtml,communityPrizeForPosition} from './receivables.js?v=31510';
 
 window.addEventListener('error',(e)=>{
  try{
@@ -22,16 +22,16 @@ window.addEventListener('unhandledrejection',(e)=>{
 });
 
 
-import {loadStore,saveStore,importBackupObject} from './storage.js?v=3159';
-import {TARGETS,generalStats,agencyStats,agencyBreakdown,excellentStats,excellentBreakdown,communityStats,communityBreakdown,teamStats,teamBreakdown,availableMonths,customerList,customerDashboard,customerKey,inflowOf,communityRulesForMonth} from './engines.js?v=3159';
-import {savePdf,openPdf,deletePdf,getPdf} from './pdf-store.js?v=3159';
-import {initParser,parsePDF} from './parser.js?v=3159';
-import {createAutoBackup,getAutoBackupMeta,getFullBackupMeta,downloadDatabaseBackup,downloadCompleteBackup,restoreCompleteBackup,getArchiveStats,formatBytes,formatDate} from './backup.js?v=3159';
-import {exportSync,readSyncFile,previewMerge,applyMerge,getSyncMeta} from './sync.js?v=3159';
-import {regulationGroups} from './regulations.js?v=3159';
-import {currentMonthKey,monthLabel,quarterFromMonth,availablePeriodMonths,ensurePeriodState,periodStatusLabel,periodStatusIcon,applyGlobalMonth} from './periods.js?v=3159';
-import {cloudLogin,cloudLogout,cloudInfo,uploadLocalFirst,downloadAndMerge,syncNow,bootstrapLinkedCloud,queueCloudPush,getCloudMeta,isCloudLinked,getCloudSession,getCloudEmail,setCloudEmail,runCloudDiagnostics,readPrimaryCloudStoreRaw,pushCloudStore} from './cloud.js?v=3159';
-import {commissionsForPeriod} from './commissions.js?v=3159';
+import {loadStore,saveStore,importBackupObject} from './storage.js?v=31510';
+import {TARGETS,generalStats,agencyStats,agencyBreakdown,excellentStats,excellentBreakdown,communityStats,communityBreakdown,teamStats,teamBreakdown,availableMonths,customerList,customerDashboard,customerKey,inflowOf,communityRulesForMonth} from './engines.js?v=31510';
+import {savePdf,openPdf,deletePdf,getPdf} from './pdf-store.js?v=31510';
+import {initParser,parsePDF} from './parser.js?v=31510';
+import {createAutoBackup,getAutoBackupMeta,getFullBackupMeta,downloadDatabaseBackup,downloadCompleteBackup,restoreCompleteBackup,getArchiveStats,formatBytes,formatDate} from './backup.js?v=31510';
+import {exportSync,readSyncFile,previewMerge,applyMerge,getSyncMeta} from './sync.js?v=31510';
+import {regulationGroups} from './regulations.js?v=31510';
+import {currentMonthKey,monthLabel,quarterFromMonth,availablePeriodMonths,ensurePeriodState,periodStatusLabel,periodStatusIcon,applyGlobalMonth} from './periods.js?v=31510';
+import {cloudLogin,cloudLogout,cloudInfo,uploadLocalFirst,downloadAndMerge,syncNow,bootstrapLinkedCloud,queueCloudPush,getCloudMeta,isCloudLinked,getCloudSession,getCloudEmail,setCloudEmail,runCloudDiagnostics,readPrimaryCloudStoreRaw,pushCloudStore} from './cloud.js?v=31510';
+import {commissionsForPeriod} from './commissions.js?v=31510';
 
 let store=loadStore(),parsed=null,pendingPdf=null;
 let guaranteedPushTimer=null,guaranteedPushInFlight=false,persistRevision=0,pushRequestedWhileBusy=false;
@@ -823,7 +823,7 @@ async function saveParsed(){
    status:'Valido',
    pdfRef:parsed.filename,
    pdfStored:false,
-   notes:'SmartTracker 3.15.9',
+   notes:'SmartTracker 3.15.10',
    services:[]
  };
 
@@ -1268,6 +1268,54 @@ async function runPdfCloudAudit(){
   }
 }
 
+
+async function simulateNewDeviceForRecoveryTest(){
+  const raw=await readPrimaryCloudStoreRaw().catch(()=>null);
+  const cloudContracts=raw?.data?.contracts||[];
+
+  if(!cloudContracts.length){
+    alert('Test bloccato: il Cloud non contiene contratti verificabili.');
+    return;
+  }
+
+  const first=confirm(
+    `TEST RIPRISTINO CLOUD\n\n`+
+    `Cloud rilevato: ${cloudContracts.length} contratti.\n\n`+
+    `Questa operazione cancellerà SOLO i dati locali di SmartTracker su questo dispositivo e poi ricaricherà l’app.\n`+
+    `I dati Cloud non verranno modificati.\n\n`+
+    `Continuare?`
+  );
+  if(!first)return;
+
+  const second=confirm(
+    `ULTIMA CONFERMA\n\n`+
+    `Esegui questo test solo sul dispositivo secondario.\n\n`+
+    `Dopo il riavvio SmartTracker apparirà vuoto/non collegato: accedi nuovamente al Cloud e dovrà ricostruire automaticamente i ${cloudContracts.length} contratti.\n\n`+
+    `Azzero adesso SOLO SmartTracker locale?`
+  );
+  if(!second)return;
+
+  try{
+    // Rimuove solamente lo storage del dominio SmartTracker corrente.
+    localStorage.clear();
+
+    // Rimuove il vecchio archivio PDF locale di emergenza, senza toccare lo Storage Cloud.
+    await new Promise(resolve=>{
+      try{
+        const req=indexedDB.deleteDatabase('salesTrackerPdfDB');
+        req.onsuccess=()=>resolve();
+        req.onerror=()=>resolve();
+        req.onblocked=()=>resolve();
+      }catch(_){resolve()}
+    });
+
+    location.reload();
+  }catch(e){
+    console.error('Recovery test reset',e);
+    alert('Azzeramento locale non completato: '+(e.message||e));
+  }
+}
+
 async function renderCloud(){
  const email=$('cloudEmail');if(!email)return;
  email.value=getCloudEmail()||email.value||'';
@@ -1389,6 +1437,9 @@ async function renderCloud(){
 
   const cloudPdfAuditBtn=$('cloudRunPdfAudit');
   if(cloudPdfAuditBtn)cloudPdfAuditBtn.onclick=()=>runPdfCloudAudit();
+
+  const recoveryTestBtn=$('cloudSimulateNewDevice');
+  if(recoveryTestBtn)recoveryTestBtn.onclick=()=>simulateNewDeviceForRecoveryTest();
 
   $('cloudLogout').onclick=async()=>{
    if(!confirm('Disconnettere SmartTracker Cloud da questo dispositivo? I dati locali resteranno disponibili.'))return;

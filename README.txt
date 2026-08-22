@@ -1384,3 +1384,15 @@ SMARTTRACKER 3.15.9 — CLOUD FIRST
 - Anche nella scheda cliente l'apertura PDF usa il Cloud.
 - Dopo un nuovo login, se il database locale è vuoto e il Cloud contiene contratti, SmartTracker ripristina automaticamente i dati dal Cloud.
 - Questo prepara il test controllato di cancellazione cache/reinstallazione su dispositivo secondario.
+
+SMARTTRACKER 3.15.10 — TEST RIPRISTINO CLOUD CONTROLLATO
+- Base stabile 3.15.9 Cloud First.
+- cloud.js IDENTICO alla 3.15.9.
+- Nessuna modifica ad AutoPush/AutoPull, parser, provvigioni o PDF Cloud.
+- Aggiunto in SmartTracker Cloud il test “Simula dispositivo nuovo”.
+- Il test legge prima il Cloud e si blocca se non trova contratti.
+- Doppia conferma obbligatoria.
+- Cancella SOLO localStorage dell’origine SmartTracker sul dispositivo corrente e l’IndexedDB salesTrackerPdfDB.
+- Non cancella cronologia Safari, dati di altri siti, dati su altri dispositivi o dati Supabase.
+- Dopo reload: login Cloud; la logica Cloud First 3.15.9 deve ripristinare automaticamente il database se il locale è vuoto.
+- Questo test serve a validare il futuro uso sicuro dopo pulizia cache/reinstallazione.
