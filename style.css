@@ -636,7 +636,7 @@ input:focus,select:focus,textarea:focus{
 .cloud-auto-note{margin-top:10px;padding:10px 12px;border-radius:12px;background:#edf9f1;color:#176b35;font-weight:800;font-size:12px}
 
 
-/* SmartTracker 3.15.11 — navigation active-state visibility */
+/* SmartTracker 3.15.12 — navigation active-state visibility */
 .app-nav{
   grid-template-columns:repeat(7,minmax(62px,1fr))!important;
   overflow-x:auto;
@@ -679,7 +679,7 @@ input:focus,select:focus,textarea:focus{
 }
 
 
-/* SmartTracker 3.15.11 — menu iPhone + pulsante Nuovo in testata */
+/* SmartTracker 3.15.12 — menu iPhone + pulsante Nuovo in testata */
 .smart-header{
   position:sticky;
   top:0;
@@ -888,7 +888,7 @@ input:focus,select:focus,textarea:focus{
 .cloud-master-realign .section-kicker{color:#b00020}
 
 
-/* SmartTracker 3.15.11 — Sicurezza Cloud */
+/* SmartTracker 3.15.12 — Sicurezza Cloud */
 .cloud-security-overview{overflow:hidden}
 .cloud-security-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
 .cloud-security-head h3{margin:4px 0 0}
@@ -907,3 +907,26 @@ input:focus,select:focus,textarea:focus{
 .cloud-advanced-tools>summary{padding:8px 0}
 .cloud-advanced-tools .cloud-recovery-test,.cloud-advanced-tools .cloud-master-realign{margin-top:14px}
 @media(max-width:600px){.cloud-security-grid{grid-template-columns:1fr}.cloud-security-head{align-items:center}}
+
+/* SmartTracker 3.15.12 — Home pulita, impostazioni e semaforo Cloud */
+.header-actions{display:flex;align-items:center;gap:9px;flex:0 0 auto}
+.header-action{width:44px;height:44px;min-height:44px;flex:0 0 44px;margin:0!important;padding:0!important;border-radius:50%!important;border:2px solid rgba(255,255,255,.95)!important;background:#fff!important;color:var(--brand)!important;display:flex!important;align-items:center;justify-content:center;box-shadow:0 5px 16px rgba(100,0,0,.20)!important;-webkit-tap-highlight-color:transparent}
+.header-new-contract{font-size:30px!important;line-height:1!important;font-weight:800!important}
+.header-settings{font-size:23px!important;line-height:1!important;font-weight:700!important}
+.header-cloud-status{appearance:none;-webkit-appearance:none;width:25px;height:25px;min-width:25px;padding:0;margin:0 0 0 1px;border-radius:50%;border:3px solid rgba(255,255,255,.92);background:rgba(255,255,255,.25);display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(60,0,0,.25)}
+.header-cloud-status span{display:block;width:12px;height:12px;border-radius:50%;background:#9ca3af}
+.header-cloud-online span{background:#16a34a;box-shadow:0 0 0 3px rgba(22,163,74,.16)}
+.header-cloud-warn span{background:#f59e0b;box-shadow:0 0 0 3px rgba(245,158,11,.17)}
+.header-cloud-offline span{background:#dc2626;box-shadow:0 0 0 3px rgba(220,38,38,.17)}
+.header-cloud-checking span{background:#f59e0b;animation:cloudPulse 1.2s infinite}
+@keyframes cloudPulse{50%{opacity:.4}}
+.settings-view{padding-bottom:110px}
+.settings-lead{margin-top:-4px;margin-bottom:16px}
+.settings-cloud-block>h2{display:none}
+.settings-cloud-block{margin-top:0}
+.cloud-manual-actions{padding:12px 0 4px}
+@media(max-width:600px){
+ .smart-header{gap:8px}.header-actions{gap:7px}.header-action{width:40px;height:40px;min-height:40px;flex-basis:40px}
+ .header-new-contract{font-size:28px!important}.header-settings{font-size:21px!important}
+ .header-cloud-status{width:23px;height:23px;min-width:23px}.header-cloud-status span{width:11px;height:11px}
+}

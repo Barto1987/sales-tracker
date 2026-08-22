@@ -1,5 +1,5 @@
-import {uploadPdfCloud,openPdfCloud,pdfCloudExists,pdfCloudProbe} from './cloud-pdf-minimal.js?v=31511';
-import {buildReceivables,receivablesHtml,communityPrizeForPosition} from './receivables.js?v=31511';
+import {uploadPdfCloud,openPdfCloud,pdfCloudExists,pdfCloudProbe} from './cloud-pdf-minimal.js?v=31512';
+import {buildReceivables,receivablesHtml,communityPrizeForPosition} from './receivables.js?v=31512';
 
 window.addEventListener('error',(e)=>{
  try{
@@ -22,16 +22,16 @@ window.addEventListener('unhandledrejection',(e)=>{
 });
 
 
-import {loadStore,saveStore,importBackupObject} from './storage.js?v=31511';
-import {TARGETS,generalStats,agencyStats,agencyBreakdown,excellentStats,excellentBreakdown,communityStats,communityBreakdown,teamStats,teamBreakdown,availableMonths,customerList,customerDashboard,customerKey,inflowOf,communityRulesForMonth} from './engines.js?v=31511';
-import {savePdf,openPdf,deletePdf,getPdf} from './pdf-store.js?v=31511';
-import {initParser,parsePDF} from './parser.js?v=31511';
-import {createAutoBackup,getAutoBackupMeta,getFullBackupMeta,downloadDatabaseBackup,downloadCompleteBackup,restoreCompleteBackup,getArchiveStats,formatBytes,formatDate} from './backup.js?v=31511';
-import {exportSync,readSyncFile,previewMerge,applyMerge,getSyncMeta} from './sync.js?v=31511';
-import {regulationGroups} from './regulations.js?v=31511';
-import {currentMonthKey,monthLabel,quarterFromMonth,availablePeriodMonths,ensurePeriodState,periodStatusLabel,periodStatusIcon,applyGlobalMonth} from './periods.js?v=31511';
-import {cloudLogin,cloudLogout,cloudInfo,uploadLocalFirst,downloadAndMerge,syncNow,bootstrapLinkedCloud,queueCloudPush,getCloudMeta,isCloudLinked,getCloudSession,getCloudEmail,setCloudEmail,runCloudDiagnostics,readPrimaryCloudStoreRaw,pushCloudStore} from './cloud.js?v=31511';
-import {commissionsForPeriod} from './commissions.js?v=31511';
+import {loadStore,saveStore,importBackupObject} from './storage.js?v=31512';
+import {TARGETS,generalStats,agencyStats,agencyBreakdown,excellentStats,excellentBreakdown,communityStats,communityBreakdown,teamStats,teamBreakdown,availableMonths,customerList,customerDashboard,customerKey,inflowOf,communityRulesForMonth} from './engines.js?v=31512';
+import {savePdf,openPdf,deletePdf,getPdf} from './pdf-store.js?v=31512';
+import {initParser,parsePDF} from './parser.js?v=31512';
+import {createAutoBackup,getAutoBackupMeta,getFullBackupMeta,downloadDatabaseBackup,downloadCompleteBackup,restoreCompleteBackup,getArchiveStats,formatBytes,formatDate} from './backup.js?v=31512';
+import {exportSync,readSyncFile,previewMerge,applyMerge,getSyncMeta} from './sync.js?v=31512';
+import {regulationGroups} from './regulations.js?v=31512';
+import {currentMonthKey,monthLabel,quarterFromMonth,availablePeriodMonths,ensurePeriodState,periodStatusLabel,periodStatusIcon,applyGlobalMonth} from './periods.js?v=31512';
+import {cloudLogin,cloudLogout,cloudInfo,uploadLocalFirst,downloadAndMerge,syncNow,bootstrapLinkedCloud,queueCloudPush,getCloudMeta,isCloudLinked,getCloudSession,getCloudEmail,setCloudEmail,runCloudDiagnostics,readPrimaryCloudStoreRaw,pushCloudStore} from './cloud.js?v=31512';
+import {commissionsForPeriod} from './commissions.js?v=31512';
 
 let store=loadStore(),parsed=null,pendingPdf=null;
 let guaranteedPushTimer=null,guaranteedPushInFlight=false,persistRevision=0,pushRequestedWhileBusy=false;
@@ -823,7 +823,7 @@ async function saveParsed(){
    status:'Valido',
    pdfRef:parsed.filename,
    pdfStored:false,
-   notes:'SmartTracker 3.15.11',
+   notes:'SmartTracker 3.15.12',
    services:[]
  };
 
@@ -959,6 +959,30 @@ function fullBackupTrafficLight(meta){
 }
 
 
+
+function smartDefaultDeviceName(){
+  const ua=navigator.userAgent||'',platform=navigator.platform||'';
+  if(/iPhone/i.test(ua))return 'iPhone';
+  if(/iPad/i.test(ua)||(platform==='MacIntel'&&navigator.maxTouchPoints>1))return 'iPad';
+  if(/Macintosh|Mac OS X/i.test(ua))return 'Mac';
+  return 'Dispositivo';
+}
+function ensureSmartDeviceName(){
+  let name=localStorage.getItem('smartTrackerCloudDeviceName')||localStorage.getItem('salesTrackerDeviceName')||'';
+  if(!name||name==='Dispositivo'){
+    name=smartDefaultDeviceName();
+    localStorage.setItem('smartTrackerCloudDeviceName',name);
+  }
+  const input=$('cloudDeviceName');if(input)input.value=name;
+  return name;
+}
+function setHeaderCloudLight(state,detail=''){
+  const el=$('headerCloudStatus');if(!el)return;
+  el.className=`header-cloud-status header-cloud-${state}`;
+  const label=state==='online'?'Cloud online':state==='warn'?'Cloud da verificare':state==='offline'?'Cloud offline':'Verifica Cloud';
+  el.setAttribute('aria-label',`${label}${detail?': '+detail:''}`);
+  el.title=`${label}${detail?' · '+detail:''}`;
+}
 function cloudStatusView(info){
  const badge=$('cloudBadge'),badgeText=$('cloudBadgeText');
  const login=$('cloudLoginBox'),connected=$('cloudConnectedBox');
@@ -969,6 +993,7 @@ function cloudStatusView(info){
    badgeText.textContent='Non collegato';
    login.classList.remove('hidden');
    connected.classList.add('hidden');
+   setHeaderCloudLight('offline','login richiesto');
    return;
  }
 
@@ -982,6 +1007,9 @@ function cloudStatusView(info){
 
  badge.className=`cloud-status ${err?'cloud-status-warn':linked?'cloud-status-on':'cloud-status-ready'}`;
  badgeText.textContent=err?'Offline':linked?'Sincronizzato':'Accesso OK';
+ const localCount=(store.contracts||[]).length;
+ const cloudCount=Number(row?.data?.contracts?.length||0);
+ setHeaderCloudLight(err?'offline':hasCloud&&cloudCount===localCount?'online':'warn',err||`${cloudCount}/${localCount} contratti`);
 
  $('cloudInfo').innerHTML=hasCloud
    ?`<strong>Cloud pronto</strong><br>${row.data?.contracts?.length||0} contratti · aggiornato ${formatDate(row.updated_at)}`
@@ -990,10 +1018,7 @@ function cloudStatusView(info){
  $('cloudEmptyActions').classList.toggle('hidden',hasCloud);
  $('cloudExistingActions').classList.toggle('hidden',!hasCloud);
 
- const deviceInput=$('cloudDeviceName');
- if(deviceInput&&!deviceInput.value){
-   deviceInput.value=localStorage.getItem('smartTrackerCloudDeviceName')||localStorage.getItem('salesTrackerDeviceName')||'';
- }
+ ensureSmartDeviceName();
 
  const m=info.meta||getCloudMeta();
  $('cloudLastStatus').textContent=err
@@ -1024,12 +1049,22 @@ async function runDeviceCloudDiagnostic(){
     const lm=new Map(localContracts.map(c=>[String(c.id),c])),cm=new Map(cloudContracts.map(c=>[String(c.id),c]));
     const onlyLocal=localContracts.filter(c=>c?.id&&!cm.has(String(c.id)));
     const onlyCloud=cloudContracts.filter(c=>c?.id&&!lm.has(String(c.id)));
+    const meaningfulContract=c=>({
+      client:String(c?.client||'').trim(),date:String(c?.date||''),offer:String(c?.offer||''),
+      vat:String(c?.vat||''),customerCode:String(c?.customerCode||''),prospect:!!c?.prospect,
+      agent:String(c?.agent||'Francesco'),includeAgency:c?.includeAgency!==false,
+      status:String(c?.status||'Valido'),deletedAt:c?.deletedAt||null,cloudPdf:!!c?.cloudPdf,
+      services:(c?.services||[]).map(s=>({
+        id:String(s?.id||''),service:String(s?.service||''),product:String(s?.product||''),
+        category:String(s?.category||''),qty:Number(s?.qty||0),inflowUnit:Number(s?.inflowUnit||0),mnp:!!s?.mnp
+      }))
+    });
     const differing=[];
     for(const [id,l] of lm){
       const c=cm.get(id); if(!c)continue;
-      const lp=JSON.stringify({client:l.client,date:l.date,services:l.services,prospect:l.prospect,mnp:l.mnp,cloudPdf:l.cloudPdf,deletedAt:l.deletedAt});
-      const cp=JSON.stringify({client:c.client,date:c.date,services:c.services,prospect:c.prospect,mnp:c.mnp,cloudPdf:c.cloudPdf,deletedAt:c.deletedAt});
-      if(lp!==cp)differing.push({id,local:l,cloud:c});
+      if(JSON.stringify(meaningfulContract(l))!==JSON.stringify(meaningfulContract(c))){
+        differing.push({id,local:l,cloud:c});
+      }
     }
     const same=!onlyLocal.length&&!onlyCloud.length&&!differing.length;
     const expiry=session?.expires_at?new Date(Number(session.expires_at)*1000).toLocaleString('it-IT'):'n/d';
@@ -1486,24 +1521,28 @@ function readJsonLocal(key){
   try{return JSON.parse(localStorage.getItem(key)||'null')}catch{return null}
 }
 
-async function runCloudHeartbeat(){
-  if(!getCloudSession()?.access_token){
-    return {ok:false,error:'Sessione Cloud assente'};
+async function runCloudHeartbeat(force=false){
+  const cached=readJsonLocal(CLOUD_HEARTBEAT_KEY);
+  if(!force&&cached?.checkedAt&&(Date.now()-new Date(cached.checkedAt).getTime())<60000){
+    const same=Number(cached.contracts||0)===(store.contracts||[]).length;
+    setHeaderCloudLight(cached.ok?(same?'online':'warn'):'offline',cached.ok?`${cached.contracts||0}/${(store.contracts||[]).length} contratti`:cached.error||'');
+    return cached;
   }
+  if(!getCloudSession()?.access_token){
+    const result={ok:false,checkedAt:new Date().toISOString(),error:'Sessione Cloud assente'};
+    setHeaderCloudLight('offline','login richiesto');return result;
+  }
+  setHeaderCloudLight('checking','controllo in corso');
   try{
     const raw=await readPrimaryCloudStoreRaw();
-    const result={
-      ok:true,
-      checkedAt:new Date().toISOString(),
-      contracts:raw?.data?.contracts?.length||0,
-      cloudUpdatedAt:raw?.updated_at||null
-    };
+    const result={ok:true,checkedAt:new Date().toISOString(),contracts:raw?.data?.contracts?.length||0,cloudUpdatedAt:raw?.updated_at||null};
     localStorage.setItem(CLOUD_HEARTBEAT_KEY,JSON.stringify(result));
+    setHeaderCloudLight(Number(result.contracts)===(store.contracts||[]).length?'online':'warn',`${result.contracts}/${(store.contracts||[]).length} contratti`);
     return result;
   }catch(e){
     const result={ok:false,checkedAt:new Date().toISOString(),error:e.message||String(e)};
     localStorage.setItem(CLOUD_HEARTBEAT_KEY,JSON.stringify(result));
-    return result;
+    setHeaderCloudLight('offline',result.error);return result;
   }
 }
 
@@ -2075,6 +2114,8 @@ function selectedPeriodIsClosed(){const a=store.settings.activeMonth||store.sett
 function renderAll(){renderPeriodManager();renderHome();renderAgency();renderExcellent();renderCommunity();renderTeam();renderCommissions();renderCustomers();renderRegulations();renderArchive();renderBackup()}
 document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>go(b.dataset.view));
 $('headerNewContract').onclick=()=>go('new');
+$('headerSettings').onclick=()=>go('settings');
+$('headerCloudStatus').onclick=()=>go('settings');
 $('archiveSearch').oninput=renderArchive;
 $('pdfInput').onchange=e=>e.target.files[0]&&handlePDF(e.target.files[0]);
 $('saveParsed').onclick=saveParsed;
@@ -2088,7 +2129,8 @@ $('contractDate').valueAsDate=new Date();
 await initParser();
 ensureCloudButtonDiagnosticFallback();
 
-const cloudDevice=localStorage.getItem('smartTrackerCloudDeviceName')||localStorage.getItem('salesTrackerDeviceName')||'Dispositivo';
+const cloudDevice=ensureSmartDeviceName();
+setHeaderCloudLight(getCloudSession()?.access_token?'checking':'offline',getCloudSession()?.access_token?'controllo in corso':'login richiesto');
 const cloudBoot=await bootstrapLinkedCloud(store,cloudDevice);
 if(cloudBoot?.store){
   store=cloudBoot.store;
@@ -2109,6 +2151,7 @@ const pullCloudChanges=async()=>{
       createAutoBackup(store);
       renderAll();
     }
+    runCloudHeartbeat(true).catch(()=>{});
   }catch(e){
     console.warn('Cloud auto pull',e);
   }

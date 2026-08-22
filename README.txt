@@ -1410,3 +1410,14 @@ SMARTTRACKER 3.15.11 — SICUREZZA CLOUD
 - Backup ZIP resta disponibile come copia manuale aggiuntiva, non come requisito prima di pulire Safari.
 - Messaggio cache aggiornato: dopo cancellazione dati browser è necessario rifare login; il database viene ricostruito dal Cloud.
 - “Simula dispositivo nuovo” e “Usa questo dispositivo come master” spostati dentro “Strumenti avanzati”.
+
+SMARTTRACKER 3.15.12 — HOME PULITA + IMPOSTAZIONI
+- Base 3.15.11; cloud.js IDENTICO.
+- Home liberata da Sicurezza/Cloud.
+- Nuova vista Impostazioni da ⚙︎ vicino al +.
+- Semaforo Cloud sempre visibile: verde online/allineato, arancione controllo o differenza conteggi, rosso sessione/Cloud offline.
+- Tocco sul semaforo apre Impostazioni.
+- Nome dispositivo automatico (iPhone/iPad/Mac quando riconoscibile), non più richiesto.
+- Scarica e unisci, Forza sync, Disconnetti, test recovery e master dentro Strumenti avanzati.
+- Diagnostica corretta per ignorare falsi diversi dovuti a metadati tecnici cloudPdf e valori equivalenti.
+- Heartbeat leggero con cache 60 secondi.

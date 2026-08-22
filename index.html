@@ -7,17 +7,21 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icon-192.png">
-<link rel="stylesheet" href="style.css?v=31511">
-<title>SmartTracker 3.15.11</title>
-  <link rel="apple-touch-icon" href="apple-touch-icon.png?v=31511">
+<link rel="stylesheet" href="style.css?v=31512">
+<title>SmartTracker 3.15.12</title>
+  <link rel="apple-touch-icon" href="apple-touch-icon.png?v=31512">
 </head>
 <body>
 <header class="smart-header">
   <div class="smart-header-copy">
-    <div class="title">SmartTracker 3.15.11</div>
+    <div class="title">SmartTracker 3.15.12</div>
     <div class="sub">Cruscotto commerciale personale</div>
   </div>
-  <button id="headerNewContract" class="header-new-contract" type="button" aria-label="Nuovo contratto" title="Nuovo contratto">＋</button>
+  <div class="header-actions">
+    <button id="headerNewContract" class="header-action header-new-contract" type="button" aria-label="Nuovo contratto" title="Nuovo contratto">＋</button>
+    <button id="headerSettings" class="header-action header-settings" type="button" aria-label="Impostazioni" title="Impostazioni">⚙︎</button>
+    <button id="headerCloudStatus" class="header-cloud-status header-cloud-checking" type="button" aria-label="Stato Cloud: verifica in corso" title="Cloud: verifica in corso"><span></span></button>
+  </div>
 </header>
 <main>
 <section id="home" class="view active">
@@ -30,7 +34,14 @@
   </div>
 </div>
 
-<div class="home-backup-block">
+</section>
+
+<section id="settings" class="view settings-view">
+  <div class="section-kicker">IMPOSTAZIONI</div>
+  <h2>SmartTracker</h2>
+  <p class="muted settings-lead">Cloud, sicurezza, diagnostica e strumenti tecnici. Nell’uso quotidiano SmartTracker sincronizza tutto automaticamente.</p>
+  <div class="home-backup-block settings-cloud-block">
+
   <h2>Sicurezza Cloud</h2>
 
   <div id="backupHealth"></div>
@@ -96,19 +107,11 @@
 
   <div id="cloudConnectedBox" class="hidden">
     <div id="cloudInfo" class="note"></div>
-    <label>Nome dispositivo</label>
-    <input id="cloudDeviceName" placeholder="Es. iPhone Francesco">
+    <input id="cloudDeviceName" type="hidden">
 
     <div id="cloudEmptyActions" class="actions hidden">
       <button id="cloudUploadFirst">Carica i dati locali nel Cloud</button>
     </div>
-
-    <div id="cloudExistingActions" class="actions hidden">
-      <button id="cloudDownloadMerge">Scarica e unisci dal Cloud</button>
-      <button id="cloudSyncNow" class="secondary">Forza sincronizzazione</button>
-    </div>
-
-    <button id="cloudLogout" class="secondary" style="margin-top:10px">Disconnetti Cloud</button>
     <div id="cloudLastStatus" class="field-hint prospect-auto-no"></div>
     <div class="cloud-auto-note">⚡ AutoSync attivo: le modifiche vengono inviate al Cloud e scaricate automaticamente sugli altri dispositivi.</div><div id="cloudAutoPushLiveStatus" class="field-hint prospect-auto-no">AutoPush pronto.</div>
     <div class="cloud-pdf-audit">
@@ -122,13 +125,22 @@
     <div class="cloud-device-diagnostic">
       <div class="section-kicker">DIAGNOSTICA SOLA LETTURA</div>
       <h3>Confronta dispositivo ↔ Cloud</h3>
-      <p class="muted">Non modifica dati, login o sincronizzazione. Serve a capire se iPad e Cloud hanno contratti diversi.</p>
+      <p class="muted">Non modifica nulla. Confronta questo dispositivo con il Cloud e segnala solo differenze realmente significative.</p>
       <button id="cloudRunDeviceDiagnostic" class="secondary">Esegui diagnostica Cloud</button>
       <div id="cloudDeviceDiagnosticResult" class="cloud-device-diagnostic-result hidden"></div>
     </div>
 
     <details class="cloud-advanced-tools">
       <summary>Strumenti avanzati</summary>
+      <div class="cloud-manual-actions">
+        <div class="section-kicker">SINCRONIZZAZIONE MANUALE</div>
+        <p class="muted">Normalmente non serve intervenire: AutoSync lavora in automatico. Usa questi comandi solo in caso di anomalia.</p>
+        <div id="cloudExistingActions" class="actions hidden">
+          <button id="cloudDownloadMerge">Scarica e unisci dal Cloud</button>
+          <button id="cloudSyncNow" class="secondary">Forza sincronizzazione</button>
+        </div>
+        <button id="cloudLogout" class="secondary" style="margin-top:10px">Disconnetti Cloud</button>
+      </div>
       <div class="cloud-recovery-test">
         <div class="section-kicker">TEST RIPRISTINO CLOUD</div>
         <h3>Simula dispositivo nuovo</h3>
@@ -180,6 +192,8 @@
     <p class="muted">Seleziona un backup ZIP creato da Sales Tracker. Sostituisce il database attuale e ripristina i PDF contenuti.</p>
     <input id="restoreFullInput" type="file" accept=".zip,application/zip">
     <button id="restoreFullBackup" class="secondary" style="margin-top:10px">Ripristina backup completo</button>
+  
+
   </div>
 </section>
 
@@ -300,8 +314,8 @@
 <button data-view="team"><span class="nav-icon">♟</span><span>Squadra</span></button>
 <button data-view="commissions"><span class="nav-icon">€</span><span>Provvig.</span></button>
 </nav>
-<script src="jszip.min.js?v=31511"></script>
-<script type="module" src="app.js?v=31511"></script>
+<script src="jszip.min.js?v=31512"></script>
+<script type="module" src="app.js?v=31512"></script>
 <script>
 (async()=>{
   if('serviceWorker' in navigator){
