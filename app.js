@@ -1,5 +1,5 @@
-import {uploadPdfCloud,openPdfCloud,pdfCloudExists,pdfCloudProbe} from './cloud-pdf-minimal.js?v=31512';
-import {buildReceivables,receivablesHtml,communityPrizeForPosition} from './receivables.js?v=31512';
+import {uploadPdfCloud,openPdfCloud,pdfCloudExists,pdfCloudProbe} from './cloud-pdf-minimal.js?v=31514';
+import {buildReceivables,receivablesHtml,communityPrizeForPosition} from './receivables.js?v=31514';
 
 window.addEventListener('error',(e)=>{
  try{
@@ -22,16 +22,16 @@ window.addEventListener('unhandledrejection',(e)=>{
 });
 
 
-import {loadStore,saveStore,importBackupObject} from './storage.js?v=31512';
-import {TARGETS,generalStats,agencyStats,agencyBreakdown,excellentStats,excellentBreakdown,communityStats,communityBreakdown,teamStats,teamBreakdown,availableMonths,customerList,customerDashboard,customerKey,inflowOf,communityRulesForMonth} from './engines.js?v=31512';
-import {savePdf,openPdf,deletePdf,getPdf} from './pdf-store.js?v=31512';
-import {initParser,parsePDF} from './parser.js?v=31512';
-import {createAutoBackup,getAutoBackupMeta,getFullBackupMeta,downloadDatabaseBackup,downloadCompleteBackup,restoreCompleteBackup,getArchiveStats,formatBytes,formatDate} from './backup.js?v=31512';
-import {exportSync,readSyncFile,previewMerge,applyMerge,getSyncMeta} from './sync.js?v=31512';
-import {regulationGroups} from './regulations.js?v=31512';
-import {currentMonthKey,monthLabel,quarterFromMonth,availablePeriodMonths,ensurePeriodState,periodStatusLabel,periodStatusIcon,applyGlobalMonth} from './periods.js?v=31512';
-import {cloudLogin,cloudLogout,cloudInfo,uploadLocalFirst,downloadAndMerge,syncNow,bootstrapLinkedCloud,queueCloudPush,getCloudMeta,isCloudLinked,getCloudSession,getCloudEmail,setCloudEmail,runCloudDiagnostics,readPrimaryCloudStoreRaw,pushCloudStore} from './cloud.js?v=31512';
-import {commissionsForPeriod} from './commissions.js?v=31512';
+import {loadStore,saveStore,importBackupObject} from './storage.js?v=31514';
+import {TARGETS,generalStats,agencyStats,agencyBreakdown,excellentStats,excellentBreakdown,communityStats,communityBreakdown,teamStats,teamBreakdown,availableMonths,customerList,customerDashboard,customerKey,inflowOf,communityRulesForMonth} from './engines.js?v=31514';
+import {savePdf,openPdf,deletePdf,getPdf} from './pdf-store.js?v=31514';
+import {initParser,parsePDF} from './parser.js?v=31514';
+import {createAutoBackup,getAutoBackupMeta,getFullBackupMeta,downloadDatabaseBackup,downloadCompleteBackup,restoreCompleteBackup,getArchiveStats,formatBytes,formatDate} from './backup.js?v=31514';
+import {exportSync,readSyncFile,previewMerge,applyMerge,getSyncMeta} from './sync.js?v=31514';
+import {regulationGroups} from './regulations.js?v=31514';
+import {currentMonthKey,monthLabel,quarterFromMonth,availablePeriodMonths,ensurePeriodState,periodStatusLabel,periodStatusIcon,applyGlobalMonth} from './periods.js?v=31514';
+import {cloudLogin,cloudLogout,cloudInfo,uploadLocalFirst,downloadAndMerge,syncNow,bootstrapLinkedCloud,queueCloudPush,getCloudMeta,isCloudLinked,getCloudSession,getCloudEmail,setCloudEmail,runCloudDiagnostics,readPrimaryCloudStoreRaw,pushCloudStore} from './cloud.js?v=31514';
+import {commissionsForPeriod} from './commissions.js?v=31514';
 
 let store=loadStore(),parsed=null,pendingPdf=null;
 let guaranteedPushTimer=null,guaranteedPushInFlight=false,persistRevision=0,pushRequestedWhileBusy=false;
@@ -823,7 +823,7 @@ async function saveParsed(){
    status:'Valido',
    pdfRef:parsed.filename,
    pdfStored:false,
-   notes:'SmartTracker 3.15.12',
+   notes:'SmartTracker 3.15.14',
    services:[]
  };
 
@@ -916,7 +916,49 @@ async function saveParsed(){
    alert('Contratto salvato.');
  }
 }
-function go(id){document.querySelectorAll('.view').forEach(x=>x.classList.remove('active'));document.querySelectorAll('nav button').forEach(x=>x.classList.remove('active'));$(id).classList.add('active');document.querySelector(`nav button[data-view="${id}"]`)?.classList.add('active');window.scrollTo(0,0)}
+let currentViewId=document.querySelector('.view.active')?.id||'home';
+const viewHistory=[];
+function syncHeaderNavigation(){
+ const backBtn=$('headerBack');
+ if(backBtn){
+   const show=currentViewId!=='home';
+   backBtn.classList.toggle('hidden',!show);
+   backBtn.disabled=!show;
+ }
+}
+function setActiveView(id){
+ const target=$(id); if(!target)return;
+ document.querySelectorAll('.view').forEach(x=>x.classList.remove('active'));
+ document.querySelectorAll('nav button').forEach(x=>x.classList.remove('active'));
+ target.classList.add('active');
+ document.querySelector(`nav button[data-view="${id}"]`)?.classList.add('active');
+ currentViewId=id;
+ syncHeaderNavigation();
+ window.scrollTo(0,0);
+}
+function go(id,opts={}){
+ if(!$(id))return;
+ if(opts.fromBack){
+   setActiveView(id);
+   return;
+ }
+ if(id!==currentViewId){
+   if(viewHistory[viewHistory.length-1]!==currentViewId) viewHistory.push(currentViewId);
+   setActiveView(id);
+ }else if(opts.force){
+   setActiveView(id);
+ }
+}
+function goBack(fallback='home'){
+ while(viewHistory.length){
+   const prev=viewHistory.pop();
+   if(prev&&prev!==currentViewId&&$(prev)){
+     setActiveView(prev);
+     return;
+   }
+ }
+ setActiveView(fallback);
+}
 function exportBackup(){const a=document.createElement('a'),blob=new Blob([JSON.stringify(store,null,2)],{type:'application/json'});a.href=URL.createObjectURL(blob);a.download='sales-tracker-2-backup.json';a.click()}
 async function importBackup(file){const obj=JSON.parse(await file.text());store=importBackupObject(obj);persistStore();renderAll();alert('Backup importato')}
 
@@ -980,9 +1022,13 @@ function setHeaderCloudLight(state,detail=''){
   const el=$('headerCloudStatus');if(!el)return;
   el.className=`header-cloud-status header-cloud-${state}`;
   const label=state==='online'?'Cloud online':state==='warn'?'Cloud da verificare':state==='offline'?'Cloud offline':'Verifica Cloud';
+  const shortLabel=state==='online'?'Cloud':state==='warn'?'Cloud':state==='offline'?'Cloud':'Cloud';
   el.setAttribute('aria-label',`${label}${detail?': '+detail:''}`);
   el.title=`${label}${detail?' · '+detail:''}`;
+  const txt=el.querySelector('.header-cloud-text');
+  if(txt) txt.textContent=shortLabel;
 }
+
 function cloudStatusView(info){
  const badge=$('cloudBadge'),badgeText=$('cloudBadgeText');
  const login=$('cloudLoginBox'),connected=$('cloudConnectedBox');
@@ -2113,9 +2159,11 @@ function renderPeriodManager(){
 function selectedPeriodIsClosed(){const a=store.settings.activeMonth||store.settings.currentMonth;return ensurePeriodState(store,a).status==='closed'}
 function renderAll(){renderPeriodManager();renderHome();renderAgency();renderExcellent();renderCommunity();renderTeam();renderCommissions();renderCustomers();renderRegulations();renderArchive();renderBackup()}
 document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>go(b.dataset.view));
+$('headerBack').onclick=()=>goBack();
 $('headerNewContract').onclick=()=>go('new');
-$('headerSettings').onclick=()=>go('settings');
+const __headerSettings=$('headerSettings'); if(__headerSettings)__headerSettings.onclick=()=>go('settings');
 $('headerCloudStatus').onclick=()=>go('settings');
+syncHeaderNavigation();
 $('archiveSearch').oninput=renderArchive;
 $('pdfInput').onchange=e=>e.target.files[0]&&handlePDF(e.target.files[0]);
 $('saveParsed').onclick=saveParsed;

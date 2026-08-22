@@ -1421,3 +1421,12 @@ SMARTTRACKER 3.15.12 — HOME PULITA + IMPOSTAZIONI
 - Scarica e unisci, Forza sync, Disconnetti, test recovery e master dentro Strumenti avanzati.
 - Diagnostica corretta per ignorare falsi diversi dovuti a metadati tecnici cloudPdf e valori equivalenti.
 - Heartbeat leggero con cache 60 secondi.
+
+
+SMARTTRACKER 3.15.14 — BACK NAV + HEADER ICONS
+- Base stabile 3.15.12; motore Cloud invariato.
+- Freccia indietro in testata: appare fuori dalla Home e riporta alla vista precedente senza usare il menu in basso.
+- Navigazione con cronologia semplice tra sezioni / sottosezioni.
+- Header ridisegnato con icone SVG più curate per Nuovo, Strumenti e stato Cloud.
+- Semaforo Cloud trasformato in pill compatta con icona cloud + LED di stato.
+- Nessuna modifica a cloud.js, Storage PDF, AutoPush, AutoPull o logica dati.
