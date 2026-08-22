@@ -1451,3 +1451,13 @@ SMARTTRACKER 3.15.16 — HOME COMPATTA + CLOUD OUTLINE
 - Community / Excellent / Gara Agenzia / Squadra in griglia 2x2 compatta.
 - Archivio / Regolamenti / Clienti raccolti in una sola card a righe compatte.
 - Freccia indietro e Centro controllo Cloud restano invariati.
+
+
+SMARTTRACKER 3.15.17 — REGOLAMENTI / ARCHIVIO / NAV
+- Base stabile 3.15.16; cloud.js identico.
+- Centro Regolamenti separa Regolamenti attivi e Regolamenti chiusi.
+- Storico chiuso raggruppato per sezione: Excellent, Community, Gara Agenzia.
+- Rimossa dalla UI la parola “campagne” nei Regolamenti per non confonderla con il futuro modulo Campagne.
+- Archivio: nuovo filtro Mese caricamento, basato su createdAt con fallback updatedAt/date.
+- Home: periodo chiarito con Community mensile + Excellent/Gara trimestrali.
+- Bottom navigation rinforzata come fixed footer con safe-area iOS e z-index elevato.

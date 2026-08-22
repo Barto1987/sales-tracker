@@ -1,4 +1,4 @@
-import {cloudStorageRequest,currentCloudUser} from './cloud.js?v=31516';
+import {cloudStorageRequest,currentCloudUser} from './cloud.js?v=31517';
 const BUCKET='contract-pdfs',safe=v=>String(v||'').replace(/[^a-zA-Z0-9_-]/g,'_');
 async function pathFor(id){const u=await currentCloudUser();if(!u?.id)throw new Error('Sessione Cloud non disponibile');return `${u.id}/${safe(id)}/offerta.pdf`}
 export async function uploadPdfCloud(id,file){

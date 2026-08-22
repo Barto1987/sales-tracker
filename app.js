@@ -1,5 +1,5 @@
-import {uploadPdfCloud,openPdfCloud,pdfCloudExists,pdfCloudProbe} from './cloud-pdf-minimal.js?v=31516';
-import {buildReceivables,receivablesHtml,communityPrizeForPosition} from './receivables.js?v=31516';
+import {uploadPdfCloud,openPdfCloud,pdfCloudExists,pdfCloudProbe} from './cloud-pdf-minimal.js?v=31517';
+import {buildReceivables,receivablesHtml,communityPrizeForPosition} from './receivables.js?v=31517';
 
 window.addEventListener('error',(e)=>{
  try{
@@ -22,16 +22,16 @@ window.addEventListener('unhandledrejection',(e)=>{
 });
 
 
-import {loadStore,saveStore,importBackupObject} from './storage.js?v=31516';
-import {TARGETS,generalStats,agencyStats,agencyBreakdown,excellentStats,excellentBreakdown,communityStats,communityBreakdown,teamStats,teamBreakdown,availableMonths,customerList,customerDashboard,customerKey,inflowOf,communityRulesForMonth} from './engines.js?v=31516';
-import {savePdf,openPdf,deletePdf,getPdf} from './pdf-store.js?v=31516';
-import {initParser,parsePDF} from './parser.js?v=31516';
-import {createAutoBackup,getAutoBackupMeta,getFullBackupMeta,downloadDatabaseBackup,downloadCompleteBackup,restoreCompleteBackup,getArchiveStats,formatBytes,formatDate} from './backup.js?v=31516';
-import {exportSync,readSyncFile,previewMerge,applyMerge,getSyncMeta} from './sync.js?v=31516';
-import {regulationGroups} from './regulations.js?v=31516';
-import {currentMonthKey,monthLabel,quarterFromMonth,availablePeriodMonths,ensurePeriodState,periodStatusLabel,periodStatusIcon,applyGlobalMonth} from './periods.js?v=31516';
-import {cloudLogin,cloudLogout,cloudInfo,uploadLocalFirst,downloadAndMerge,syncNow,bootstrapLinkedCloud,queueCloudPush,getCloudMeta,isCloudLinked,getCloudSession,getCloudEmail,setCloudEmail,runCloudDiagnostics,readPrimaryCloudStoreRaw,pushCloudStore} from './cloud.js?v=31516';
-import {commissionsForPeriod} from './commissions.js?v=31516';
+import {loadStore,saveStore,importBackupObject} from './storage.js?v=31517';
+import {TARGETS,generalStats,agencyStats,agencyBreakdown,excellentStats,excellentBreakdown,communityStats,communityBreakdown,teamStats,teamBreakdown,availableMonths,customerList,customerDashboard,customerKey,inflowOf,communityRulesForMonth} from './engines.js?v=31517';
+import {savePdf,openPdf,deletePdf,getPdf} from './pdf-store.js?v=31517';
+import {initParser,parsePDF} from './parser.js?v=31517';
+import {createAutoBackup,getAutoBackupMeta,getFullBackupMeta,downloadDatabaseBackup,downloadCompleteBackup,restoreCompleteBackup,getArchiveStats,formatBytes,formatDate} from './backup.js?v=31517';
+import {exportSync,readSyncFile,previewMerge,applyMerge,getSyncMeta} from './sync.js?v=31517';
+import {regulationGroups} from './regulations.js?v=31517';
+import {currentMonthKey,monthLabel,quarterFromMonth,availablePeriodMonths,ensurePeriodState,periodStatusLabel,periodStatusIcon,applyGlobalMonth} from './periods.js?v=31517';
+import {cloudLogin,cloudLogout,cloudInfo,uploadLocalFirst,downloadAndMerge,syncNow,bootstrapLinkedCloud,queueCloudPush,getCloudMeta,isCloudLinked,getCloudSession,getCloudEmail,setCloudEmail,runCloudDiagnostics,readPrimaryCloudStoreRaw,pushCloudStore} from './cloud.js?v=31517';
+import {commissionsForPeriod} from './commissions.js?v=31517';
 
 let store=loadStore(),parsed=null,pendingPdf=null;
 let guaranteedPushTimer=null,guaranteedPushInFlight=false,persistRevision=0,pushRequestedWhileBusy=false;
@@ -204,7 +204,7 @@ function renderHome(){
    </div>
    <div class="home-quick-row section-link" data-go="regulations">
      <span class="home-quick-icon" aria-hidden="true">◉</span>
-     <div><strong>REGOLAMENTI</strong><span>4 campagne e storico</span></div><b>›</b>
+     <div><strong>REGOLAMENTI</strong><span>Regole attive e storico</span></div><b>›</b>
    </div>
    <div class="home-quick-row section-link" data-go="customers">
      <span class="home-quick-icon" aria-hidden="true">♙</span>
@@ -727,18 +727,37 @@ function openCustomerDashboard(key){
  dash.querySelectorAll('.open-customer-cloud-pdf').forEach(b=>b.onclick=()=>openPdfCloudMinimal(b.dataset.pdfId))};
  $('customerYearFilter').onchange=timeline;$('customerServiceFilter').onchange=timeline;timeline();dash.scrollIntoView({behavior:'smooth',block:'start'});
 }
+function archiveUploadMonth(c){
+ const raw=c?.createdAt||c?.updatedAt||c?.date||'';
+ const m=String(raw).match(/^(\d{4})-(\d{2})/);
+ return m?`${m[1]}-${m[2]}`:'';
+}
+function archiveMonthLabel(key){
+ if(!key)return 'Senza data';
+ return monthLabel(key);
+}
 function renderArchive(){
- const q=($('archiveSearch').value||'').toLowerCase();
+ const search=$('archiveSearch'),monthSel=$('archiveMonth');
+ const q=(search?.value||'').toLowerCase();
  const agent=$('archiveAgent')?.value||'Tutti';
  const agency=$('archiveAgency')?.value||'Tutti';
+
+ if(monthSel){
+   const current=monthSel.value||'Tutti';
+   const months=[...new Set((store.contracts||[]).map(archiveUploadMonth).filter(Boolean))].sort().reverse();
+   monthSel.innerHTML=`<option value="Tutti">Tutti i mesi</option>${months.map(m=>`<option value="${m}">${archiveMonthLabel(m)}</option>`).join('')}`;
+   monthSel.value=months.includes(current)?current:'Tutti';
+ }
+ const month=monthSel?.value||'Tutti';
  const rows=[...store.contracts].reverse().filter(c=>{
    const text=(c.client+' '+c.offer+' '+c.vat+' '+(c.customerCode||'')+' '+c.services.map(s=>s.product).join(' ')).toLowerCase();
    const agentOk=agent==='Tutti'||(c.agent||'Francesco')===agent;
    const included=c.includeAgency!==false;
    const agencyOk=agency==='Tutti'||(agency==='Inclusi'&&included)||(agency==='Esclusi'&&!included);
-   return text.includes(q)&&agentOk&&agencyOk;
+   const monthOk=month==='Tutti'||archiveUploadMonth(c)===month;
+   return text.includes(q)&&agentOk&&agencyOk&&monthOk;
  });
- $('archiveList').innerHTML=rows.length?rows.map(archiveItem).join(''):'<div class="card muted">Nessun contratto.</div>';
+ $('archiveList').innerHTML=rows.length?rows.map(archiveItem).join(''):'<div class="card muted">Nessun contratto con questi filtri.</div>';
  document.querySelectorAll('[data-del]').forEach(b=>b.onclick=async()=>{if(confirm('Eliminare il contratto?')){const id=b.dataset.del;await deletePdf(id).catch(()=>{});store.deletedContracts=store.deletedContracts||{};store.deletedContracts[id]=new Date().toISOString();store.contracts=store.contracts.filter(c=>c.id!==id);persistStore();renderAll()}});
  document.querySelectorAll('[data-add-cloud-pdf]').forEach(b=>b.onclick=()=>addPdfCloudMinimal(b.dataset.addCloudPdf));
  document.querySelectorAll('[data-open-cloud-pdf]').forEach(b=>b.onclick=()=>openPdfCloudMinimal(b.dataset.openCloudPdf));
@@ -825,7 +844,7 @@ async function saveParsed(){
    status:'Valido',
    pdfRef:parsed.filename,
    pdfStored:false,
-   notes:'SmartTracker 3.15.16',
+   notes:'SmartTracker 3.15.17',
    services:[]
  };
 
@@ -1785,47 +1804,51 @@ async function renderBackup(){
 
 
 
-function regulationVisualStatus(r){
- const month=(r.start||'').slice(0,7);
- if(r.cadence==='Mensile'){
-   const status=store.periodStates?.[month]?.status;
-   if(status==='closed')return {label:'Chiuso',cls:'closed'};
-   if(status==='verified')return {label:'Verificato',cls:'verified'};
- }
- return {label:'Attivo',cls:'active'};
+function regulationPeriodState(r){
+ const active=store.settings.activeMonth||store.settings.currentMonth||currentMonthKey();
+ const probe=`${active}-15`;
+ const isReference=r.cadence==='Riferimento';
+ const isActive=isReference||((!r.start||probe>=r.start)&&(!r.end||probe<=r.end));
+ if(isActive)return {label:isReference?'Riferimento':'Attivo',cls:'active',active:true};
+ return {label:'Chiuso',cls:'closed',active:false};
 }
-
+function regulationVisualStatus(r){return regulationPeriodState(r)}
+function regulationCardHtml(r){
+ const rs=regulationVisualStatus(r);
+ return `<div class="card regulation-card" data-regulation-id="${r.id}">
+   <div class="regulation-head">
+     <div>
+       <div class="regulation-type">${r.type} · ${r.cadence}</div>
+       <strong>${r.title}</strong>
+       <div class="muted">${r.periodLabel}</div>
+     </div>
+     <div class="regulation-status regulation-status-${rs.cls}">${rs.label}</div>
+   </div>
+   <div class="muted" style="margin-top:10px">${r.summary}</div>
+ </div>`;
+}
 function renderRegulations(){
  const list=$('regulationsList'),detail=$('regulationDetail');
  if(!list||!detail)return;
-
- const groups=regulationGroups();
- list.classList.remove('hidden');
- detail.classList.add('hidden');
-
- list.innerHTML=groups.map(group=>`<div class="regulation-group">
-   <h3>${group.type}</h3>
-   ${group.items.map(r=>{
-     const rs=regulationVisualStatus(r);
-     return `<div class="card regulation-card" data-regulation-id="${r.id}">
-       <div class="regulation-head">
-         <div>
-           <div class="regulation-type">${r.cadence}</div>
-           <strong>${r.title}</strong>
-           <div class="muted">${r.periodLabel}</div>
-         </div>
-         <div class="regulation-status regulation-status-${rs.cls}">${rs.label}</div>
-       </div>
-       <div class="muted" style="margin-top:10px">${r.summary}</div>
-     </div>`;
-   }).join('')}
- </div>`).join('');
-
- document.querySelectorAll('[data-regulation-id]').forEach(card=>{
-   card.onclick=()=>openRegulation(card.dataset.regulationId);
- });
+ const all=regulationGroups().flatMap(g=>g.items);
+ const active=all.filter(r=>regulationPeriodState(r).active).sort((a,b)=>a.type.localeCompare(b.type)||b.start.localeCompare(a.start));
+ const closed=all.filter(r=>!regulationPeriodState(r).active);
+ const closedTypes=['Excellent','Community','Gara Agenzia'].filter(type=>closed.some(r=>r.type===type));
+ list.classList.remove('hidden');detail.classList.add('hidden');
+ list.innerHTML=`
+   <div class="regulations-active-section">
+     <div class="regulations-section-head"><div><div class="section-kicker">IN CORSO</div><h3>Regolamenti attivi</h3></div><span class="reg-count">${active.length}</span></div>
+     ${active.length?active.map(regulationCardHtml).join(''):'<div class="card muted">Nessun regolamento attivo per il periodo selezionato.</div>'}
+   </div>
+   <div class="regulations-history-section">
+     <div class="regulations-section-head"><div><div class="section-kicker">ARCHIVIO REGOLE</div><h3>Regolamenti chiusi</h3></div><span class="reg-count">${closed.length}</span></div>
+     ${closedTypes.length?closedTypes.map(type=>{
+       const items=closed.filter(r=>r.type===type).sort((a,b)=>b.start.localeCompare(a.start));
+       return `<details class="reg-history-group"><summary><span>${type}</span><b>${items.length}</b></summary><div class="reg-history-items">${items.map(regulationCardHtml).join('')}</div></details>`;
+     }).join(''):'<div class="card muted">Lo storico comparirà qui quando termineranno i periodi attivi.</div>'}
+   </div>`;
+ document.querySelectorAll('[data-regulation-id]').forEach(card=>card.onclick=()=>openRegulation(card.dataset.regulationId));
 }
-
 function openRegulation(id){
  const all=regulationGroups().flatMap(g=>g.items);
  const r=all.find(x=>x.id===id);
@@ -2171,7 +2194,7 @@ function renderPeriodManager(){
  badge.textContent=`${periodStatusIcon(state.status)} ${periodStatusLabel(state.status)}`;
  badge.disabled=state.status==='closed';
  badge.title=state.status==='working'?'Tocca per segnare il mese come Verificato':state.status==='verified'?'Tocca per rimettere il mese In lavorazione':'Mese chiuso';
- $('activeQuarterInfo').textContent=`${q.label} · Excellent + Gara Agenzia`;
+ $('activeQuarterInfo').textContent=`Community: ${monthLabel(active)} · Excellent/Gara: ${q.label}`;
  const closeBtn=$('togglePeriodClosed');
  closeBtn.textContent=state.status==='closed'?'Riapri mese':'Chiudi mese';
  closeBtn.classList.toggle('period-reopen-button',state.status==='closed');
@@ -2199,6 +2222,7 @@ const __headerSettings=$('headerSettings'); if(__headerSettings)__headerSettings
 $('headerCloudStatus').onclick=()=>go('settings');
 syncHeaderNavigation();
 $('archiveSearch').oninput=renderArchive;
+$('archiveMonth').onchange=renderArchive;
 $('pdfInput').onchange=e=>e.target.files[0]&&handlePDF(e.target.files[0]);
 $('saveParsed').onclick=saveParsed;
 if($('exportBtn'))$('exportBtn').onclick=exportBackup;

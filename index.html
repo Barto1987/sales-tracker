@@ -7,9 +7,9 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icon-192.png">
-<link rel="stylesheet" href="style.css?v=31516">
-<title>SmartTracker 3.15.16</title>
-  <link rel="apple-touch-icon" href="apple-touch-icon.png?v=31516">
+<link rel="stylesheet" href="style.css?v=31517">
+<title>SmartTracker 3.15.17</title>
+  <link rel="apple-touch-icon" href="apple-touch-icon.png?v=31517">
 </head>
 <body>
 <header class="smart-header">
@@ -18,7 +18,7 @@
       <svg class="header-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M15.5 19 8.5 12l7-7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
     </button>
     <div class="smart-header-copy">
-      <div class="title">SmartTracker 3.15.16</div>
+      <div class="title">SmartTracker 3.15.17</div>
       <div class="sub">Cruscotto commerciale personale</div>
     </div>
   </div>
@@ -309,15 +309,15 @@
 <section id="regulations" class="view">
   <h2>Centro Regolamenti</h2>
   <div class="card regulations-intro">
-    <h3>Regole e storico campagne</h3>
-    <p class="muted">Le nuove campagne verranno aggiunte senza sovrascrivere quelle precedenti. Ogni contratto resta collegato al periodo in cui è stato caricato.</p>
+    <h3>Regolamenti attivi e storico</h3>
+    <p class="muted">In alto trovi le regole valide per il periodo selezionato. I regolamenti conclusi restano disponibili nello storico, ordinati per sezione.</p>
   </div>
   <div id="regulationsList"></div>
   <div id="regulationDetail" class="hidden"></div>
 </section>
 
 <section id="archive" class="view">
-<div id="pdfDiagnosticPanel"></div><h2>Archivio</h2><div class="card"><input id="archiveSearch" placeholder="Cerca cliente, P.IVA, codice cliente, offerta o prodotto"><label>Agente</label><select id="archiveAgent"><option>Tutti</option><option>Francesco</option><option>Jacopo</option><option>Luciano</option></select><label>Gara Agenzia</label><select id="archiveAgency"><option>Tutti</option><option>Inclusi</option><option>Esclusi</option></select></div><div id="archiveList"></div></section>
+<div id="pdfDiagnosticPanel"></div><h2>Archivio</h2><div class="card archive-filters-card"><input id="archiveSearch" placeholder="Cerca cliente, P.IVA, codice cliente, offerta o prodotto"><div class="archive-filter-grid"><div><label>Mese caricamento</label><select id="archiveMonth"><option value="Tutti">Tutti i mesi</option></select></div><div><label>Agente</label><select id="archiveAgent"><option>Tutti</option><option>Francesco</option><option>Jacopo</option><option>Luciano</option></select></div></div><label>Gara Agenzia</label><select id="archiveAgency"><option>Tutti</option><option>Inclusi</option><option>Esclusi</option></select></div><div id="archiveList"></div></section>
 </main>
 <nav class="app-nav">
 <button class="active" data-view="home"><span class="nav-icon">⌂</span><span>Home</span></button>
@@ -327,8 +327,8 @@
 <button data-view="team"><span class="nav-icon">♟</span><span>Squadra</span></button>
 <button data-view="commissions"><span class="nav-icon">€</span><span>Provvig.</span></button>
 </nav>
-<script src="jszip.min.js?v=31516"></script>
-<script type="module" src="app.js?v=31516"></script>
+<script src="jszip.min.js?v=31517"></script>
+<script type="module" src="app.js?v=31517"></script>
 <script>
 (async()=>{
   if('serviceWorker' in navigator){
